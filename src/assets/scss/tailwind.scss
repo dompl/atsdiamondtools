@@ -2,10 +2,52 @@
 This file is the entry point for Tailwind CSS.
 It will be processed by PostCSS to generate the final tailwind.css file.
 */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-//
-// @theme {
-// 	--font-open-sans: "Open Sans", "sans-serif";
-// }
+
+/* ATS Button Components */
+@layer components {
+	.ats-btn {
+		@apply px-3 py-1 rounded inline-flex justify-center items-center gap-3;
+		@apply text-xs font-bold uppercase leading-5 transition-colors;
+	}
+
+	.ats-btn-sm {
+		@apply text-xs px-3 py-1;
+	}
+
+	.ats-btn-md {
+		@apply text-sm px-4 py-2;
+	}
+
+	.ats-btn-lg {
+		@apply text-base px-6 py-3;
+	}
+
+	.ats-btn-yellow {
+		@apply bg-yellow-400 text-black;
+	}
+
+	.ats-btn-yellow:hover {
+		@apply bg-yellow-500;
+	}
+
+	.ats-btn-black {
+		@apply bg-stone-600 text-white;
+	}
+
+	.ats-btn-black:hover {
+		@apply bg-stone-700;
+	}
+
+	.ats-btn-outline {
+		@apply border-2 border-stone-600 text-stone-600 bg-transparent;
+	}
+
+	.ats-btn-outline:hover {
+		@apply bg-stone-600 text-white;
+	}
+}
