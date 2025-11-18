@@ -1,0 +1,131 @@
+/* /assets/css/frontend-editor.css */
+
+.skyline-editor-container {
+	position: relative;
+	/* Add a little padding to the top to make space for the buttons */
+	padding-top: 40px;
+	margin-top: -40px;
+}
+
+.skyline-editor-controls {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 10;
+	display: flex;
+	gap: 6px;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s, visibility 0.2s;
+}
+
+/* Show the controls on hover of the container */
+.skyline-editor-container:hover .skyline-editor-controls {
+	opacity: 1;
+	visibility: visible;
+}
+
+.skyline-editor-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background-color: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	cursor: pointer;
+	transition: all 0.15s ease-in-out;
+}
+
+.skyline-editor-btn:hover {
+	border-color: #007cba;
+	color: #007cba;
+}
+
+.skyline-editor-btn svg {
+	width: 16px;
+	height: 16px;
+	color: #50575e;
+}
+.skyline-editor-btn:hover svg {
+	color: #007cba;
+}
+
+/* === State Management === */
+
+/* Default state: only 'edit' button is visible in the controls */
+.skyline-editor-container .save-btn,
+.skyline-editor-container .mode-btn {
+	display: none;
+}
+
+/* Editing state: 'save' and 'mode' are visible, 'edit' is hidden */
+.skyline-editor-container.is-editing .edit-btn {
+	display: none;
+}
+.skyline-editor-container.is-editing .save-btn,
+.skyline-editor-container.is-editing .mode-btn {
+	display: inline-flex;
+}
+
+/* Give the editable area a visual cue when active */
+.skyline-editor-container.is-editing .skyline-editable-content,
+.skyline-editor-container.is-editing .skyline-html-editor {
+	outline: 2px solid #007cba;
+	background-color: #f0f6fc;
+}
+
+/* === HTML Mode Toggling === */
+
+.skyline-html-editor {
+	display: none;
+	width: 100%;
+	min-height: 200px;
+	border: none;
+	padding: 10px;
+	font-family: monospace;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #1e1e1e;
+	background-color: #f0f6fc;
+	resize: vertical;
+}
+
+.skyline-editor-container.is-html-mode .skyline-editable-content {
+	display: none; /* Hide visual editor */
+}
+.skyline-editor-container.is-html-mode .skyline-html-editor {
+	display: block; /* Show HTML editor */
+}
+
+/* Icon toggling for mode button */
+.skyline-editor-btn .icon-html {
+	display: none;
+}
+.skyline-editor-container.is-html-mode .mode-btn .icon-visual {
+	display: none;
+}
+.skyline-editor-container.is-html-mode .mode-btn .icon-html {
+	display: inline-block;
+}
+
+/* === Save Button States === */
+.skyline-editor-btn.is-saving {
+	cursor: wait;
+	background-color: #555;
+	border-color: #555;
+}
+.skyline-editor-btn.is-saving svg {
+	color: #fff;
+}
+
+.skyline-editor-btn.is-success {
+	background-color: #4ab866;
+	border-color: #4ab866;
+}
+.skyline-editor-btn.is-success svg {
+	color: #fff;
+}

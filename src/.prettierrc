@@ -1,0 +1,26 @@
+{
+    "trailingComma": "es5",
+    "singleQuote": false,
+    "packageManager": "yarn",
+    "printWidth": 300,
+    "useTabs": true,
+    "bracketSpacing": true,
+    "proseWrap": "always",
+    "htmlWhitespaceSensitivity": "ignore",
+    "overrides": [
+        {
+            "files": "*.js*",
+            "options": {
+                "printWidth": 200,
+                "singleQuote": true
+            }
+        },
+        {
+            "files": "*.scss*",
+            "options": {
+                "printWidth": 200,
+                "tabWidth": 4
+            }
+        }
+    ]
+}

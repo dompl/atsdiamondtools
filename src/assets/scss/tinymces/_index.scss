@@ -1,0 +1,29 @@
+// TinyMCE Editor Styles
+// Styles that will be applied inside the TinyMCE editor iframe
+
+// Apply basic theme typography
+.mce-content-body,
+body.mce-content-body {
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #333; // Ensure good contrast
+  
+  // Headings
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.3;
+  }
+  
+  // Ensure paragraphs are visible
+  p {
+    line-height: 1.6;
+    margin: 1em 0;
+    color: inherit;
+  }
+  
+  // Lists
+  ul, ol {
+    padding-left: 1.5rem;
+  }
+}

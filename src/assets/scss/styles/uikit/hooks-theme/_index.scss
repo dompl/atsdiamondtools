@@ -1,0 +1,91 @@
+// Elements
+@forward "link";
+@forward "heading";
+@forward "divider";
+@forward "list";
+@forward "description-list";
+@forward "table";
+@forward "icon";
+@forward "form-range";
+@forward "form"; // After: Icon, Form Range
+@forward "button";
+@forward "progress";
+
+// Layout
+@forward "section";
+@forward "container";
+@forward "tile";
+@forward "card";
+
+// Common
+@forward "close"; // After: Icon
+@forward "spinner"; // After: Icon
+@forward "totop"; // After: Icon
+@forward "marker"; // After: Icon
+@forward "alert"; // After: Close
+@forward "placeholder";
+@forward "badge";
+@forward "label";
+@forward "overlay"; // After: Icon
+@forward "article";
+@forward "comment";
+@forward "search"; // After: Icon
+
+// JavaScript
+@forward "accordion";
+@forward "drop"; // After: Card
+@forward "dropbar";
+@forward "dropnav"; // After: Dropbar
+@forward "modal"; // After: Close
+@forward "slideshow";
+@forward "slider";
+@forward "sticky";
+@forward "offcanvas";
+@forward "switcher";
+@forward "leader";
+@forward "notification";
+@forward "tooltip";
+@forward "sortable";
+@forward "countdown";
+// Scrollspy
+// Toggle
+// Scroll
+
+@forward "thumbnav";
+@forward "iconnav";
+
+@forward "grid"; // After: Thumbnav, Iconnav
+
+// Navs
+@forward "nav";
+@forward "navbar"; // After: Card, Grid, Nav, Icon, Search
+@forward "subnav";
+@forward "breadcrumb";
+@forward "pagination";
+@forward "tab";
+@forward "slidenav"; // After: Icon
+@forward "dotnav";
+@forward "dropdown"; // After: Card, Nav
+@forward "lightbox"; // After: Close, Slidenav
+
+// Utilities
+@forward "animation";
+@forward "width";
+@forward "height";
+@forward "text";
+@forward "column";
+@forward "cover";
+@forward "background";
+@forward "align";
+@forward "svg";
+@forward "utility";
+@forward "flex"; // After: Utility
+@forward "margin";
+@forward "padding";
+@forward "position";
+@forward "transition";
+@forward "visibility";
+@forward "inverse";
+
+// Need to be loaded last
+@forward "print";

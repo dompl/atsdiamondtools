@@ -1,0 +1,11 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://connect.advancedcustomfields.com"
+        }
+    ],
+    "require": {
+        "wpengine/advanced-custom-fields-pro": "*"
+    }
+}

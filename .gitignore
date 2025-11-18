@@ -1,0 +1,41 @@
+# Node modules
+node_modules/
+src/acf-export
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.nvmrc
+
+# Editor and IDE files
+.vscode/
+*.sublime*
+
+# Composer dependencies
+src/vendor/
+
+# Gulp build output
+build/
+
+# Config and temporary files
+*.lock
+package-lock.json
+yarn.lock
+auth.json
+
+# Git
+.gitmodules
+
+# Claude Code AI assistant files
+.claude/
+capture-screenshot.js
+CLAUDE.md
+
+# Font files
+src/assets/fonts/*.woff
+src/assets/fonts/*.woff2

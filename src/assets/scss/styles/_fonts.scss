@@ -1,0 +1,11 @@
+@for $i from 1 through 9 {
+	$weight: $i * 100;
+
+	.noto-serif-#{$weight} {
+		font-family: "Noto Serif", serif !important;
+		font-optical-sizing: auto;
+		font-weight: #{$weight};
+		font-style: normal;
+		font-variation-settings: "wdth" #{$weight};
+	}
+}

@@ -1,0 +1,131 @@
+@use "sass:math";
+@use "../frameworks/uikit/variables-theme" as var;
+@mixin default-row-gap() {
+	row-gap: clamp(1rem, 3vw, 2rem);
+}
+@mixin default-column-gap() {
+	column-gap: clamp(2rem, 3vw, 4rem);
+}
+// SCSS Function for converting px to rem
+@function rem($px-value, $base-font-size: 16) {
+	@return math.div($px-value, $base-font-size) + rem;
+}
+
+@mixin font($min: null, $max: null, $line: null, $width: 3vw) {
+	@if $min != null and $max != null {
+		font-size: clamp(rem($min), $width, rem($max));
+	}
+	@if $min == null {
+		line-height: var(--line-height-base);
+	} @else {
+		line-height: $line;
+	}
+	@content;
+}
+
+@mixin font-size($min: null, $max: null, $line: null, $width: 3vw) {
+	@if $min != null and $max != null {
+		font-size: clamp(rem($min), $width, rem($max));
+	}
+	@if $min == null {
+		line-height: var(--line-height-base);
+	} @else {
+		line-height: $line;
+	}
+
+	@content;
+}
+@mixin hover() {
+	&:hover,
+	&:active,
+	&:focus {
+		@content;
+	}
+}
+
+@mixin font-styles() {
+	@include font(14, 16);
+}
+
+@function clamper($min: 16, $max: 64, $screen: 3, $base-font-size: 16) {
+	$n: math.div($min, $base-font-size) + rem;
+	$x: math.div($max, $base-font-size) + rem;
+	@return clamp(#{$n}, #{$screen}vw, #{$x});
+}
+
+@mixin form-field-reset($type: "select") {
+	@if $type == "select" {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		background-color: transparent;
+		border: none;
+		outline: none;
+		box-sizing: border-box;
+		cursor: pointer;
+		&:hover {
+			outline: none;
+			border: none;
+		}
+		&::-ms-expand {
+			display: none;
+		}
+	}
+	@content;
+}
+
+@mixin from($media: small) {
+	@if $media == small {
+		$breakpoint: $breakpoint-small;
+	} @else if $media == medium {
+		$breakpoint: $breakpoint-medium;
+	} @else if $media == large {
+		$breakpoint: $breakpoint-large;
+	} @else if $media == xlarge {
+		$breakpoint: $breakpoint-xlarge;
+	}
+	@media (min-width: $breakpoint) {
+		@content;
+	}
+}
+
+@mixin to($media: small) {
+	@if $media == small {
+		$breakpoint: $breakpoint-small;
+	} @else if $media == medium {
+		$breakpoint: $breakpoint-medium;
+	} @else if $media == large {
+		$breakpoint: $breakpoint-large;
+	} @else if $media == xlarge {
+		$breakpoint: $breakpoint-xlarge;
+	}
+	@media (max-width: $breakpoint) {
+		@content;
+	}
+}
+
+@mixin between($from-media: small, $to-media: medium) {
+	@if $from-media == small {
+		$from-breakpoint: $breakpoint-small;
+	} @else if $from-media == medium {
+		$from-breakpoint: $breakpoint-medium;
+	} @else if $from-media == large {
+		$from-breakpoint: $breakpoint-large;
+	} @else if $from-media == xlarge {
+		$from-breakpoint: $breakpoint-xlarge;
+	}
+
+	@if $to-media == small {
+		$to-breakpoint: $breakpoint-small;
+	} @else if $to-media == medium {
+		$to-breakpoint: $breakpoint-medium;
+	} @else if $to-media == large {
+		$to-breakpoint: $breakpoint-large;
+	} @else if $to-media == xlarge {
+		$to-breakpoint: $breakpoint-xlarge;
+	}
+
+	@media (min-width: $from-breakpoint) and (max-width: $to-breakpoint) {
+		@content;
+	}
+}

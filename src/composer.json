@@ -1,0 +1,39 @@
+{
+    "name": "dom/project",
+    "description": "Blank WordPress Template",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SkylineWPChild\\": "Classes/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://connect.advancedcustomfields.com"
+        }
+    ],
+    "require": {
+        "wpengine/advanced-custom-fields-pro": "^6.4",
+        "algolia/algoliasearch-client-php": "^4.0"
+    },
+    "extra": {
+        "installer-paths": {
+            "../../../plugins/{$name}/": [
+                "type:wordpress-plugin"
+            ]
+        }
+    },
+    "config": {
+        "vendor-dir": "vendor",
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    },
+    "authors": [
+        {
+            "name": "Dom",
+            "email": "info@redfrogstudio.co.uk"
+        }
+    ]
+}

@@ -1,0 +1,8 @@
+@use "sass:math";
+@use "sass:string";
+@function slice($value) {
+	@return map-get($slices, $value);
+}
+@function content-slice() {
+	@return #{math.div(500, 16)}rem;
+}

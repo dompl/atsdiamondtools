@@ -1,0 +1,11 @@
+/*
+This file is the entry point for Tailwind CSS.
+It will be processed by PostCSS to generate the final tailwind.css file.
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+//
+// @theme {
+// 	--font-open-sans: "Open Sans", "sans-serif";
+// }

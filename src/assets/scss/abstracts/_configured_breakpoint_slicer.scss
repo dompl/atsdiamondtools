@@ -1,0 +1,17 @@
+// src/assets/scss/abstracts/_configured_breakpoint_slicer.scss
+
+// Move @forward to the top of the file
+@forward "node_modules/breakpoint-slicer" with (
+	$slices: (
+		xs: 0,
+		sm: 576px,
+		md: 768px,
+		lg: 992px,
+		xl: 1200px,
+		xxl: 1400px,
+	)
+);
+
+// After @forward, other code can go here
+
+@use "sass:map";
