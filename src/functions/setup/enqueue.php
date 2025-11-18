@@ -6,7 +6,6 @@
  * This function enqueues the parent theme styles and scripts along with the child theme's additional assets,
  * ensuring that no styles are loaded twice.
  */
-
 // Enqueue front-end styles and scripts.
 add_action( 'wp_enqueue_scripts', function () {
     // If a child theme is active, manually enqueue the parent's stylesheet.

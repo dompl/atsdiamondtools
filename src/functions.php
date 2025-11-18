@@ -28,7 +28,12 @@ class SkylineWPChildThemeSetup {
      */
     public function skyline_add_custom_acf_directories( $directories ) {
         // Add your custom directories to the array
-        $directories[] = get_stylesheet_directory() . '/functions/**';
+        $directories[] = get_stylesheet_directory() . '/functions/theme';
+        $directories[] = get_stylesheet_directory() . '/functions/options';
+        $directories[] = get_stylesheet_directory() . '/functions/shortcodes';
+        $directories[] = get_stylesheet_directory() . '/functions/acf/shared/output';
+        $directories[] = get_stylesheet_directory() . '/functions/setup';
+        $directories[] = get_stylesheet_directory() . '/functions/plugins';
         return $directories;
     }
 

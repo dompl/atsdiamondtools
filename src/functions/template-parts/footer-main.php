@@ -38,8 +38,8 @@ $newsletter_disclaimer = str_replace( '%privacy_policy%', $privacy_policy_link, 
 
 <footer class="rfs-ref-footer bg-white">
     <!-- Main Footer Section -->
-    <div class="rfs-ref-footer-main pt-16">
-        <div class="rfs-ref-footer-container max-w-screen-2xl mx-auto px-4">
+    <div class="rfs-ref-footer-main pt-16 pb-8">
+        <div class="rfs-ref-footer-container container px-4">
             <div class="rfs-ref-footer-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
                 <!-- Column 1: Company Info -->
                 <div class="rfs-ref-footer-col-info space-y-4">
@@ -183,8 +183,9 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
     </div>
 
     <!-- Bottom Bar -->
-    <div class="rfs-ref-footer-bottom border-t border-gray-200 py-4">
+    <div class="rfs-ref-footer-bottom pb-4 ">
         <div class="rfs-ref-footer-bottom-container max-w-screen-2xl mx-auto px-4">
+			<div class="border-t border-primary-300 pt-8">
             <div class="rfs-ref-footer-bottom-content flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
                 <?php if ( $copyright_text ): ?>
                     <p class="rfs-ref-footer-copyright text-gray-600 text-xs">
@@ -205,6 +206,7 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
                         </span>
                     <?php endif; ?>
                 </div>
+            </div>
             </div>
         </div>
     </div>
