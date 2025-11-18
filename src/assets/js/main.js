@@ -4,6 +4,10 @@
 // prettier-ignore
 import 'flowbite';
 
+// Active Components
+import './components/newsletter.js';
+
+// Inactive Components
 // import './components/calculator.js';
 // import './components/container.js';
 // import './components/hero-slider.js';

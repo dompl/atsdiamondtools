@@ -40,50 +40,54 @@ $newsletter_disclaimer = str_replace( '%privacy_policy%', $privacy_policy_link, 
     <!-- Main Footer Section -->
     <div class="rfs-ref-footer-main pt-16 pb-8">
         <div class="rfs-ref-footer-container container px-4">
-            <div class="rfs-ref-footer-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            <div class="rfs-ref-footer-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
                 <!-- Column 1: Company Info -->
-                <div class="rfs-ref-footer-col-info space-y-4">
-                    <?php if ( $footer_logo && isset( $footer_logo['url'] ) ): ?>
-                        <div class="rfs-ref-footer-logo mb-4">
-                            <img src="<?php echo esc_url( $footer_logo['url'] ); ?>"
-                                 alt="<?php echo esc_attr( $footer_logo['alt'] ?? get_bloginfo( 'name' ) ); ?>"
-                                 class="h-auto max-w-full" />
-                        </div>
-                    <?php endif; ?>
+                <div class="rfs-ref-footer-col-info lg:col-span-4 flex flex-col justify-between">
+                    <div class="rfs-ref-footer-top-content space-y-4">
+                        <?php if ( $footer_logo && isset( $footer_logo['url'] ) ): ?>
+                            <div class="rfs-ref-footer-logo mb-4">
+                                <img src="<?php echo esc_url( $footer_logo['url'] ); ?>"
+                                     alt="<?php echo esc_attr( $footer_logo['alt'] ?? get_bloginfo( 'name' ) ); ?>"
+                                     class="h-auto max-w-full" />
+                            </div>
+                        <?php endif; ?>
 
-                    <?php if ( $footer_description ): ?>
-                        <p class="rfs-ref-footer-description text-gray-600 text-sm leading-relaxed">
-                            <?php echo esc_html( $footer_description ); ?>
-                        </p>
-                    <?php endif; ?>
+                        <?php if ( $footer_description ): ?>
+                            <p class="rfs-ref-footer-description text-gray-600 text-sm leading-relaxed">
+                                <?php echo esc_html( $footer_description ); ?>
+                            </p>
+                        <?php endif; ?>
+                    </div>
 
-                    <?php if ( $footer_telephone ): ?>
-                        <div class="rfs-ref-footer-phone flex items-center space-x-2">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                            </svg>
-                            <a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $footer_telephone ) ); ?>"
-                               class="text-gray-600 hover:text-primary-800 text-base font-bold">
-                                <?php echo esc_html( $footer_telephone ); ?>
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                    <div class="rfs-ref-footer-contact-info space-y-4 mt-4">
+                        <?php if ( $footer_telephone ): ?>
+                            <div class="rfs-ref-footer-phone flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                </svg>
+                                <a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $footer_telephone ) ); ?>"
+                                   class="text-gray-600 hover:text-primary-800 text-base font-bold">
+                                    <?php echo esc_html( $footer_telephone ); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
 
-                    <?php if ( $footer_email ): ?>
-                        <div class="rfs-ref-footer-email flex items-center space-x-2">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                            <a href="mailto:<?php echo esc_attr( $footer_email ); ?>"
-                               class="text-gray-600 hover:text-primary-800 text-base font-bold">
-                                <?php echo esc_html( $footer_email ); ?>
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                        <?php if ( $footer_email ): ?>
+                            <div class="rfs-ref-footer-email flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                <a href="mailto:<?php echo esc_attr( $footer_email ); ?>"
+                                   class="text-gray-600 hover:text-primary-800 text-base font-bold">
+                                    <?php echo esc_html( $footer_email ); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Column 2: Useful Links -->
-                <div class="rfs-ref-footer-col-links">
+                <div class="rfs-ref-footer-col-links lg:col-span-2">
                     <?php if ( $links_title_1 ): ?>
                         <h3 class="rfs-ref-footer-links-title text-sm font-bold text-gray-900 uppercase mb-6">
                             <?php echo esc_html( $links_title_1 ); ?>
@@ -111,7 +115,7 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
                 </div>
 
                 <!-- Column 3: Product Categories -->
-                <div class="rfs-ref-footer-col-categories">
+                <div class="rfs-ref-footer-col-categories lg:col-span-2">
                     <?php if ( $links_title_2 ): ?>
                         <h3 class="rfs-ref-footer-categories-title text-sm font-bold text-gray-900 uppercase mb-6">
                             <?php echo esc_html( $links_title_2 ); ?>
@@ -137,7 +141,7 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
                 </div>
 
                 <!-- Column 4: Newsletter -->
-                <div class="rfs-ref-footer-col-newsletter lg:col-span-2">
+                <div class="rfs-ref-footer-col-newsletter lg:col-span-4">
                     <?php if ( $newsletter_title ): ?>
                         <h3 class="rfs-ref-footer-newsletter-title text-sm font-bold text-gray-900 uppercase mb-4">
                             <?php echo esc_html( $newsletter_title ); ?>
@@ -150,25 +154,21 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
                         </p>
                     <?php endif; ?>
 
-                    <form data-newsletter-form class="rfs-ref-footer-newsletter-form space-y-3">
-                        <?php wp_nonce_field( 'ats_newsletter_subscribe', 'newsletter_nonce' ); ?>
-
+                    <form class="rfs-ref-newsletter-form space-y-3" data-nonce="<?php echo esc_attr( wp_create_nonce( 'ats_newsletter_subscribe' ) ); ?>">
                         <div class="rfs-ref-footer-form-group flex flex-col sm:flex-row gap-2">
                             <input type="email"
                                    name="newsletter_email"
                                    placeholder="<?php esc_attr_e( 'Enter your email', 'skylinewp-dev-child' ); ?>"
                                    required
-                                   class="rfs-ref-footer-email-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" />
+                                   class="rfs-ref-newsletter-email flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" />
 
                             <button type="submit"
-                                    class="rfs-ref-footer-subscribe-btn bg-primary-800 text-white hover:bg-primary-900 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center whitespace-nowrap">
+                                    class="rfs-ref-newsletter-submit bg-primary-800 text-white hover:bg-primary-900 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center whitespace-nowrap">
                                 <?php echo esc_html( $newsletter_button ?: __( 'SUBSCRIBE', 'skylinewp-dev-child' ) ); ?>
                             </button>
                         </div>
 
-                        <div class="rfs-ref-footer-form-message newsletter-message hidden">
-                            <p class="text-sm"></p>
-                        </div>
+                        <div class="rfs-ref-newsletter-message" style="display: none;"></div>
                     </form>
 
                     <?php if ( $newsletter_disclaimer ): ?>

@@ -54,12 +54,24 @@ function ats_handle_newsletter_subscribe() {
         );
     }
 
-    // Get Brevo API credentials from ACF options
-    $api_key = get_field( 'ats_footer_brevo_api_key', 'option' );
+    // Get Brevo API key from wp-config.php constant
+    $api_key = defined( 'BREVO_API' ) ? BREVO_API : '';
+
+    // Get Brevo List ID from ACF options
     $list_id = get_field( 'ats_footer_brevo_list_id', 'option' );
 
-    if ( empty( $api_key ) || empty( $list_id ) ) {
-        error_log( 'ATS Newsletter: Brevo API key or List ID is not configured.' );
+    if ( empty( $api_key ) ) {
+        error_log( 'ATS Newsletter: BREVO_API constant is not defined in wp-config.php.' );
+        wp_send_json_error(
+            array(
+                'message' => __( 'Newsletter service is not properly configured. Please contact the administrator.', 'skylinewp-dev-child' ),
+            ),
+            500
+        );
+    }
+
+    if ( empty( $list_id ) ) {
+        error_log( 'ATS Newsletter: Brevo List ID is not configured in Footer Settings.' );
         wp_send_json_error(
             array(
                 'message' => __( 'Newsletter service is not properly configured. Please contact the administrator.', 'skylinewp-dev-child' ),
@@ -81,9 +93,15 @@ function ats_handle_newsletter_subscribe() {
         );
     }
 
+    // Get success message from ACF options
+    $success_message = get_field( 'ats_footer_newsletter_success_message', 'option' );
+    if ( empty( $success_message ) ) {
+        $success_message = __( 'Thank you for subscribing to our newsletter!', 'skylinewp-dev-child' );
+    }
+
     wp_send_json_success(
         array(
-            'message' => __( 'Thank you for subscribing to our newsletter!', 'skylinewp-dev-child' ),
+            'message' => wp_kses_post( $success_message ),
         )
     );
 }
@@ -173,22 +191,14 @@ function ats_subscribe_to_brevo( $email, $api_key, $list_id ) {
 }
 
 /**
- * Enqueue newsletter JavaScript and localize data
- */
-add_action( 'wp_enqueue_scripts', 'ats_enqueue_newsletter_scripts' );
-
-/**
- * Localize newsletter AJAX data for bundle.js
+ * Add newsletter nonce to themeData localization
  * Newsletter JS is bundled into bundle.js (child-bundle handle)
  *
- * @return void
+ * @param array $scripts_localize Existing localized data.
+ * @return array Modified localized data.
  */
-function ats_enqueue_newsletter_scripts() {
-    wp_localize_script(
-        'child-bundle',
-        'atsNewsletter',
-        array(
-            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-        )
-    );
+function ats_add_newsletter_nonce( $scripts_localize ) {
+    $scripts_localize['newsletter_nonce'] = wp_create_nonce( 'ats_newsletter_subscribe' );
+    return $scripts_localize;
 }
+add_filter( 'skyline_child_localizes', 'ats_add_newsletter_nonce' );

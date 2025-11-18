@@ -146,11 +146,15 @@ add_action( 'acf/init', function () {
                 ->newLines( 'br' )
                 ->default( "By signing up, I agree to ATS Diamond Tools' %privacy_policy% and consent to my data being collected and stored." ),
 
-            Text::make( 'Brevo API Key', 'ats_footer_brevo_api_key' )
-                ->helperText( 'Your Brevo (formerly Sendinblue) API key. Find this in Brevo Dashboard > SMTP & API > API Keys. Keep confidential.' ),
-
             Text::make( 'Brevo List ID', 'ats_footer_brevo_list_id' )
-                ->helperText( 'Numeric ID of the contact list in Brevo where subscribers will be added. Find in Brevo > Contacts > Lists.' ),
+                ->helperText( 'Numeric ID of the contact list in Brevo where subscribers will be added. Find in Brevo > Contacts > Lists. API key is configured in wp-config.php as BREVO_API.' )
+                ->required(),
+
+            Textarea::make( 'Success Message', 'ats_footer_newsletter_success_message' )
+                ->helperText( 'Message displayed after successful newsletter subscription. Keep it friendly and reassuring.' )
+                ->rows( 2 )
+                ->newLines( 'br' )
+                ->default( 'Thank you for subscribing! Check your inbox to confirm your subscription.' ),
 
             /**
              * Bottom Tab

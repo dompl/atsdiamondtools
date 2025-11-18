@@ -7,5 +7,5 @@
         <?php wp_head(); ?>
     </head>
     <body class="text-brand_text font-body">
-
- <?php do_action( 'skyline_after_body' )?></div>
+	 <?php do_action( 'skyline_after_body' )?></div>
+	 <?php echo do_shortcode('[ats_product id="47715"]'); ?>

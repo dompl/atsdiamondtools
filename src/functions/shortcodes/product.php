@@ -177,8 +177,8 @@ function ats_render_product_card( $product, $image_id, $category_text, $product_
 			<span><?php echo esc_html( $category_text ); ?></span>
 		</div>
 
-		<h3 class="rfs-ref-product-title text-lg font-bold text-neutral-700 leading-6 mb-3">
-			<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-title-link hover:text-black">
+		<h3 class="rfs-ref-product-title text-lg font-bold text-primary-900 leading-6 mb-3">
+			<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-title-link hover:text-primary-800">
 				<?php echo esc_html( $product_title ); ?>
 			</a>
 		</h3>
