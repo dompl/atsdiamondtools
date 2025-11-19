@@ -6,6 +6,8 @@
         <link href="//www.google-analytics.com" rel="dns-prefetch">
         <?php wp_head(); ?>
     </head>
-    <body class="text-brand_text font-body">
-	 <?php do_action( 'skyline_after_body' )?></div>
-	 <?php echo do_shortcode('[ats_product id="47715"]'); ?>
+    <body <?php body_class( 'text-brand_text font-body' ); ?>>
+        <?php wp_body_open(); ?>
+        <?php do_action( 'skyline_after_body' ); ?>
+		  <?php get_template_part( 'functions/template-parts/header-main-2' ); ?>
+        <div id="content" class="site-content">

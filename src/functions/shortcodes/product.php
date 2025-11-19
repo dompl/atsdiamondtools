@@ -17,6 +17,7 @@ if ( !defined( 'ABSPATH' ) ) {
  * @param array $atts Shortcode attributes
  * @return string HTML output
  */
+if ( ! function_exists( 'ats_product_shortcode' ) ) {
 function ats_product_shortcode( $atts ) {
 	// Check if WooCommerce is active
 	if ( !class_exists( 'WooCommerce' ) ) {
@@ -78,6 +79,7 @@ function ats_product_shortcode( $atts ) {
 	// Allow filtering of the output
 	return apply_filters( 'ats_product_html', $html, $product, $atts );
 }
+}
 add_shortcode( 'ats_product', 'ats_product_shortcode' );
 
 /**
@@ -86,6 +88,7 @@ add_shortcode( 'ats_product', 'ats_product_shortcode' );
  * @param WC_Product $product Product object
  * @return string Formatted price HTML
  */
+if ( ! function_exists( 'ats_get_product_price_html' ) ) {
 function ats_get_product_price_html( $product ) {
 	if ( $product->is_type( 'variable' ) ) {
 		$min_price = $product->get_variation_price( 'min', true );
@@ -93,6 +96,7 @@ function ats_get_product_price_html( $product ) {
 	} else {
 		return wc_price( $product->get_price() ) . ' +VAT';
 	}
+}
 }
 
 /**
@@ -102,6 +106,7 @@ function ats_get_product_price_html( $product ) {
  * @param int $count Number of reviews
  * @return string Star rating HTML
  */
+if ( ! function_exists( 'ats_get_star_rating_html' ) ) {
 function ats_get_star_rating_html( $rating, $count ) {
 	$full_stars  = floor( $rating );
 	$half_star   = ( $rating - $full_stars ) >= 0.5;
@@ -137,6 +142,7 @@ function ats_get_star_rating_html( $rating, $count ) {
 
 	return $html;
 }
+}
 
 /**
  * Render product card (Display 1 - Grid layout)
@@ -151,6 +157,7 @@ function ats_get_star_rating_html( $rating, $count ) {
  * @param string $product_url Product URL
  * @return string HTML output
  */
+if ( ! function_exists( 'ats_render_product_card' ) ) {
 function ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
 	// Get image URL using wpimage() - 224x224 for grid layout with retina support
 	$image_url = $image_id ? wpimage( $image_id, [224, 224], false, true, true ) : wc_placeholder_img_src( 'large' );
@@ -200,6 +207,7 @@ function ats_render_product_card( $product, $image_id, $category_text, $product_
 	<?php
 	return ob_get_clean();
 }
+}
 
 /**
  * Render product list item (Display 2 - Horizontal layout)
@@ -214,6 +222,7 @@ function ats_render_product_card( $product, $image_id, $category_text, $product_
  * @param string $product_url Product URL
  * @return string HTML output
  */
+if ( ! function_exists( 'ats_render_product_list' ) ) {
 function ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
 	// Get image URL using wpimage() - 160x160 for list layout with retina support
 	$image_url = $image_id ? wpimage( $image_id, [160, 160], false, true, true ) : wc_placeholder_img_src( 'medium' );
@@ -265,3 +274,4 @@ function ats_render_product_list( $product, $image_id, $category_text, $product_
 	<?php
 	return ob_get_clean();
 }
+} // End function_exists check

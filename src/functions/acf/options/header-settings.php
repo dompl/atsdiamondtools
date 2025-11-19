@@ -19,7 +19,7 @@ use Extended\ACF\Fields\Repeater;
 use Extended\ACF\Fields\Text;
 use Extended\ACF\Fields\Tab;
 use Extended\ACF\Fields\Email;
-use Extended\ACF\Fields\PageLink;
+use Extended\ACF\Fields\Link;
 use Extended\ACF\Location;
 
 /**
@@ -91,13 +91,9 @@ add_action( 'acf/init', function () {
             Repeater::make( 'Navigation Links', 'ats_top_navigation_links' )
                 ->helperText( 'Add links for the top navigation menu.' )
                 ->fields( [
-                    Text::make( 'Link Text', 'ats_link_text' )
-                        ->helperText( 'The text to display for this navigation link.' ),
-
-                    PageLink::make( 'Link URL', 'ats_link_url' )
-                        ->helperText( 'Select the page to link to.' )
-                        ->postTypes( [ 'page', 'post', 'product' ] )
-                        ->disableArchives(),
+                    Link::make( 'Navigation Link', 'ats_link' )
+                        ->helperText( 'Select a page or enter a custom URL.' )
+                        ->format( 'array' ),
                 ] )
                 ->button( 'Add Navigation Link' )
                 ->layout( 'block' ),

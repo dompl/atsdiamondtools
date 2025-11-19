@@ -6,6 +6,7 @@ import 'flowbite';
 
 // Active Components
 import './components/newsletter.js';
+import './components/product-scroller.js';
 
 // Inactive Components
 // import './components/calculator.js';

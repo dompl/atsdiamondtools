@@ -1,0 +1,117 @@
+/**
+ * Product Scroller Component Styles
+ * Overrides for ats_product shortcode to work with Splide carousel
+ */
+
+.rfs-ref-product-scroller-wrapper {
+	width: 100%;
+	max-width: 100%;
+
+	// Header with line through middle
+	.rfs-ref-product-scroller-header {
+		&::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 50%;
+			height: 1px;
+			background-color: #e5e7eb; // gray-200
+			z-index: 0;
+		}
+	}
+
+	// Carousel container
+	.rfs-ref-product-carousel {
+		width: 100%;
+		max-width: 100%;
+
+		&.splide {
+			visibility: visible !important;
+		}
+	}
+
+	// Override fixed width and display from ats_product shortcode
+	.ats-product-card,
+	article.ats-product-card,
+	.splide__slide .ats-product-card,
+	.splide__slide article.ats-product-card {
+		width: 100% !important;
+		max-width: 100% !important;
+		min-width: 0 !important;
+		display: flex !important; // Override inline-flex
+		flex-direction: column !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+
+		// Ensure all child elements can shrink
+		> * {
+			min-width: 0 !important;
+			max-width: 100% !important;
+		}
+
+		// Product images should scale
+		img {
+			width: 100% !important;
+			height: auto !important;
+			max-width: 100% !important;
+		}
+	}
+
+	// Ensure Splide slides take full width and have no margins
+	.splide__slide {
+		display: block !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+		flex-shrink: 0 !important;
+
+		.ats-product-card {
+			height: 100%;
+		}
+	}
+
+	// Fix Splide track to handle grid properly
+	.splide__track {
+		overflow: visible !important;
+		width: 100%;
+	}
+
+	// Fix Splide list to use grid properly
+	.splide__list {
+		display: flex !important;
+		flex-wrap: wrap !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		width: 100%;
+	}
+
+	// Navigation arrows styling
+	.splide__arrows {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	// Hide default Splide arrows (we're using custom ones in header)
+	.splide__arrow {
+		&:not(.rfs-ref-prev-arrow):not(.rfs-ref-next-arrow) {
+			display: none;
+		}
+	}
+
+	// Custom arrows styling
+	.rfs-ref-prev-arrow,
+	.rfs-ref-next-arrow {
+		position: static;
+		opacity: 1;
+
+		&:disabled {
+			display: none !important; // Hide when nothing to scroll
+		}
+	}
+
+	// Flip prev arrow to point left
+	.rfs-ref-prev-arrow svg {
+		transform: scaleX(-1);
+	}
+}
