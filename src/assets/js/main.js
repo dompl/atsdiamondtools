@@ -19,7 +19,7 @@ import './components/product-scroller.js';
 // import './components/pillared-features.js';
 // import './components/post_grid.js';
 // import './components/resources.js';
-// import './components/search.js';
+import './components/search.js';
 // import './components/search-page.js';
 // import './components/team-grid.js';
 // import './components/testimonials.js';
