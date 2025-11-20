@@ -25,7 +25,6 @@ function debounce(func, wait) {
 		timeout = setTimeout(later, wait);
 	};
 }
-
 /**
  * Initialize the ATS Search functionality
  */

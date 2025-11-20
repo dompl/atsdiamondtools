@@ -30,9 +30,9 @@ function ats_render_search_shortcode() {
 
 	ob_start();
 	?>
-	<div class="ats-search-container relative" data-ats-search>
+	<div class="ats-search-container rfs-ref-search-container relative" data-ats-search>
 		<!-- Desktop Search Bar -->
-		<div class="hidden md:flex items-center border border-neutral-200 rounded-[3px] bg-white h-8 w-[510px]" style="border-width: 1.5px;">
+		<div class="rfs-ref-search-desktop hidden md:flex items-center border border-neutral-200 rounded-[3px] bg-white h-8 w-[510px]" style="border-width: 1.5px;">
 			<!-- Category Dropdown -->
 			<div class="relative">
 				<button
@@ -51,13 +51,13 @@ function ats_render_search_shortcode() {
 				<!-- Dropdown Menu -->
 				<div
 					id="ats-search-category-dropdown"
-					class="z-50 hidden bg-neutral-primary-medium border border-default-medium rounded-base shadow-lg w-44"
+					class="z-50 hidden bg-white border border-neutral-200 rounded shadow-lg w-44"
 				>
-					<ul class="p-2 text-sm text-body font-medium" aria-labelledby="ats-search-category-btn">
+					<ul class="p-2 text-sm text-neutral-700 font-medium" aria-labelledby="ats-search-category-btn">
 						<li>
 							<a
 								href="#"
-								class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
+								class="inline-flex items-center w-full p-2 hover:bg-neutral-100 hover:text-neutral-900 rounded"
 								data-category-id=""
 								data-category-name="<?php esc_attr_e( 'All Categories', 'ats' ); ?>"
 							>
@@ -69,7 +69,7 @@ function ats_render_search_shortcode() {
 								<li>
 									<a
 										href="#"
-										class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
+										class="inline-flex items-center w-full p-2 hover:bg-neutral-100 hover:text-neutral-900 rounded"
 										data-category-id="<?php echo esc_attr( $category->term_id ); ?>"
 										data-category-name="<?php echo esc_attr( $category->name ); ?>"
 									>
@@ -126,7 +126,7 @@ function ats_render_search_shortcode() {
 		<!-- Search Results Container -->
 		<div
 			id="ats-search-results"
-			class="absolute left-0 top-full mt-2 bg-white border border-neutral-200 rounded shadow-lg hidden z-50 max-h-[400px] overflow-y-auto w-full md:w-[510px]"
+			class="rfs-ref-search-results absolute left-0 top-full mt-2 bg-white border border-neutral-200 rounded shadow-lg hidden z-50 max-h-[400px] overflow-y-auto w-full md:w-[510px]"
 		>
 			<div id="ats-search-results-inner">
 				<!-- Results will be injected here -->
@@ -144,7 +144,7 @@ function ats_render_search_shortcode() {
 		<!-- Mobile Search Modal -->
 		<div
 			id="ats-mobile-search-modal"
-			class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden"
+			class="rfs-ref-search-mobile-modal fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden"
 		>
 			<div class="bg-white w-full max-w-lg mx-auto mt-10 rounded-lg shadow-xl">
 				<!-- Modal Header -->
