@@ -98,8 +98,14 @@ add_action( 'wp_enqueue_scripts', function () {
     wp_dequeue_script( 'wc-add-to-cart-variation' );
     wp_dequeue_script( 'wc-cart' );
     wp_dequeue_script( 'wc-cart-fragments' );
+
+    // Keep country-select and address scripts on account pages for address forms
+    if ( ! is_account_page() ) {
+        wp_dequeue_script( 'wc-country-select' );
+        wp_dequeue_script( 'wc-address-i18n' );
+    }
+
     wp_dequeue_script( 'wc-checkout' );
-    wp_dequeue_script( 'wc-country-select' );
     wp_dequeue_script( 'wc-credit-card-form' );
     wp_dequeue_script( 'wc-single-product' );
     wp_dequeue_script( 'woocommerce' );
@@ -158,3 +164,23 @@ add_action( 'wp_enqueue_scripts', function () {
 add_action( 'wp_head', function () {
     remove_action( 'wp_head', [WC(), 'generator'] );
 }, 1 );
+
+/**
+ * Localize WooCommerce account scripts
+ * The actual JS is loaded via main.js bundle
+ */
+add_action( 'wp_enqueue_scripts', function () {
+    if ( !class_exists( 'WooCommerce' ) || !is_account_page() ) {
+        return;
+    }
+
+    // Add AJAX parameters to the main bundle script
+    wp_localize_script(
+        'main',
+        'wc_account_params',
+        [
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce' => wp_create_nonce( 'wc_account_nonce' )
+        ]
+    );
+}, 100 );

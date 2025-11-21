@@ -47,6 +47,13 @@ module.exports = {
           yellow: '#f4e500',
           green: '#3e7d52',
         },
+        ats: {
+          yellow: '#FFD200',
+          dark: '#222222',
+          gray: '#f4f4f4',
+          text: '#333333',
+          footer: '#f9f9f9',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

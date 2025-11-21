@@ -8,6 +8,7 @@ import 'flowbite';
 import './components/newsletter.js';
 import './components/product-scroller.js';
 import { initATSSearch } from './components/search.js';
+import { initWooCommerceAccount } from './components/woocommerce-account.js';
 
 // Inactive Components
 import './components/banner.js';
@@ -28,4 +29,5 @@ import './components/banner.js';
 // Initialize modules when the document is ready.
 document.addEventListener('DOMContentLoaded', function () {
 	initATSSearch();
+	initWooCommerceAccount();
 });
