@@ -15,10 +15,32 @@
 			left: 0;
 			right: 0;
 			top: 50%;
+			transform: translateY(-50%);
 			height: 1px;
 			background-color: #e5e7eb; // gray-200
 			z-index: 0;
 		}
+	}
+
+	// Ensure title is vertically aligned
+	.rfs-ref-product-scroller-title {
+		line-height: 1;
+		display: flex;
+		align-items: center;
+		min-height: 32px; // Match button height
+	}
+
+	// Ensure nav buttons are vertically aligned
+	.rfs-ref-product-scroller-nav {
+		display: flex;
+		align-items: center;
+		min-height: 32px; // Match button height
+	}
+
+	// Ensure arrow buttons don't shrink
+	.rfs-ref-prev-arrow,
+	.rfs-ref-next-arrow {
+		flex-shrink: 0;
 	}
 
 	// Carousel container
@@ -58,11 +80,9 @@
 		}
 	}
 
-	// Ensure Splide slides take full width and have no margins
+	// Ensure Splide slides take full width but allow gaps
 	.splide__slide {
 		display: block !important;
-		margin: 0 !important;
-		padding: 0 !important;
 		box-sizing: border-box !important;
 		flex-shrink: 0 !important;
 
@@ -71,16 +91,13 @@
 		}
 	}
 
-	// Fix Splide track to handle grid properly
+	// Let Splide handle track overflow
 	.splide__track {
-		overflow: visible !important;
 		width: 100%;
 	}
 
-	// Fix Splide list to use grid properly
+	// Let Splide Grid extension handle the list layout
 	.splide__list {
-		display: flex !important;
-		flex-wrap: wrap !important;
 		margin: 0 !important;
 		padding: 0 !important;
 		width: 100%;

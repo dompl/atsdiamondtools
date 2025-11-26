@@ -21,10 +21,7 @@ import './components/banner.js';
 // import './components/pillared-features.js';
 // import './components/post_grid.js';
 // import './components/resources.js';
-<<<<<<< HEAD
-import './components/search.js';
-=======
->>>>>>> test
+
 // import './components/search-page.js';
 // import './components/team-grid.js';
 // import './components/testimonials.js';

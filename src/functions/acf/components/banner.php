@@ -106,10 +106,10 @@ function component_banner_html( string $output, string $layout ): string {
 
     <div class="rfs-ref-banner-container flex items-center justify-center p-4 lg:p-8" id="<?php echo esc_attr( $banner_id ); ?>" data-slides-count="<?php echo count( $slides ); ?>">
         <!-- Banner Container -->
-        <div class="rfs-ref-banner-wrapper w-full container mx-auto flex flex-col lg:flex-row gap-4 lg:gap-5 p-4 lg:p-0">
+        <div class="rfs-ref-banner-wrapper w-full container mx-auto flex flex-col lg:flex-row gap-4 lg:gap-5 p-4 lg:py-0">
 
             <!-- Sidebar (Navigation) -->
-            <div class="rfs-ref-banner-sidebar w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-lg overflow-hidden shadow-xl flex flex-col relative z-20 h-fit">
+            <div class="rfs-ref-banner-sidebar w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-lg overflow-hidden flex flex-col relative z-20 h-fit">
 
                 <!-- Toggle Button -->
                 <button class="rfs-ref-category-btn w-full flex items-center justify-between p-5 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20">

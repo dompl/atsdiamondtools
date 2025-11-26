@@ -42,12 +42,14 @@ document.addEventListener('DOMContentLoaded', function () {
 			padding: 0,
 			focus: 0,
 			trimSpace: false,
+			rewind: true,
+			clones: 0,
 			grid: {
 				rows: rowsCount,
 				cols: 5,
 				gap: {
-					row: '2rem',
-					col: '2rem',
+					row: '1.5rem',
+					col: '1.5rem',
 				},
 			},
 			pagination: false,
@@ -78,8 +80,8 @@ document.addEventListener('DOMContentLoaded', function () {
 						rows: 1,
 						cols: 2,
 						gap: {
-							row: '1rem',
-							col: '1rem',
+							row: '1.25rem',
+							col: '1.25rem',
 						},
 					},
 				},
@@ -88,9 +90,13 @@ document.addEventListener('DOMContentLoaded', function () {
 						rows: 1,
 						cols: 1,
 						gap: {
-							row: '1rem',
-							col: '1rem',
+							row: '1.5rem',
+							col: '1.5rem',
 						},
+					},
+					padding: {
+						left: '1rem',
+						right: '1rem',
 					},
 				},
 			},
@@ -106,6 +112,26 @@ document.addEventListener('DOMContentLoaded', function () {
 		try {
 			carousel.mount({ Grid });
 			console.log('Product Scroller', index, ': Successfully mounted');
+
+			// Connect custom navigation buttons
+			const prevButton = wrapper.querySelector('.rfs-ref-prev-arrow');
+			const nextButton = wrapper.querySelector('.rfs-ref-next-arrow');
+
+			if (prevButton) {
+				prevButton.addEventListener('click', (e) => {
+					e.preventDefault();
+					carousel.go('<');
+				});
+			}
+
+			if (nextButton) {
+				nextButton.addEventListener('click', (e) => {
+					e.preventDefault();
+					carousel.go('>');
+				});
+			}
+
+			console.log('Product Scroller', index, ': Navigation buttons connected');
 		} catch (error) {
 			console.error('Product Scroller', index, ': Failed to mount', error);
 		}
