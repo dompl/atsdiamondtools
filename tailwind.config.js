@@ -30,6 +30,10 @@ module.exports = {
       },
   },
     extend: {
+      gridTemplateRows: {
+        '0': '0fr',
+        '1': '1fr',
+      },
       colors: {
         primary: {
           300: '#e8e4e6',
@@ -51,7 +55,7 @@ module.exports = {
           yellow: '#FFD200',
           dark: '#222222',
           gray: '#f4f4f4',
-          text: '#333333',
+          text: '#373737',
           footer: '#f9f9f9',
         },
       },

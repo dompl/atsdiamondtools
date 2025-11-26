@@ -40,20 +40,17 @@ function ats_email_login_shortcode( $atts ) {
         $display_name = $current_user->display_name;
 
         ?>
-		<div class="rfs-ref-email-login-container flex items-center gap-4">
+		<div class="rfs-ref-email-login-container flex items-center gap-4 text-ats-text">
 			<a
 				href="<?php echo esc_url( $account_url ); ?>"
-				class="rfs-ref-my-account-link inline-flex items-center gap-2 text-sm font-medium text-neutral-700 hover:text-primary-900 transition-colors"
+				class="rfs-ref-my-account-link inline-flex items-center gap-2 text-sm font-medium text-ats-text hover:text-ats-yellow transition-colors"
 				aria-label="My Account"
 			>
 				<span>My Account</span>
 			</a>
-
-			<span class="text-neutral-300">|</span>
-
 			<a
 				href="<?php echo esc_url( $logout_url ); ?>"
-				class="rfs-ref-logout-link inline-flex items-center gap-2 text-sm font-medium text-neutral-700 hover:text-red-600 transition-colors"
+				class="rfs-ref-logout-link inline-flex items-center gap-2 text-sm font-medium text-ats-text hover:text-ats-yellow transition-colors"
 				aria-label="Logout"
 			>
 				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +73,7 @@ function ats_email_login_shortcode( $atts ) {
 		<div class="rfs-ref-email-login-container">
 			<a
 				href="<?php echo esc_url( $login_url ); ?>"
-				class="rfs-ref-login-register-link inline-flex items-center gap-2 text-sm font-medium text-neutral-700 hover:text-primary-900 transition-colors"
+				class="rfs-ref-login-register-link inline-flex items-center gap-2 text-sm font-medium text-ats-text hover:text-ats-yellow transition-colors"
 				aria-label="Login or Register"
 			>
 				<span class="text-[13px] font-bold">Login / Register</span>

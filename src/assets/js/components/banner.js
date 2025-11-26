@@ -51,7 +51,10 @@ function initBanner(bannerContainer) {
 
 	// --- Category Toggle Logic ---
 	if (categoryBtn && categoryList && categoryChevron) {
-		categoryBtn.onclick = function() {
+		categoryBtn.addEventListener('click', function() {
+			// Only allow toggle on mobile
+			if (!isMobile()) return;
+
 			const isOpen = categoryList.classList.contains('grid-rows-1');
 			if (isOpen) {
 				categoryList.classList.remove('grid-rows-1');
@@ -62,7 +65,7 @@ function initBanner(bannerContainer) {
 				categoryList.classList.add('grid-rows-1');
 				categoryChevron.classList.add('rotate-180');
 			}
-		};
+		});
 	}
 
 	// --- Carousel Logic (only if more than 1 slide) ---

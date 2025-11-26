@@ -15,13 +15,13 @@ function banner_fields() {
         'taxonomy'   => 'product_cat',
         'hide_empty' => false,
         'orderby'    => 'name',
-        'order'      => 'ASC',
+        'order'      => 'ASC'
     ] );
 
     $category_choices = [];
     if ( !is_wp_error( $product_categories ) && !empty( $product_categories ) ) {
         foreach ( $product_categories as $category ) {
-            $category_choices[ $category->term_id ] = $category->name;
+            $category_choices[$category->term_id] = $category->name;
         }
     }
 
@@ -58,12 +58,12 @@ function banner_fields() {
 
                 Link::make( 'Button', 'button' )
                     ->helperText( 'Button link with text and URL. The link text will be displayed on the button.' )
-                    ->format( 'array' ),
+                    ->format( 'array' )
             ] )
             ->minRows( 1 )
             ->button( 'Add Slide' )
             ->layout( 'block' )
-            ->required(),
+            ->required()
     ];
 }
 
@@ -81,7 +81,7 @@ function component_banner_html( string $output, string $layout ): string {
         'orderby'    => 'name',
         'order'      => 'ASC',
         'hide_empty' => true,
-        'exclude'    => $excluded_category_ids,
+        'exclude'    => $excluded_category_ids
     ];
 
     $product_categories = get_terms( $categories_args );
@@ -100,24 +100,24 @@ function component_banner_html( string $output, string $layout ): string {
             </div>
         </div>
         <?php
-        return ob_get_clean();
+return ob_get_clean();
     }
     ?>
 
-    <div class="rfs-ref-banner-container flex items-center justify-center p-4 lg:p-8" id="<?php echo esc_attr( $banner_id ); ?>" data-slides-count="<?php echo count( $slides ); ?>">
+    <div class="rfs-ref-banner-container flex items-center justify-center px-4 lg:p-8" id="<?php echo esc_attr( $banner_id ); ?>" data-slides-count="<?php echo count( $slides ); ?>">
         <!-- Banner Container -->
-        <div class="rfs-ref-banner-wrapper w-full container mx-auto flex flex-col lg:flex-row gap-4 lg:gap-5 p-4 lg:py-0">
+        <div class="rfs-ref-banner-wrapper w-full container px-0 mx-auto flex flex-col lg:flex-row gap-4 lg:gap-5  lg:py-0">
 
             <!-- Sidebar (Navigation) -->
-            <div class="rfs-ref-banner-sidebar w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-lg overflow-hidden flex flex-col relative z-20 h-fit">
+            <div class="rfs-ref-banner-sidebar w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-md overflow-hidden flex flex-col relative z-20 h-fit">
 
                 <!-- Toggle Button -->
-                <button class="rfs-ref-category-btn w-full flex items-center justify-between p-5 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20">
+                <button class="rfs-ref-category-btn w-full flex items-center justify-between p-2 lg:p-4 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20">
                     <div class="flex items-center gap-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
-                        <h2 class="text-lg font-bold tracking-wide text-white uppercase">Shop By Category</h2>
+                        <h2 class="text-sm lg:text-lg font-bold tracking-wide text-white uppercase">Shop By Category</h2>
                     </div>
                     <!-- Chevron -->
                     <svg class="rfs-ref-category-chevron lg:hidden h-5 w-5 text-white/70 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,18 +131,18 @@ function component_banner_html( string $output, string $layout ): string {
                         <div class="flex flex-col py-2">
                             <?php if ( !empty( $product_categories ) && !is_wp_error( $product_categories ) ): ?>
                                 <?php foreach ( $product_categories as $category ):
-                                    $category_link = get_term_link( $category );
-                                    $short_description = get_field( 'category_nav_short_description', $category );
-                                ?>
-                                    <a href="<?php echo esc_url( $category_link ); ?>" class="rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]">
-                                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-white mb-0.5 group-hover:text-[#fbbf24] transition-colors">
-                                            <?php echo esc_html( $category->name ); ?>
-                                        </h3>
-                                        <?php if ( $short_description ): ?>
-                                            <p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
-                                                <?php echo esc_html( $short_description ); ?>
-                                            </p>
-                                        <?php endif; ?>
+        $category_link     = get_term_link( $category );
+        $short_description = get_field( 'category_nav_short_description', $category );
+        ?>
+									                                    <a href="<?php echo esc_url( $category_link ); ?>" class="rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]">
+									                                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-white mb-0.5 group-hover:text-[#fbbf24] transition-colors">
+									                                            <?php echo esc_html( $category->name ); ?>
+									                                        </h3>
+									                                        <?php if ( $short_description ): ?>
+									                                            <p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
+									                                                <?php echo esc_html( $short_description ); ?>
+									                                            </p>
+									                                        <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -155,32 +155,32 @@ function component_banner_html( string $output, string $layout ): string {
             <div class="rfs-ref-banner-carousel w-full lg:flex-1 relative h-[500px] lg:h-auto rounded-lg overflow-hidden shadow-xl bg-gray-900 group">
                 <div class="rfs-ref-carousel-slides absolute inset-0 w-full h-full">
                     <?php foreach ( $slides as $index => $slide ):
-                        $image = $slide['image'];
-                        $image_url = is_array( $image ) ? $image['url'] : wp_get_attachment_image_url( $image, 'full' );
-                        $image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ) : get_post_meta( $image, '_wp_attachment_image_alt', true );
+        $image     = $slide['image'];
+        $image_url = is_array( $image ) ? $image['url'] : wp_get_attachment_image_url( $image, 'full' );
+        $image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ): get_post_meta( $image, '_wp_attachment_image_alt', true );
 
-                        $button = $slide['button'];
-                        $button_url = '';
-                        $button_text = '';
-                        $button_target = '_self';
+        $button        = $slide['button'];
+        $button_url    = '';
+        $button_text   = '';
+        $button_target = '_self';
 
-                        if ( is_array( $button ) ) {
-                            $button_url = isset( $button['url'] ) ? $button['url'] : '';
-                            $button_text = isset( $button['title'] ) ? $button['title'] : '';
-                            $button_target = isset( $button['target'] ) && $button['target'] ? $button['target'] : '_self';
-                        }
-                    ?>
-                        <div class="rfs-ref-slide-item absolute inset-0 transition-opacity duration-1000 ease-in-out <?php echo $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'; ?>">
-                            <div class="absolute inset-0">
-                                <img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" class="w-full h-full object-cover" />
-                                <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-                            </div>
-                            <div class="absolute inset-0 flex flex-col justify-center p-8 lg:p-16 max-w-2xl">
-                                <?php if ( !empty( $slide['prefix'] ) ): ?>
-                                    <span class="inline-block py-1 px-3 mb-4 text-xs font-bold tracking-widest text-white uppercase bg-[#594652] w-fit rounded">
-                                        <?php echo esc_html( $slide['prefix'] ); ?>
-                                    </span>
-                                <?php endif; ?>
+        if ( is_array( $button ) ) {
+            $button_url    = isset( $button['url'] ) ? $button['url'] : '';
+            $button_text   = isset( $button['title'] ) ? $button['title'] : '';
+            $button_target = isset( $button['target'] ) && $button['target'] ? $button['target'] : '_self';
+        }
+        ?>
+									                        <div class="rfs-ref-slide-item absolute inset-0 transition-opacity duration-1000 ease-in-out <?php echo $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'; ?>">
+									                            <div class="absolute inset-0">
+									                                <img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" class="w-full h-full object-cover" />
+									                                <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+									                            </div>
+									                            <div class="absolute inset-0 flex flex-col justify-center p-8 lg:p-16 max-w-2xl">
+									                                <?php if ( !empty( $slide['prefix'] ) ): ?>
+									                                    <span class="inline-block py-1 px-3 mb-4 text-xs font-bold tracking-widest text-white uppercase bg-[#594652] w-fit rounded">
+									                                        <?php echo esc_html( $slide['prefix'] ); ?>
+									                                    </span>
+									                                <?php endif; ?>
 
                                 <?php if ( !empty( $slide['title'] ) ): ?>
                                     <h2 class="text-3xl lg:text-5xl font-bold text-white mb-4 leading-tight shadow-sm">
@@ -232,7 +232,7 @@ function component_banner_html( string $output, string $layout ): string {
     </div>
 
     <?php
-    return ob_get_clean();
+return ob_get_clean();
 }
 add_filter( 'skylinewp_flexible_content_output', 'component_banner_html', 10, 2 );
 

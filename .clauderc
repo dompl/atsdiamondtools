@@ -1,0 +1,7 @@
+{
+  "agents": {
+    "wordpress-dev": {
+      "instructions_file": "wordpress-theme-agent.json"
+    }
+  }
+}

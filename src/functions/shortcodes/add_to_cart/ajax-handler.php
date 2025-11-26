@@ -128,7 +128,7 @@ function ats_ajax_get_mini_cart() {
  */
 function ats_get_cart_items_html( $cart_items ) {
     if ( empty( $cart_items ) ) {
-        return '<div class="rfs-ref-mini-cart-empty-message js-mini-cart-empty-message text-center py-8 text-gray-500">' .
+        return '<div class="rfs-ref-mini-cart-empty-message js-mini-cart-empty-message text-center py-8 text-ats-text">' .
                '<svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor" class="mx-auto mb-4 opacity-50"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>' .
                '<p>' . esc_html__( 'Your basket is empty', 'skylinewp-dev-child' ) . '</p>' .
                '</div>';
@@ -138,12 +138,12 @@ function ats_get_cart_items_html( $cart_items ) {
     ?>
     <div class="rfs-ref-mini-cart-items-list js-mini-cart-items-list space-y-4">
         <?php foreach ( $cart_items as $item ) : ?>
-            <div class="rfs-ref-mini-cart-item js-mini-cart-item flex gap-4 pb-4 border-b border-gray-100 last:border-0" data-cart-key="<?php echo esc_attr( $item['key'] ); ?>">
+            <div class="rfs-ref-mini-cart-item js-mini-cart-item flex gap-4 pb-4 border-b border-ats-gray last:border-0" data-cart-key="<?php echo esc_attr( $item['key'] ); ?>">
                 <!-- Product Image -->
                 <a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-image js-mini-cart-item-image flex-shrink-0">
                     <img src="<?php echo esc_url( $item['image'] ); ?>"
                          alt="<?php echo esc_attr( $item['name'] ); ?>"
-                         class="w-16 h-16 object-cover rounded border border-gray-200">
+                         class="w-16 h-16 object-cover rounded border border-ats-gray">
                 </a>
 
                 <!-- Product Details -->
@@ -152,16 +152,16 @@ function ats_get_cart_items_html( $cart_items ) {
                         <?php echo esc_html( $item['name'] ); ?>
                     </a>
 
-                    <div class="rfs-ref-mini-cart-item-price text-xs text-gray-600 mt-1">
+                    <div class="rfs-ref-mini-cart-item-price text-xs text-ats-text mt-1">
                         <?php echo wp_kses_post( $item['price'] ); ?> <?php esc_html_e( 'each', 'skylinewp-dev-child' ); ?>
                     </div>
 
                     <!-- Quantity Controls -->
                     <div class="rfs-ref-mini-cart-item-qty flex items-center gap-2 mt-2">
                         <?php if ( ! $item['sold_individually'] ) : ?>
-                            <div class="flex items-center border border-gray-200 rounded">
+                            <div class="flex items-center border border-ats-gray rounded">
                                 <button type="button"
-                                        class="rfs-ref-qty-decrease js-qty-decrease w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                                        class="rfs-ref-qty-decrease js-qty-decrease w-7 h-7 flex items-center justify-center text-ats-text hover:bg-ats-gray transition-colors"
                                         data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
                                         data-action="decrease"
                                         <?php echo $item['quantity'] <= 1 ? 'disabled' : ''; ?>>
@@ -171,7 +171,7 @@ function ats_get_cart_items_html( $cart_items ) {
                                 </button>
                                 <span class="rfs-ref-qty-value js-qty-value w-10 text-center text-sm font-medium"><?php echo esc_html( $item['quantity'] ); ?></span>
                                 <button type="button"
-                                        class="rfs-ref-qty-increase js-qty-increase w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                                        class="rfs-ref-qty-increase js-qty-increase w-7 h-7 flex items-center justify-center text-ats-text hover:bg-ats-gray transition-colors"
                                         data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
                                         data-action="increase"
                                         <?php echo $item['quantity'] >= $item['max_qty'] ? 'disabled' : ''; ?>>
@@ -181,12 +181,12 @@ function ats_get_cart_items_html( $cart_items ) {
                                 </button>
                             </div>
                         <?php else : ?>
-                            <span class="text-sm text-gray-500"><?php esc_html_e( 'Qty:', 'skylinewp-dev-child' ); ?> <?php echo esc_html( $item['quantity'] ); ?></span>
+                            <span class="text-sm text-ats-text"><?php esc_html_e( 'Qty:', 'skylinewp-dev-child' ); ?> <?php echo esc_html( $item['quantity'] ); ?></span>
                         <?php endif; ?>
 
                         <!-- Remove Button -->
                         <button type="button"
-                                class="rfs-ref-remove-item js-remove-item ml-auto text-gray-400 hover:text-red-500 transition-colors"
+                                class="rfs-ref-remove-item js-remove-item ml-auto text-ats-text hover:text-ats-yellow transition-colors"
                                 data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
                                 title="<?php esc_attr_e( 'Remove item', 'skylinewp-dev-child' ); ?>">
                             <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">

@@ -2,6 +2,7 @@
  * ATS Diamond Tools - AJAX Search Component
  *
  * Provides real-time product search with category filtering and infinite scroll.
+ * Supports multiple search instances (desktop/mobile) on the same page.
  *
  * @package ATS
  * @since 1.0.0
@@ -27,65 +28,59 @@ function debounce(func, wait) {
 }
 
 /**
- * Initialize the ATS Search functionality
+ * Initialize a single search instance
+ *
+ * @param {HTMLElement} container - The search container element
  */
-export function initATSSearch() {
-	const searchContainer = document.querySelector('[data-ats-search]');
-
-	if (!searchContainer) {
-		return;
-	}
+function initSearchInstance(container) {
+	const context = container.dataset.searchContext || 'unknown';
 
 	// Check if atsSearch is localized
 	if (typeof atsSearch === 'undefined') {
-		console.error('ATS Search: Missing localized data');
+		console.error(`ATS Search (${context}): Missing localized data (atsSearch)`);
 		return;
 	}
 
-	// State management
+	if (!atsSearch.rest_url) {
+		console.error(`ATS Search (${context}): rest_url not found in atsSearch`);
+		return;
+	}
+
+	console.log(`ATS Search (${context}): Initialized with REST URL:`, atsSearch.rest_url);
+
+	// State management for this instance
 	const state = {
 		query: '',
 		categoryId: '',
 		page: 1,
 		isLoading: false,
 		hasMore: true,
-		isMobile: false,
 	};
 
-	// Desktop elements
-	const desktopInput = document.getElementById('ats-search-input');
-	const desktopCategoryBtn = document.getElementById('ats-search-category-btn');
-	const desktopCategoryDropdown = document.getElementById('ats-search-category-dropdown');
-	const selectedCategoryText = document.getElementById('ats-selected-category-text');
-	const selectedCategoryInput = document.getElementById('ats-selected-category');
-	const resultsContainer = document.getElementById('ats-search-results');
-	const resultsInner = document.getElementById('ats-search-results-inner');
-	const loadingIndicator = document.getElementById('ats-search-loading');
-	const noResultsMessage = document.getElementById('ats-search-no-results');
-	const searchSentinel = document.getElementById('ats-search-sentinel');
+	// Get elements within this container
+	const searchInput = container.querySelector('.js-search-input');
+	const categoryBtn = container.querySelector('.js-search-category-btn');
+	const categoryDropdown = container.querySelector('.js-search-category-dropdown');
+	const selectedCategoryText = container.querySelector('.js-selected-category-text');
+	const selectedCategoryInput = container.querySelector('.js-selected-category');
+	const resultsContainer = container.querySelector('.js-search-results');
+	const resultsInner = container.querySelector('.js-search-results-inner');
+	const loadingIndicator = container.querySelector('.js-search-loading');
+	const noResultsMessage = container.querySelector('.js-search-no-results');
+	const searchSentinel = container.querySelector('.js-search-sentinel');
 
-	// Mobile elements
-	const mobileSearchTrigger = document.getElementById('ats-mobile-search-trigger');
-	const mobileSearchModal = document.getElementById('ats-mobile-search-modal');
-	const mobileSearchClose = document.getElementById('ats-mobile-search-close');
-	const mobileSearchInput = document.getElementById('ats-mobile-search-input');
-	const mobileCategorySelect = document.getElementById('ats-mobile-category-select');
-	const mobileResultsInner = document.getElementById('ats-mobile-search-results-inner');
-	const mobileLoadingIndicator = document.getElementById('ats-mobile-search-loading');
-	const mobileNoResultsMessage = document.getElementById('ats-mobile-search-no-results');
-	const mobileSearchSentinel = document.getElementById('ats-mobile-search-sentinel');
+	// Validate required elements
+	if (!searchInput) {
+		console.error(`ATS Search (${context}): Search input not found`);
+		return;
+	}
 
 	/**
 	 * Show loading state
 	 */
 	function showLoading() {
-		if (state.isMobile) {
-			mobileLoadingIndicator?.classList.remove('hidden');
-			mobileNoResultsMessage?.classList.add('hidden');
-		} else {
-			loadingIndicator?.classList.remove('hidden');
-			noResultsMessage?.classList.add('hidden');
-		}
+		loadingIndicator?.classList.remove('hidden');
+		noResultsMessage?.classList.add('hidden');
 	}
 
 	/**
@@ -93,18 +88,13 @@ export function initATSSearch() {
 	 */
 	function hideLoading() {
 		loadingIndicator?.classList.add('hidden');
-		mobileLoadingIndicator?.classList.add('hidden');
 	}
 
 	/**
 	 * Show no results message
 	 */
 	function showNoResults() {
-		if (state.isMobile) {
-			mobileNoResultsMessage?.classList.remove('hidden');
-		} else {
-			noResultsMessage?.classList.remove('hidden');
-		}
+		noResultsMessage?.classList.remove('hidden');
 	}
 
 	/**
@@ -128,11 +118,7 @@ export function initATSSearch() {
 		if (resultsInner) {
 			resultsInner.innerHTML = '';
 		}
-		if (mobileResultsInner) {
-			mobileResultsInner.innerHTML = '';
-		}
 		noResultsMessage?.classList.add('hidden');
-		mobileNoResultsMessage?.classList.add('hidden');
 	}
 
 	/**
@@ -177,19 +163,18 @@ export function initATSSearch() {
 	 */
 	function renderProducts(products, append = false) {
 		const html = products.map(renderProduct).join('');
-		const container = state.isMobile ? mobileResultsInner : resultsInner;
 
-		if (container) {
+		if (resultsInner) {
 			if (append) {
-				container.insertAdjacentHTML('beforeend', html);
+				resultsInner.insertAdjacentHTML('beforeend', html);
 			} else {
-				container.innerHTML = html;
+				resultsInner.innerHTML = html;
 			}
 		}
 	}
 
 	/**
-	 * Perform REST API search (faster than AJAX)
+	 * Perform REST API search
 	 *
 	 * @param {boolean} append - Whether to append results (for infinite scroll)
 	 */
@@ -283,7 +268,7 @@ export function initATSSearch() {
 	}
 
 	/**
-	 * Handle category selection (desktop)
+	 * Handle category selection
 	 *
 	 * @param {Event} event - Click event
 	 */
@@ -299,33 +284,34 @@ export function initATSSearch() {
 		const categoryName = link.getAttribute('data-category-name');
 
 		state.categoryId = categoryId;
-		selectedCategoryInput.value = categoryId;
-		selectedCategoryText.textContent = categoryName;
+		if (selectedCategoryInput) {
+			selectedCategoryInput.value = categoryId;
+		}
+		if (selectedCategoryText) {
+			selectedCategoryText.textContent = categoryName;
+		}
 
 		// Close the category dropdown
-		desktopCategoryDropdown?.classList.add('hidden');
+		categoryDropdown?.classList.add('hidden');
 
 		// Trigger search with new category
 		performSearch(false);
 	}
 
 	/**
-	 * Handle mobile category change
-	 *
-	 * @param {Event} event - Change event
+	 * Toggle category dropdown
 	 */
-	function handleMobileCategoryChange(event) {
-		state.categoryId = event.target.value;
-		performSearch(false);
+	function toggleCategoryDropdown(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		categoryDropdown?.classList.toggle('hidden');
 	}
 
 	/**
 	 * Set up Intersection Observer for infinite scroll
-	 *
-	 * @param {HTMLElement} sentinel - Sentinel element to observe
 	 */
-	function setupInfiniteScroll(sentinel) {
-		if (!sentinel) {
+	function setupInfiniteScroll() {
+		if (!searchSentinel) {
 			return;
 		}
 
@@ -345,102 +331,92 @@ export function initATSSearch() {
 			}
 		);
 
-		observer.observe(sentinel);
+		observer.observe(searchSentinel);
 	}
 
 	/**
-	 * Open mobile search modal
-	 */
-	function openMobileModal() {
-		state.isMobile = true;
-		mobileSearchModal?.classList.remove('hidden');
-		document.body.style.overflow = 'hidden';
-		mobileSearchInput?.focus();
-	}
-
-	/**
-	 * Close mobile search modal
-	 */
-	function closeMobileModal() {
-		state.isMobile = false;
-		mobileSearchModal?.classList.add('hidden');
-		document.body.style.overflow = '';
-		clearResults();
-	}
-
-	/**
-	 * Handle click outside to close results
+	 * Handle click outside to close results and dropdown
 	 *
 	 * @param {Event} event - Click event
 	 */
 	function handleClickOutside(event) {
-		if (!state.isMobile && !searchContainer.contains(event.target)) {
+		if (!container.contains(event.target)) {
 			hideResults();
+			categoryDropdown?.classList.add('hidden');
 		}
 	}
 
 	/**
-	 * Handle escape key to close results/modal
+	 * Handle escape key to close results
 	 *
 	 * @param {KeyboardEvent} event - Keyboard event
 	 */
 	function handleEscapeKey(event) {
 		if (event.key === 'Escape') {
-			if (state.isMobile) {
-				closeMobileModal();
-			} else {
-				hideResults();
-			}
+			hideResults();
+			categoryDropdown?.classList.add('hidden');
 		}
 	}
 
-	// Event listeners - Desktop
-	desktopInput?.addEventListener('input', handleSearchInput);
-	desktopInput?.addEventListener('focus', () => {
+	// Event listeners
+	searchInput.addEventListener('input', handleSearchInput);
+	searchInput.addEventListener('focus', () => {
 		if (state.query.length >= 2 || state.categoryId) {
 			showResults();
 		}
 	});
 
-	// Category dropdown clicks
-	desktopCategoryDropdown?.addEventListener('click', handleCategorySelect);
+	// Category dropdown
+	if (categoryBtn) {
+		categoryBtn.addEventListener('click', toggleCategoryDropdown);
+	}
 
-	// Hide results when clicking category button
-	desktopCategoryBtn?.addEventListener('click', () => {
-		hideResults();
-	});
-
-	// Event listeners - Mobile
-	mobileSearchTrigger?.addEventListener('click', openMobileModal);
-	mobileSearchClose?.addEventListener('click', closeMobileModal);
-	mobileSearchInput?.addEventListener('input', handleSearchInput);
-	mobileCategorySelect?.addEventListener('change', handleMobileCategoryChange);
-
-	// Close modal on backdrop click
-	mobileSearchModal?.addEventListener('click', (event) => {
-		if (event.target === mobileSearchModal) {
-			closeMobileModal();
-		}
-	});
+	if (categoryDropdown) {
+		categoryDropdown.addEventListener('click', handleCategorySelect);
+	}
 
 	// Global event listeners
 	document.addEventListener('click', handleClickOutside);
 	document.addEventListener('keydown', handleEscapeKey);
 
-	// Set up infinite scroll for both desktop and mobile
-	setupInfiniteScroll(searchSentinel);
-	setupInfiniteScroll(mobileSearchSentinel);
+	// Set up infinite scroll
+	setupInfiniteScroll();
+}
 
-	// Sync desktop and mobile inputs
-	desktopInput?.addEventListener('input', () => {
-		if (mobileSearchInput) {
-			mobileSearchInput.value = desktopInput.value;
-		}
-	});
+/**
+ * Initialize the ATS Search functionality for all instances
+ */
+export function initATSSearch() {
+	const searchContainers = document.querySelectorAll('[data-ats-search]');
 
-	mobileSearchInput?.addEventListener('input', () => {
-		if (desktopInput) {
-			desktopInput.value = mobileSearchInput.value;
+	if (searchContainers.length === 0) {
+		console.log('ATS Search: No search containers found on page');
+		return;
+	}
+
+	console.log(`ATS Search: Found ${searchContainers.length} search container(s)`);
+
+	// Initialize each search container
+	searchContainers.forEach((container) => {
+		// Only initialize visible containers
+		const style = window.getComputedStyle(container);
+		const parentStyle = window.getComputedStyle(container.parentElement);
+		const grandParentStyle = container.parentElement?.parentElement
+			? window.getComputedStyle(container.parentElement.parentElement)
+			: null;
+
+		// Check if container or its parents are hidden
+		const isHidden =
+			style.display === 'none' ||
+			parentStyle?.display === 'none' ||
+			grandParentStyle?.display === 'none';
+
+		if (!isHidden) {
+			initSearchInstance(container);
+		} else {
+			console.log(
+				`ATS Search: Skipping hidden container (${container.dataset.searchContext || 'unknown'})`
+			);
 		}
 	});
 }

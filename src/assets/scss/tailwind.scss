@@ -32,7 +32,10 @@ It will be processed by PostCSS to generate the final tailwind.css file.
 	}
 
 	.ats-btn-yellow:hover {
-		@apply bg-yellow-500;
+		@apply bg-yellow-500 text-white;
+		svg {
+			@apply fill-white;
+		}
 	}
 
 	.ats-btn-black {
