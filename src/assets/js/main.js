@@ -7,6 +7,7 @@ import 'flowbite';
 // Active Components
 import './components/newsletter.js';
 import './components/product-scroller.js';
+import './components/add_to_cart.js';
 import { initATSSearch } from './components/search.js';
 import { initWooCommerceAccount } from './components/woocommerce-account.js';
 

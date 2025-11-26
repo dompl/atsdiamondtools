@@ -41,6 +41,7 @@ class SkylineWPChildThemeSetup {
         $directories[] = get_stylesheet_directory() . '/functions/plugins';
         $directories[] = get_stylesheet_directory() . '/functions/ajax';
         $directories[] = get_stylesheet_directory() . '/functions/shortcodes/search';
+        $directories[] = get_stylesheet_directory() . '/functions/shortcodes/add_to_cart';
         $directories[] = get_stylesheet_directory() . '/functions/woocommerce';
         return $directories;
     }
@@ -59,7 +60,6 @@ class SkylineWPChildThemeSetup {
             error_log( 'Parent theme Composer autoloader not found at ' . $parent_autoloader );
         }
     }
-
 
 }
 
