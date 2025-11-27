@@ -6,8 +6,8 @@
  * @since 1.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if ( !defined( 'ABSPATH' ) ) {
+    exit;
 }
 
 /**
@@ -22,32 +22,32 @@ add_shortcode( 'ats_search', 'ats_render_search_shortcode' );
  * @return string HTML output
  */
 function ats_render_search_shortcode( $atts = array() ) {
-	// Parse attributes
-	$atts = shortcode_atts( array(
-		'context' => 'desktop', // 'desktop' or 'mobile'
-	), $atts, 'ats_search' );
+    // Parse attributes
+    $atts = shortcode_atts( array(
+        'context' => 'desktop' // 'desktop' or 'mobile'
+    ), $atts, 'ats_search' );
 
-	$context = sanitize_key( $atts['context'] );
-	$prefix  = 'ats-search-' . $context;
+    $context = sanitize_key( $atts['context'] );
+    $prefix  = 'ats-search-' . $context;
 
-	// Get product categories
-	$categories = get_terms( array(
-		'taxonomy'   => 'product_cat',
-		'hide_empty' => true,
-		'parent'     => 0,
-	) );
+    // Get product categories
+    $categories = get_terms( array(
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => true,
+        'parent'     => 0
+    ) );
 
-	ob_start();
-	?>
+    ob_start();
+    ?>
 	<div class="ats-search-container rfs-ref-search-container relative" data-ats-search data-search-context="<?php echo esc_attr( $context ); ?>">
 		<!-- Search Bar -->
-		<div class="rfs-ref-search-bar flex items-center border border-ats-gray rounded-[3px] bg-white h-8 w-full lg:w-[510px]" style="border-width: 1.5px;">
+		<div class="rfs-ref-search-bar flex items-center border border-neutral-500 rounded-[3px] bg-white h-8 w-full lg:w-[510px]">
 			<!-- Category Dropdown -->
 			<div class="relative">
 				<button
 					id="<?php echo esc_attr( $prefix ); ?>-category-btn"
 					data-dropdown-toggle="<?php echo esc_attr( $prefix ); ?>-category-dropdown"
-					class="js-search-category-btn flex items-center justify-between px-3 h-full min-w-[140px] text-ats-text text-xs font-bold font-['Inter'] focus:outline-none"
+					class="js-search-category-btn flex items-center justify-between px-3 h-full min-w-[140px] text-ats-text text-xs font-bold focus:outline-none"
 					type="button"
 				>
 					<span class="js-selected-category-text"><?php esc_html_e( 'All Categories', 'ats' ); ?></span>
@@ -73,8 +73,8 @@ function ats_render_search_shortcode( $atts = array() ) {
 								<?php esc_html_e( 'All Categories', 'ats' ); ?>
 							</a>
 						</li>
-						<?php if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) : ?>
-							<?php foreach ( $categories as $category ) : ?>
+						<?php if ( !empty( $categories ) && !is_wp_error( $categories ) ): ?>
+							<?php foreach ( $categories as $category ): ?>
 								<li>
 									<a
 										href="#"
@@ -135,5 +135,5 @@ function ats_render_search_shortcode( $atts = array() ) {
 		</div>
 	</div>
 	<?php
-	return ob_get_clean();
+return ob_get_clean();
 }

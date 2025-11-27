@@ -9,5 +9,6 @@
     <body <?php body_class( 'text-brand_text font-body' ); ?>>
         <?php wp_body_open(); ?>
         <?php do_action( 'skyline_after_body' ); ?>
-		  <?php get_template_part( 'functions/template-parts/header-main-2' ); ?>
+		  <?php get_template_part( 'functions/template-parts/colours' ); ?>
+		  <?php get_template_part( 'functions/template-parts/header-main-3' ); ?>
         <div id="content" class="site-content">
