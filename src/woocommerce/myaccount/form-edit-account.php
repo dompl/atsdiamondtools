@@ -110,6 +110,8 @@ do_action( 'woocommerce_before_edit_account_form' );
 
         <div class="pt-4">
             <?php wp_nonce_field( 'save_account_details', 'save-account-details-nonce' ); ?>
+            <input type="hidden" name="action" value="save_account_details" />
+            <div id="woocommerce-account-data" data-nonce="<?php echo wp_create_nonce( 'wc_account_nonce' ); ?>"></div>
             <button
                 type="submit"
                 name="save_account_details"

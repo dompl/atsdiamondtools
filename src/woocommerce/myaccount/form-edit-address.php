@@ -27,6 +27,8 @@ do_action( 'woocommerce_before_edit_account_address_form' );
             <?php do_action( "woocommerce_before_edit_address_form_{$load_address}" ); ?>
 
             <div class="space-y-6">
+                <!-- Add hidden action field -->
+                <input type="hidden" name="action" value="edit_address" />
                 <?php
                 foreach ( $address as $key => $field ) :
                     $field_value = wc_get_post_data_by_key( $key, get_user_meta( get_current_user_id(), $key, true ) );
@@ -57,6 +59,12 @@ do_action( 'woocommerce_before_edit_account_address_form' );
                         </label>
 
                         <?php if ( $field['type'] === 'country' ) : ?>
+                            <?php
+                            // Fallback: Populate options if empty
+                            if ( empty( $field['options'] ) ) {
+                                $field['options'] = WC()->countries->get_allowed_countries();
+                            }
+                            ?>
                             <select
                                 name="<?php echo esc_attr( $field_key ); ?>"
                                 id="<?php echo esc_attr( $field_key ); ?>"
