@@ -1,0 +1,7 @@
+// Flowbite dropdown overrides for ATS branding
+[data-flowbite-dropdown] .dropdown-menu {
+	@apply bg-ats-yellow text-gray-900 border-ats-yellow shadow-lg;
+}
+[data-flowbite-dropdown] .dropdown-item {
+	@apply hover:bg-ats-blue hover:text-white transition;
+}

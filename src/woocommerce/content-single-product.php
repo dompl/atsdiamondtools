@@ -58,13 +58,14 @@ $product_id = $product->get_id();
                             </div>
 
                             <!-- Title -->
-                            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                            <h1 class="single-product-title">
+
                                 <?php the_title(); ?>
                             </h1>
 
-                            <!-- Reviews -->
-                            <div class="flex items-center gap-2">
-                                <?php woocommerce_template_single_rating(); ?>
+                            <!-- Reviews (Star Rating) -->
+                            <div class="flex items-center gap-2 mb-2">
+                                <?php echo ats_get_star_rating_html( $product->get_average_rating(), $product->get_review_count() ); ?>
                             </div>
 
                             <!-- Short Description -->
@@ -81,7 +82,18 @@ $product_id = $product->get_id();
                                 <div class="flex flex-col gap-1">
                                     <span><?php esc_html_e( 'Availability:', 'woocommerce' ); ?></span>
                                     <span class="font-bold <?php echo $product->is_in_stock() ? 'text-green-600' : 'text-red-600'; ?>">
-                                        <?php echo $product->is_in_stock() ? esc_html__( 'In Stock', 'woocommerce' ) : esc_html__( 'Out of Stock', 'woocommerce' ); ?>
+                                        <?php
+                                        if ( $product->is_in_stock() ) {
+                                            $stock_quantity = $product->get_stock_quantity();
+                                            if ( $stock_quantity ) {
+                                                echo sprintf( esc_html__( '%s in stock', 'woocommerce' ), $stock_quantity );
+                                            } else {
+                                                esc_html_e( 'In Stock', 'woocommerce' );
+                                            }
+                                        } else {
+                                            esc_html_e( 'Out of Stock', 'woocommerce' );
+                                        }
+                                        ?>
                                     </span>
                                 </div>
 
@@ -121,8 +133,8 @@ $product_id = $product->get_id();
                             <?php endif; ?>
 
                             <!-- Price -->
-                            <div class="py-4">
-                                <p class="text-2xl font-bold text-gray-900 flex items-baseline gap-2">
+                            <div class="py-4" >
+                                <p class="text-2xl font-bold text-gray-900 flex items-baseline gap-2" id="ats-product-main-price">
                                 <?php echo ats_get_product_price_html( $product ); ?>
                                 </p>
                             </div>

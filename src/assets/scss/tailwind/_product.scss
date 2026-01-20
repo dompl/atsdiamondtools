@@ -1,0 +1,10 @@
+.product {
+	.woocommerce-breadcrumb {
+		@apply text-[14px] text-ats-text/60 !important;
+		a {
+		}
+	}
+	.single-product-title {
+		@apply self-stretch justify-start text-black text-2xl font-bold;
+	}
+}

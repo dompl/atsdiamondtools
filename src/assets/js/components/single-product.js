@@ -23,6 +23,67 @@ export function initSingleProduct() {
 
 	// Initialize Shop By Category Toggle
 	initCategoryToggle();
+
+	// Initialize Custom Dropdowns
+	initCustomDropdowns();
+
+	// Initialize AJAX Add to Cart
+	initAjaxAddToCart();
+}
+
+/**
+ * AJAX Add to Cart for Single Product
+ */
+function initAjaxAddToCart() {
+	const $form = $('form.cart');
+
+	$form.on('submit', function (e) {
+		e.preventDefault();
+
+		const $this = $(this);
+		const $btn = $this.find('.single_add_to_cart_button');
+
+		if ($btn.hasClass('disabled') || $btn.hasClass('loading')) {
+			return;
+		}
+
+		// Add loading state
+		$btn.addClass('loading');
+
+		const formData = new FormData($this[0]);
+		formData.append('add-to-cart', $this.find('[name="add-to-cart"]').val() || $this.find('[name="product_id"]').val() || $('input[name="product_id"]').val());
+
+		$.ajax({
+			url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+			type: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function (response) {
+				if (response.error && response.product_url) {
+					window.location = response.product_url;
+					return;
+				}
+
+				// Trigger event so minicart updates
+				$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $btn]);
+
+				// Open MiniCart if available
+				if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
+					window.ATSMiniCartModal.open();
+				} else if (window.ATSMiniCart && window.ATSMiniCart.modal) {
+					// Fallback check
+					window.ATSMiniCart.modal.open();
+				}
+
+				$btn.removeClass('loading');
+			},
+			error: function () {
+				// Fallback to standard submit
+				$this.off('submit').submit();
+			},
+		});
+	});
 }
 
 /**
@@ -40,7 +101,7 @@ function initQuantityButtons() {
 
 		let newVal = currentVal;
 
-		if ($btn.hasClass('plus')) {
+		if ($btn.hasClass('ats-qty-plus')) {
 			if (isNaN(max) || currentVal < max) {
 				newVal = currentVal + step;
 			}
@@ -60,38 +121,37 @@ function initQuantityButtons() {
  */
 function initVariationLogic() {
 	const $form = $('form.variations_form');
-	const $priceContainer = $('.rfs-price-container');
+	const $priceHtml = $('#ats-product-main-price');
 
-	// Note: You need to add .rfs-price-container to the price element in content-single-product.php
+	// Store original price html
+	if ($priceHtml.length) {
+		$priceHtml.data('original-html', $priceHtml.html());
+	}
 
 	if ($form.length === 0) return;
 
 	$form.on('found_variation', function (event, variation) {
 		if (variation.price_html) {
 			// Update the main price and add VAT suffix if needed
-			// The passed price_html usually comes from WC formatted with tax settings
-			// But if we need to force "+VAT", we might need to parse or append.
-			// For now, replace the content.
-
-			// However, our template uses custom ats_get_product_price_html() which adds +VAT.
-			// WC's variation.price_html might not include it if not configured globally.
-			// Let's rely on WC's output but try to append +VAT if missing and we know it's ex-vat.
-
 			let priceHtml = variation.price_html;
-			if (priceHtml && !priceHtml.includes('VAT')) {
-				// Heuristic: append +VAT if not present (adjust based on actual need)
+
+			// Check if tax_label is already there (some plugins add it)
+			if (priceHtml && !priceHtml.includes('VAT') && !priceHtml.includes('tax_label')) {
 				priceHtml += ' <span class="tax_label">+VAT</span>';
 			}
 
 			// Only update if we have a target
-			$('.ats-product-main-price').html(priceHtml);
+			if ($priceHtml.length) {
+				$priceHtml.html(priceHtml);
+			}
 		}
 	});
 
 	$form.on('reset_data', function () {
-		// Reset to variable price range (captured on load?)
-		// Ideally we should have stored the original HTML.
-		// For simplicity, we might leave it or implement a data-original-html attribute.
+		// Reset to variable price range
+		if ($priceHtml.length && $priceHtml.data('original-html')) {
+			$priceHtml.html($priceHtml.data('original-html'));
+		}
 	});
 }
 
@@ -108,4 +168,89 @@ function initCategoryToggle() {
 		$target.slideToggle(200);
 		$icon.toggleClass('rotate-180');
 	});
+}
+
+/**
+ * Initialize Flowbite Dropdowns for Variations
+ */
+function initCustomDropdowns() {
+	const $form = $('form.variations_form');
+
+	// Helper to refresh options from select
+	const refreshDropdown = ($wrapper) => {
+		const $select = $wrapper.find('select');
+		const $list = $wrapper.find('.dropdown-options-list');
+		const $btnText = $wrapper.find('.dropdown-selected-text');
+
+		$list.empty();
+
+		// Update selected text based on current value
+		const currentVal = $select.val();
+		if (currentVal) {
+			const $selectedOpt = $select.find('option[value="' + currentVal.replace(/"/g, '\\"') + '"]');
+			if ($selectedOpt.length) {
+				$btnText.text($selectedOpt.text());
+			}
+		} else {
+			$btnText.text('Choose an option');
+		}
+
+		// Rebuild list
+		$select.find('option').each(function () {
+			const $opt = $(this);
+			const value = $opt.val();
+			const text = $opt.text();
+
+			if (!value) return; // Skip placeholder
+
+			const li = $('<li>');
+			const btn = $('<button type="button">').addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-2 hover:bg-gray-100 transition-colors duration-150').data('value', value).text(text);
+
+			// Active state
+			if (currentVal === value) {
+				btn.addClass('bg-gray-100 text-primary-600 font-bold');
+			} else {
+				btn.addClass('text-gray-700 dark:text-gray-200');
+			}
+
+			li.append(btn);
+			$list.append(li);
+		});
+	};
+
+	// Initial Population
+	$('.flowbite-dropdown-wrapper').each(function () {
+		refreshDropdown($(this));
+	});
+
+	// Listen for WC updates
+	$form.on('woocommerce_update_variation_values', function () {
+		$('.flowbite-dropdown-wrapper').each(function () {
+			refreshDropdown($(this));
+		});
+	});
+
+	// Handle Option Click
+	$(document).on('click', '.ats-dropdown-option', function (e) {
+		e.preventDefault();
+		const $option = $(this);
+		const value = $option.data('value');
+		const $wrapper = $option.closest('.flowbite-dropdown-wrapper');
+		const $select = $wrapper.find('select');
+		const $btn = $wrapper.find('.ats-dropdown-trigger');
+
+		// Logic to close dropdown (simulate click on trigger if using Flowbite toggle)
+		$btn.click();
+
+		// Update Select
+		$select.val(value).trigger('change');
+	});
+
+	// Sync if select changes elsewhere (e.g. reset)
+	$('.flowbite-dropdown-wrapper select').on('change', function () {
+		const $wrapper = $(this).closest('.flowbite-dropdown-wrapper');
+		refreshDropdown($wrapper);
+	});
+}
+
 }
