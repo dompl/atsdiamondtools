@@ -85,19 +85,19 @@ function handle_user_avatar_upload() {
 /**
  * Use custom avatar if available
  */
-add_filter( 'get_avatar_url', 'use_custom_avatar_url', 10, 3 );
+add_filter( 'get_avatar_url', 'use_custom_avatar_url', 99, 3 );
 function use_custom_avatar_url( $url, $id_or_email, $args ) {
-    $user = false;
+    $user_id = 0;
 
     if ( is_numeric( $id_or_email ) ) {
         $user_id = (int) $id_or_email;
-    } elseif ( is_object( $id_or_email ) && isset( $id_or_email->user_id ) ) {
-        $user_id = (int) $id_or_email->user_id;
-    } elseif ( is_object( $id_or_email ) && isset( $id_or_email->ID ) ) {
-        $user_id = (int) $id_or_email->ID;
-    } elseif ( is_string( $id_or_email ) ) {
+    } elseif ( is_string( $id_or_email ) && is_email( $id_or_email ) ) {
         $user = get_user_by( 'email', $id_or_email );
         $user_id = $user ? $user->ID : 0;
+    } elseif ( is_a( $id_or_email, 'WP_User' ) ) {
+        $user_id = $id_or_email->ID;
+    } elseif ( is_object( $id_or_email ) && isset( $id_or_email->user_id ) ) {
+        $user_id = (int) $id_or_email->user_id;
     }
 
     if ( !empty( $user_id ) ) {
@@ -112,3 +112,32 @@ function use_custom_avatar_url( $url, $id_or_email, $args ) {
 
     return $url;
 }
+
+/**
+ * Filter pre_get_avatar_data to inject custom avatar url early
+ */
+add_filter( 'pre_get_avatar_data', 'use_custom_avatar_data', 99, 2 );
+function use_custom_avatar_data( $args, $id_or_email ) {
+    if ( ! empty( $args['url'] ) ) {
+        return $args;
+    }
+
+    $url = use_custom_avatar_url( '', $id_or_email, $args );
+
+    if ( ! empty( $url ) ) {
+        $args['url'] = $url;
+    }
+
+    return $args;
+}
+
+
+/**
+ * Redirect /my-account/dashboard/ to /dashboard/
+ */
+add_action( 'template_redirect', function() {
+    if ( is_account_page() && is_wc_endpoint_url( 'dashboard' ) ) {
+        wp_safe_redirect( home_url( '/dashboard/' ) );
+        exit;
+    }
+} );
