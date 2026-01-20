@@ -37,13 +37,15 @@ add_filter( 'woocommerce_attribute_taxonomies', function( $taxonomies ) {
 
 		// Check if the taxonomy actually exists in WordPress
 		if ( !taxonomy_exists( $taxonomy_name ) ) {
-			// Log the issue for debugging
+			// Log suppressed to avoid flooding debug.log with "pa_variants-XXX" issues from migration
+			/*
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( sprintf(
 					'[WooCommerce] Invalid product attribute taxonomy "%s" removed from attributes list. The taxonomy may need to be re-registered.',
 					$taxonomy_name
 				) );
 			}
+			*/
 			return false;
 		}
 
