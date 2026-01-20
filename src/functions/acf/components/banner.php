@@ -108,47 +108,7 @@ return ob_get_clean();
 		<!-- Banner Container -->
 		<div class="rfs-ref-banner-wrapper container flex flex-col lg:flex-row gap-4 lg:gap-5 lg:py-0 mb-4 xl:mb-8">
 			<!-- Sidebar (Navigation) -->
-			<div class="rfs-ref-banner-sidebar w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-md overflow-hidden flex flex-col relative z-20 h-fit">
-
-				<!-- Toggle Button -->
-				<button class="rfs-ref-category-btn w-full flex items-center justify-between p-2 lg:p-4 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20">
-					<div class="flex items-center gap-3">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-						</svg>
-						<h2 class="text-sm lg:text-lg font-bold tracking-wide text-white uppercase">Shop By Category</h2>
-					</div>
-					<!-- Chevron -->
-					<svg class="rfs-ref-category-chevron lg:hidden h-5 w-5 text-white/70 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-					</svg>
-				</button>
-
-				<!-- List Container -->
-				<div class="rfs-ref-category-list grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
-					<div class="overflow-hidden">
-						<div class="flex flex-col py-2">
-							<?php if ( !empty( $product_categories ) && !is_wp_error( $product_categories ) ): ?>
-								<?php foreach ( $product_categories as $category ):
-        $category_link     = get_term_link( $category );
-        $short_description = get_field( 'category_nav_short_description', $category );
-        ?>
-														<a href="<?php echo esc_url( $category_link ); ?>" class="rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]">
-															<h3 class="text-[13px] font-bold uppercase tracking-wider text-white mb-0.5 group-hover:text-[#fbbf24] transition-colors">
-																<?php echo esc_html( $category->name ); ?>
-															</h3>
-															<?php if ( $short_description ): ?>
-																<p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
-																	<?php echo esc_html( $short_description ); ?>
-																</p>
-															<?php endif; ?>
-									</a>
-								<?php endforeach; ?>
-							<?php endif; ?>
-						</div>
-					</div>
-				</div>
-			</div>
+			<?php echo do_shortcode('[category_navigation]'); ?>
 
 			<!-- Carousel -->
 			<div class="rfs-ref-banner-carousel w-full lg:flex-1 relative h-[500px] lg:h-auto rounded-lg overflow-hidden shadow-xl bg-gray-900 group">

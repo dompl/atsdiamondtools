@@ -5,11 +5,11 @@
  */
 
 // Initialize banner functionality for each banner instance on the page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 	// Find all banner instances (supports multiple banners on one page)
 	const bannerContainers = document.querySelectorAll('.rfs-ref-banner-container');
 
-	bannerContainers.forEach(function(bannerContainer) {
+	bannerContainers.forEach(function (bannerContainer) {
 		initBanner(bannerContainer);
 	});
 });
@@ -24,9 +24,6 @@ function initBanner(bannerContainer) {
 	const dotsContainer = bannerContainer.querySelector('.rfs-ref-carousel-dots');
 	const slideItems = bannerContainer.querySelectorAll('.rfs-ref-slide-item');
 	const slidesCount = parseInt(bannerContainer.getAttribute('data-slides-count')) || slideItems.length;
-
-	// Return if no slides found
-	if (!slideItems.length) return;
 
 	let currentSlide = 0;
 	let slideInterval;
@@ -51,9 +48,12 @@ function initBanner(bannerContainer) {
 
 	// --- Category Toggle Logic ---
 	if (categoryBtn && categoryList && categoryChevron) {
-		categoryBtn.addEventListener('click', function() {
-			// Only allow toggle on mobile
-			if (!isMobile()) return;
+		categoryBtn.addEventListener('click', function () {
+			// Check if desktop toggle is allowed via data attribute
+			const allowDesktopToggle = categoryBtn.getAttribute('data-allow-desktop-toggle') === 'true';
+
+			// Only allow toggle if mobile OR explicit desktop toggle allowed
+			if (!isMobile() && !allowDesktopToggle) return;
 
 			const isOpen = categoryList.classList.contains('grid-rows-1');
 			if (isOpen) {
@@ -67,6 +67,9 @@ function initBanner(bannerContainer) {
 			}
 		});
 	}
+
+	// Return if no slides found (stop Carousel logic)
+	if (!slideItems.length) return;
 
 	// --- Carousel Logic (only if more than 1 slide) ---
 	if (slidesCount > 1) {
@@ -128,7 +131,7 @@ function initBanner(bannerContainer) {
 		if (dotsContainer) {
 			const dotItems = dotsContainer.querySelectorAll('.rfs-ref-carousel-dot');
 			dotItems.forEach((dot, index) => {
-				dot.onclick = function() {
+				dot.onclick = function () {
 					goToSlide(index);
 				};
 			});
@@ -139,11 +142,11 @@ function initBanner(bannerContainer) {
 
 		// Pause on hover (optional enhancement)
 		if (bannerContainer) {
-			bannerContainer.addEventListener('mouseenter', function() {
+			bannerContainer.addEventListener('mouseenter', function () {
 				clearInterval(slideInterval);
 			});
 
-			bannerContainer.addEventListener('mouseleave', function() {
+			bannerContainer.addEventListener('mouseleave', function () {
 				slideInterval = setInterval(nextSlide, 6000);
 			});
 		}
@@ -152,9 +155,9 @@ function initBanner(bannerContainer) {
 	// --- Resize Handler ---
 	// Close category accordion when switching to mobile
 	let resizeTimer;
-	window.addEventListener('resize', function() {
+	window.addEventListener('resize', function () {
 		clearTimeout(resizeTimer);
-		resizeTimer = setTimeout(function() {
+		resizeTimer = setTimeout(function () {
 			closeCategoryOnMobile();
 		}, 250);
 	});

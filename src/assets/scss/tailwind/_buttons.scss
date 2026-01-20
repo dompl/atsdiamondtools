@@ -162,3 +162,16 @@
 .ats-btn-outline-yellow:hover {
 	@apply bg-ats-yellow text-black;
 }
+
+/* Single Product Add To Cart Override */
+.ats-product-form .single_add_to_cart_button {
+	@apply ats-btn ats-btn-lg ats-btn-yellow w-full justify-center shadow-none border-none;
+}
+
+.ats-product-form .single_add_to_cart_button:hover {
+	@apply bg-yellow-500 text-white;
+}
+
+.ats-product-form .single_add_to_cart_button.disabled {
+	@apply opacity-50 cursor-not-allowed bg-gray-300 text-gray-500;
+}

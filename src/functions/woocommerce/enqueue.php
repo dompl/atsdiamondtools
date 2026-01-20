@@ -95,7 +95,7 @@ add_action( 'wp_enqueue_scripts', function () {
 
     // Remove WooCommerce frontend scripts (we'll implement custom ones as needed).
     wp_dequeue_script( 'wc-add-to-cart' );
-    wp_dequeue_script( 'wc-add-to-cart-variation' );
+    // wp_dequeue_script( 'wc-add-to-cart-variation' ); // Needed for variable products
     wp_dequeue_script( 'wc-cart' );
     wp_dequeue_script( 'wc-cart-fragments' );
 
@@ -107,7 +107,7 @@ add_action( 'wp_enqueue_scripts', function () {
 
     wp_dequeue_script( 'wc-checkout' );
     wp_dequeue_script( 'wc-credit-card-form' );
-    wp_dequeue_script( 'wc-single-product' );
+    // wp_dequeue_script( 'wc-single-product' ); // Needed for gallery
     wp_dequeue_script( 'woocommerce' );
     wp_dequeue_script( 'prettyPhoto' );
     wp_dequeue_script( 'prettyPhoto-init' );
@@ -116,10 +116,10 @@ add_action( 'wp_enqueue_scripts', function () {
     wp_dequeue_script( 'jquery-payment' );
     wp_dequeue_script( 'jqueryui' );
     wp_dequeue_script( 'fancybox' );
-    wp_dequeue_script( 'flexslider' );
-    wp_dequeue_script( 'zoom' );
-    wp_dequeue_script( 'photoswipe' );
-    wp_dequeue_script( 'photoswipe-ui-default' );
+    // wp_dequeue_script( 'flexslider' );
+    wp_dequeue_script( 'zoom' ); // Needed for image zoom
+    // wp_dequeue_script( 'photoswipe' ); // Needed for lightbox
+    // wp_dequeue_script( 'photoswipe-ui-default' ); // Needed for lightbox
     wp_dequeue_script( 'wc-password-strength-meter' );
 
     // Dequeue WooCommerce block scripts.
@@ -144,6 +144,33 @@ add_action( 'enqueue_block_assets', function () {
     wp_dequeue_style( 'wc-block-editor' );
     wp_deregister_style( 'wc-block-editor' );
 }, 999 );
+
+/**
+ * Enable WooCommerce Product Gallery Features.
+ */
+add_action( 'after_setup_theme', function() {
+    // add_theme_support( 'wc-product-gallery-zoom' ); // Disabled per user request
+    add_theme_support( 'wc-product-gallery-lightbox' );
+    add_theme_support( 'wc-product-gallery-slider' );
+} );
+
+/**
+ * Enqueue WooCommerce Gallery Styles (Photoswipe).
+ * These are needed because we disabled all default WC styles.
+ */
+add_action( 'wp_enqueue_scripts', function() {
+    if ( is_product() ) {
+        // Enqueue Photoswipe Core
+        wp_enqueue_style( 'photoswipe', plugins_url( 'woocommerce/assets/css/photoswipe/photoswipe.css' ) );
+        wp_enqueue_style( 'photoswipe-default-skin', plugins_url( 'woocommerce/assets/css/photoswipe/default-skin/default-skin.css' ) );
+
+        // Custom CSS to fix the gallery scaling if needed
+        wp_add_inline_style( 'photoswipe-default-skin', '
+            .woocommerce-product-gallery { opacity: 1 !important; }
+            .woocommerce-product-gallery__trigger { display: none !important; } /* Hide Zoom Icon */
+        ' );
+    }
+} );
 
 /**
  * Disable WooCommerce block styles loading.

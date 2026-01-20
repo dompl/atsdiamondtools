@@ -1,0 +1,38 @@
+.woocommerce-product-gallery {
+	@apply relative opacity-100;
+}
+
+.woocommerce-product-gallery__trigger {
+	@apply hidden;
+}
+
+/* Slider Viewport */
+.flex-viewport {
+	@apply relative overflow-hidden h-auto;
+}
+
+.woocommerce-product-gallery__wrapper {
+	@apply m-0 p-0 flex transition-all duration-500 ease-in-out;
+}
+
+.woocommerce-product-gallery__image {
+	@apply w-full flex-shrink-0;
+}
+
+/* Thumbnails Navigation */
+.flex-control-nav.flex-control-thumbs {
+	@apply flex flex-wrap gap-2 mt-4 p-0 list-none;
+}
+
+.flex-control-nav.flex-control-thumbs li {
+	@apply w-20 cursor-pointer p-0 m-0 list-none;
+}
+
+.flex-control-nav.flex-control-thumbs img {
+	@apply w-full h-auto opacity-50 transition-opacity duration-200 block border border-transparent rounded-sm;
+}
+
+.flex-control-nav.flex-control-thumbs img.flex-active,
+.flex-control-nav.flex-control-thumbs img:hover {
+	@apply opacity-100 border-gray-300;
+}

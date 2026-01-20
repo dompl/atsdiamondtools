@@ -5,10 +5,11 @@
 import 'flowbite';
 
 // Active Components
+import './components/add_to_cart.js';
 import './components/newsletter.js';
 import './components/product-scroller.js';
-import './components/add_to_cart.js';
 import { initATSSearch } from './components/search.js';
+import { initSingleProduct } from './components/single-product.js';
 import { initWooCommerceAccount } from './components/woocommerce-account.js';
 
 // Inactive Components
@@ -32,4 +33,5 @@ import './components/banner.js';
 document.addEventListener('DOMContentLoaded', function () {
 	initATSSearch();
 	initWooCommerceAccount();
+	initSingleProduct();
 });
