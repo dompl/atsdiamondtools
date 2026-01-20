@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				},
 			},
 			pagination: false,
-			arrows: true,
+			arrows: false,
 			breakpoints: {
 				1280: {
 					grid: {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		console.log('Product Scroller', index, ': Initializing with config:', {
 			rows: rowsCount,
 			cols: 5,
-			slidesCount: carouselElement.querySelectorAll('.splide__slide').length
+			slidesCount: carouselElement.querySelectorAll('.splide__slide').length,
 		});
 
 		// Mount with Grid extension
@@ -114,8 +114,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			console.log('Product Scroller', index, ': Successfully mounted');
 
 			// Connect custom navigation buttons
-			const prevButton = wrapper.querySelector('.rfs-ref-prev-arrow');
-			const nextButton = wrapper.querySelector('.rfs-ref-next-arrow');
+			// const prevButton = wrapper.querySelector('.rfs-ref-prev-arrow');
+			// const nextButton = wrapper.querySelector('.rfs-ref-next-arrow');
+			const prevButton = wrapper.querySelector('.ats-heading-prev-arrow');
+			const nextButton = wrapper.querySelector('.ats-heading-next-arrow');
 
 			if (prevButton) {
 				prevButton.addEventListener('click', (e) => {

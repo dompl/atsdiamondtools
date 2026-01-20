@@ -1,0 +1,164 @@
+.ats-btn {
+	@apply px-3 py-1 rounded inline-flex justify-center items-center gap-3;
+	@apply text-xs font-bold uppercase leading-5 transition-colors;
+}
+
+/* Button Sizes */
+.ats-btn-xs {
+	@apply text-xs px-2 py-0.5 rounded-sm;
+}
+
+.ats-btn-sm {
+	@apply text-xs px-3 py-1;
+}
+
+.ats-btn-md {
+	@apply text-sm px-4 py-2;
+}
+
+.ats-btn-lg-md {
+	@apply text-base px-5 py-2.5;
+}
+
+.ats-btn-lg {
+	@apply text-base px-6 py-3;
+}
+
+/* Primary Colors */
+.ats-btn-primary-300 {
+	@apply bg-primary-300 text-primary-700;
+}
+
+.ats-btn-primary-300:hover {
+	@apply bg-primary-500 text-white;
+}
+
+.ats-btn-primary-500 {
+	@apply bg-primary-500 text-white;
+}
+
+.ats-btn-primary-500:hover {
+	@apply bg-primary-600;
+}
+
+.ats-btn-primary-600 {
+	@apply bg-primary-600 text-white;
+}
+
+.ats-btn-primary-600:hover {
+	@apply bg-primary-700;
+}
+
+.ats-btn-primary-700 {
+	@apply bg-primary-700 text-white;
+}
+
+.ats-btn-primary-700:hover {
+	@apply bg-primary-800;
+}
+
+.ats-btn-primary-800 {
+	@apply bg-primary-800 text-white;
+}
+
+.ats-btn-primary-800:hover {
+	@apply bg-primary-900;
+}
+
+.ats-btn-primary-900 {
+	@apply bg-primary-900 text-white;
+}
+
+.ats-btn-primary-900:hover {
+	@apply bg-primary-800;
+}
+
+/* Neutral Colors */
+.ats-btn-neutral-500 {
+	@apply bg-neutral-500 text-neutral-700;
+}
+
+.ats-btn-neutral-500:hover {
+	@apply bg-neutral-700 text-white;
+}
+
+.ats-btn-neutral-700 {
+	@apply bg-neutral-700 text-white;
+}
+
+.ats-btn-neutral-700:hover {
+	@apply bg-neutral-500;
+}
+
+/* Accent Colors */
+.ats-btn-accent-yellow {
+	@apply bg-accent-yellow text-black;
+}
+
+.ats-btn-accent-yellow:hover {
+	@apply bg-yellow-500 text-white;
+	svg {
+		@apply fill-white;
+	}
+}
+
+.ats-btn-accent-green {
+	@apply bg-accent-green text-white;
+}
+
+.ats-btn-accent-green:hover {
+	@apply bg-green-700;
+}
+
+/* ATS Colors */
+.ats-btn-yellow {
+	@apply bg-ats-yellow text-black;
+}
+
+.ats-btn-yellow:hover {
+	@apply bg-yellow-500 text-white;
+	svg {
+		@apply fill-white;
+	}
+}
+
+.ats-btn-dark {
+	@apply bg-ats-dark text-white;
+}
+
+.ats-btn-dark:hover {
+	@apply bg-primary-700;
+}
+
+.ats-btn-gray {
+	@apply bg-ats-gray text-ats-text;
+}
+
+.ats-btn-gray:hover {
+	@apply bg-neutral-700 text-white;
+}
+
+/* Outline Variants */
+.ats-btn-outline-primary {
+	@apply border-2 border-primary-600 text-primary-600 bg-transparent;
+}
+
+.ats-btn-outline-primary:hover {
+	@apply bg-primary-600 text-white;
+}
+
+.ats-btn-outline-dark {
+	@apply border-2 border-ats-dark text-ats-dark bg-transparent;
+}
+
+.ats-btn-outline-dark:hover {
+	@apply bg-ats-dark text-white;
+}
+
+.ats-btn-outline-yellow {
+	@apply border-2 border-ats-yellow text-ats-text bg-transparent;
+}
+
+.ats-btn-outline-yellow:hover {
+	@apply bg-ats-yellow text-black;
+}

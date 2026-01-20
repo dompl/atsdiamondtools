@@ -15,11 +15,25 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Track whether the modal has been output
+ */
+global $ats_mini_cart_modal_rendered;
+$ats_mini_cart_modal_rendered = false;
+
+/**
  * Mini Cart Shortcode
  *
  * @return string HTML output
  */
 function ats_mini_cart_shortcode() {
+    global $ats_mini_cart_modal_rendered;
+
+    // Ensure modal is rendered once in footer
+    if ( ! $ats_mini_cart_modal_rendered ) {
+        add_action( 'wp_footer', 'ats_render_mini_cart_modal', 50 );
+        $ats_mini_cart_modal_rendered = true;
+    }
+
     // Start output buffer
     ob_start();
     ?>
@@ -80,7 +94,18 @@ function ats_mini_cart_shortcode() {
         </div>
 
     </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode( 'ats_add_to_cart', 'ats_mini_cart_shortcode' );
 
+/**
+ * Render the Mini Cart Modal in footer (only once)
+ *
+ * @return void
+ */
+function ats_render_mini_cart_modal() {
+    ?>
     <!-- Mini Cart Modal (Flowbite) -->
     <div id="ats-mini-cart-modal" tabindex="-1" aria-hidden="true" class="rfs-ref-mini-cart-modal js-mini-cart-modal hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-start">
         <div class="rfs-ref-mini-cart-modal-backdrop js-mini-cart-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
@@ -94,9 +119,9 @@ function ats_mini_cart_shortcode() {
                             <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/>
                         </svg>
                         <?php esc_html_e( 'Your Basket', 'skylinewp-dev-child' ); ?>
-                        <span class="text-sm font-normal text-ats-text" id="ats-modal-item-count">(0 items)</span>
+                        <span class="text-sm font-normal text-ats-text js-modal-item-count">(0 items)</span>
                     </h3>
-                    <button type="button" class="rfs-ref-mini-cart-modal-close text-ats-text bg-transparent hover:bg-ats-gray hover:text-ats-dark rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center" data-modal-hide="ats-mini-cart-modal">
+                    <button type="button" class="rfs-ref-mini-cart-modal-close js-mini-cart-close text-ats-text bg-transparent hover:bg-ats-gray hover:text-ats-dark rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center" data-modal-hide="ats-mini-cart-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -105,7 +130,7 @@ function ats_mini_cart_shortcode() {
                 </div>
 
                 <!-- Modal body - Cart Items -->
-                <div class="rfs-ref-mini-cart-modal-body js-mini-cart-modal-body p-4 max-h-96 overflow-y-auto" id="ats-mini-cart-items">
+                <div class="rfs-ref-mini-cart-modal-body js-mini-cart-modal-body js-mini-cart-items p-4 max-h-96 overflow-y-auto">
                     <!-- Cart items will be loaded here via AJAX -->
                     <div class="rfs-ref-mini-cart-items-loading flex items-center justify-center py-8">
                         <svg class="animate-spin h-8 w-8 text-ats-yellow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -121,15 +146,15 @@ function ats_mini_cart_shortcode() {
                     <div class="rfs-ref-mini-cart-modal-totals space-y-2 mb-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-ats-text"><?php esc_html_e( 'Subtotal:', 'skylinewp-dev-child' ); ?></span>
-                            <span class="font-medium text-ats-dark" id="ats-modal-subtotal"><?php echo wc_price( 0 ); ?></span>
+                            <span class="font-medium text-ats-dark js-modal-subtotal"><?php echo wc_price( 0 ); ?></span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-ats-text"><?php esc_html_e( 'VAT:', 'skylinewp-dev-child' ); ?></span>
-                            <span class="font-medium text-ats-dark" id="ats-modal-tax"><?php echo wc_price( 0 ); ?></span>
+                            <span class="font-medium text-ats-dark js-modal-tax"><?php echo wc_price( 0 ); ?></span>
                         </div>
                         <div class="flex justify-between text-base font-semibold border-t border-gray-200 pt-2">
                             <span class="text-ats-dark"><?php esc_html_e( 'Total:', 'skylinewp-dev-child' ); ?></span>
-                            <span class="text-ats-dark" id="ats-modal-total"><?php echo wc_price( 0 ); ?></span>
+                            <span class="text-ats-dark js-modal-total"><?php echo wc_price( 0 ); ?></span>
                         </div>
                         <p class="text-xs text-ats-text text-center">
                             <?php esc_html_e( 'Shipping and discounts will be calculated at checkout.', 'skylinewp-dev-child' ); ?>
@@ -144,7 +169,7 @@ function ats_mini_cart_shortcode() {
                         <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="ats-btn ats-btn-md ats-btn-outline w-full text-center">
                             <?php esc_html_e( 'View Full Basket', 'skylinewp-dev-child' ); ?>
                         </a>
-                        <button type="button" class="text-sm text-ats-text hover:text-ats-dark underline" data-modal-hide="ats-mini-cart-modal">
+                        <button type="button" class="js-mini-cart-close text-sm text-ats-text hover:text-ats-dark underline" data-modal-hide="ats-mini-cart-modal">
                             <?php esc_html_e( 'Continue Shopping', 'skylinewp-dev-child' ); ?>
                         </button>
                     </div>
@@ -152,11 +177,8 @@ function ats_mini_cart_shortcode() {
             </div>
         </div>
     </div>
-
     <?php
-return ob_get_clean();
 }
-add_shortcode( 'ats_add_to_cart', 'ats_mini_cart_shortcode' );
 
 /**
  * Ensure WooCommerce cart is initialized for AJAX requests

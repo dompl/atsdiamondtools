@@ -1,11 +1,11 @@
 <?php
 
+use Extended\ACF\ConditionalLogic;
 use Extended\ACF\Fields\Layout;
 use Extended\ACF\Fields\PostObject;
 use Extended\ACF\Fields\Select;
 use Extended\ACF\Fields\Tab;
 use Extended\ACF\Fields\Text;
-use Extended\ACF\ConditionalLogic;
 
 function product_scroller_fields() {
     return [
@@ -67,11 +67,11 @@ function component_product_scroller_html( string $output, string $layout ): stri
         return $output;
     }
 
-    $title           = get_sub_field( 'title' );
-    $product_type    = get_sub_field( 'product_type' );
-    $selected_prods  = get_sub_field( 'selected_products' );
-    $products_limit  = get_sub_field( 'products_limit' ) ?: '10';
-    $rows            = get_sub_field( 'rows' ) ?: '2';
+    $title          = get_sub_field( 'title' );
+    $product_type   = get_sub_field( 'product_type' );
+    $selected_prods = get_sub_field( 'selected_products' );
+    $products_limit = get_sub_field( 'products_limit' ) ?: '10';
+    $rows           = get_sub_field( 'rows' ) ?: '2';
 
     // Generate unique ID for this carousel instance
     $carousel_id = 'product-scroller-' . uniqid();
@@ -83,7 +83,7 @@ function component_product_scroller_html( string $output, string $layout ): stri
         // Use selected products
         $selected_prods = array_slice( $selected_prods, 0, intval( $products_limit ) );
         foreach ( $selected_prods as $product_post ) {
-            $product_id = is_object( $product_post ) ? $product_post->ID : $product_post;
+            $product_id    = is_object( $product_post ) ? $product_post->ID : $product_post;
             $product_ids[] = $product_id;
         }
     } else {
@@ -132,43 +132,48 @@ function component_product_scroller_html( string $output, string $layout ): stri
             </div>
         </div>
         <?php
-        return ob_get_clean();
+return ob_get_clean();
     }
     ?>
 
     <div class="container mx-auto px-4">
         <div class="rfs-ref-product-scroller-wrapper" id="<?php echo esc_attr( $carousel_id ); ?>" data-rows="<?php echo esc_attr( $rows ); ?>">
         <?php if ( $title ): ?>
-            <div class="rfs-ref-product-scroller-header relative mb-8 flex items-center justify-between">
-                <h2 class="rfs-ref-product-scroller-title text-2xl font-bold text-gray-700 bg-white pr-4 relative z-10">
-                    <?php echo esc_html( $title ); ?>
-                </h2>
-                <div class="rfs-ref-product-scroller-nav splide__arrows flex gap-2 bg-white pl-4 relative z-10">
-                    <button class="splide__arrow splide__arrow--prev rfs-ref-prev-arrow w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-all flex items-center justify-center bg-gray-50 text-gray-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                    <button class="splide__arrow splide__arrow--next rfs-ref-next-arrow w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-all flex items-center justify-center bg-gray-50 text-gray-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+
+			<div class="flex items-center w-full gap-5 mb-4">
+				<h2 class="text-lg xl:text-xl font-bold text-primary-600 whitespace-nowrap tracking-tight">
+					 <?php echo esc_html( $title ); ?>
+				</h2>
+				<div class="flex-grow h-[1px] bg-neutral-500"></div>
+				<div class="flex items-center gap-2">
+					<button class="ats-heading-prev-arrow w-8 h-8 flex items-center justify-center rounded bg-neutral-500 text-neutral-600 hover:bg-gray-300 hover:text-white active:bg-gray-400 transition-colors duration-200" aria-label="Previous">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 fill-current opacity-60" fill="currentColor">
+							<path d="M0 0h24v24H0V0z" fill="none"></path>
+							<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"></path>
+						</svg>
+					</button>
+					<button class="ats-heading-next-arrow w-8 h-8 flex items-center justify-center rounded bg-neutral-500 text-neutral-600 hover:bg-gray-300 hover:text-white active:bg-gray-400 transition-colors duration-200" aria-label="Next">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 fill-current opacity-60" fill="currentColor">
+							<path d="M0 0h24v24H0V0z" fill="none"></path>
+							<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"></path>
+						</svg>
+					</button>
+				</div>
+			</div>
+
         <?php endif; ?>
 
         <div class="rfs-ref-product-carousel splide">
             <div class="splide__track">
                 <ul class="splide__list">
                     <?php
-                    // Use the existing ats_product shortcode
-                    foreach ( $product_ids as $product_id ) {
-                        echo '<li class="splide__slide">';
-                        echo do_shortcode( '[ats_product id="' . $product_id . '"]' );
-                        echo '</li>';
-                    }
-                    ?>
+// Use the existing ats_product shortcode
+    foreach ( $product_ids as $product_id ) {
+        echo '<li class="splide__slide">';
+        echo do_shortcode( '[ats_product id="' . $product_id . '"]' );
+        echo '</li>';
+    }
+    ?>
                 </ul>
             </div>
         </div>
@@ -176,7 +181,7 @@ function component_product_scroller_html( string $output, string $layout ): stri
     </div>
 
     <?php
-    return ob_get_clean();
+return ob_get_clean();
 }
 add_filter( 'skylinewp_flexible_content_output', 'component_product_scroller_html', 10, 2 );
 

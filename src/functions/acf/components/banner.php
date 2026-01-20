@@ -10,103 +10,103 @@ use Extended\ACF\Fields\Text;
 use Extended\ACF\Fields\Textarea;
 
 function banner_fields() {
-	// Get product categories for checkbox choices
-	$product_categories = get_terms( [
-		'taxonomy'   => 'product_cat',
-		'hide_empty' => false,
-		'orderby'    => 'name',
-		'order'      => 'ASC'
-	] );
+    // Get product categories for checkbox choices
+    $product_categories = get_terms( [
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => false,
+        'orderby'    => 'name',
+        'order'      => 'ASC'
+    ] );
 
-	$category_choices = [];
-	if ( !is_wp_error( $product_categories ) && !empty( $product_categories ) ) {
-		foreach ( $product_categories as $category ) {
-			$category_choices[$category->term_id] = $category->name;
-		}
-	}
+    $category_choices = [];
+    if ( !is_wp_error( $product_categories ) && !empty( $product_categories ) ) {
+        foreach ( $product_categories as $category ) {
+            $category_choices[$category->term_id] = $category->name;
+        }
+    }
 
-	return [
-		Tab::make( 'Categories', wp_unique_id() )->placement( 'left' ),
+    return [
+        Tab::make( 'Categories', wp_unique_id() )->placement( 'left' ),
 
-		Checkbox::make( 'Exclude Categories', 'excluded_categories' )
-			->helperText( 'Select product categories to **exclude** from the banner sidebar navigation. All other categories will be displayed.' )
-			->choices( $category_choices )
-			->layout( 'vertical' )
-			->format( 'value' ),
+        Checkbox::make( 'Exclude Categories', 'excluded_categories' )
+            ->helperText( 'Select product categories to **exclude** from the banner sidebar navigation. All other categories will be displayed.' )
+            ->choices( $category_choices )
+            ->layout( 'vertical' )
+            ->format( 'value' ),
 
-		Tab::make( 'Banner Settings', wp_unique_id() )->placement( 'left' ),
+        Tab::make( 'Banner Settings', wp_unique_id() )->placement( 'left' ),
 
-		Repeater::make( 'Banner Slides', 'banner_slides' )
-			->helperText( 'Add banner slides to display in the carousel' )
-			->fields( [
-				Image::make( 'Image', 'image' )
-					->helperText( 'Background image for the slide (recommended: **2070x500px** or larger)' )
-					->acceptedFileTypes( ['jpg', 'jpeg', 'png', 'webp'] )
-					->previewSize( 'medium' )
-					->format( 'array' )
-					->required(),
+        Repeater::make( 'Banner Slides', 'banner_slides' )
+            ->helperText( 'Add banner slides to display in the carousel' )
+            ->fields( [
+                Image::make( 'Image', 'image' )
+                    ->helperText( 'Background image for the slide (recommended: **2070x500px** or larger)' )
+                    ->acceptedFileTypes( ['jpg', 'jpeg', 'png', 'webp'] )
+                    ->previewSize( 'medium' )
+                    ->format( 'array' )
+                    ->required(),
 
-				Text::make( 'Prefix', 'prefix' )
-					->helperText( 'Small text above the title (e.g., "Professional Grade", "High Efficiency")' ),
+                Text::make( 'Prefix', 'prefix' )
+                    ->helperText( 'Small text above the title (e.g., "Professional Grade", "High Efficiency")' ),
 
-				Text::make( 'Title', 'title' )
-					->helperText( 'Main heading for the slide' ),
+                Text::make( 'Title', 'title' )
+                    ->helperText( 'Main heading for the slide' ),
 
-				Textarea::make( 'Subtitle', 'subtitle' )
-					->helperText( 'Description text for the slide' )
-					->rows( 3 ),
+                Textarea::make( 'Subtitle', 'subtitle' )
+                    ->helperText( 'Description text for the slide' )
+                    ->rows( 3 ),
 
-				Link::make( 'Button', 'button' )
-					->helperText( 'Button link with text and URL. The link text will be displayed on the button.' )
-					->format( 'array' )
-			] )
-			->minRows( 1 )
-			->button( 'Add Slide' )
-			->layout( 'block' )
-			->required()
-	];
+                Link::make( 'Button', 'button' )
+                    ->helperText( 'Button link with text and URL. The link text will be displayed on the button.' )
+                    ->format( 'array' )
+            ] )
+            ->minRows( 1 )
+            ->button( 'Add Slide' )
+            ->layout( 'block' )
+            ->required()
+    ];
 }
 
 function component_banner_html( string $output, string $layout ): string {
-	if ( $layout !== 'banner' ) {
-		return $output;
-	}
+    if ( $layout !== 'banner' ) {
+        return $output;
+    }
 
-	$excluded_category_ids = get_sub_field( 'excluded_categories' ) ?: [];
-	$slides                = get_sub_field( 'banner_slides' );
+    $excluded_category_ids = get_sub_field( 'excluded_categories' ) ?: [];
+    $slides                = get_sub_field( 'banner_slides' );
 
-	// Get WooCommerce product categories
-	$categories_args = [
-		'taxonomy'   => 'product_cat',
-		'orderby'    => 'name',
-		'order'      => 'ASC',
-		'hide_empty' => true,
-		'exclude'    => $excluded_category_ids
-	];
+    // Get WooCommerce product categories
+    $categories_args = [
+        'taxonomy'   => 'product_cat',
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+        'hide_empty' => true,
+        'exclude'    => $excluded_category_ids
+    ];
 
-	$product_categories = get_terms( $categories_args );
+    $product_categories = get_terms( $categories_args );
 
-	// Generate unique ID for this banner instance
-	$banner_id = 'banner-' . uniqid();
+    // Generate unique ID for this banner instance
+    $banner_id = 'banner-' . uniqid();
 
-	// Start output buffering
-	ob_start();
+    // Start output buffering
+    ob_start();
 
-	if ( empty( $slides ) ) {
-		?>
+    if ( empty( $slides ) ) {
+        ?>
 		<div class="container mx-auto px-4">
 			<div class="rfs-ref-banner-empty bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
 				<p class="text-gray-600">No banner slides found. Please add at least one slide to display the banner.</p>
 			</div>
 		</div>
 		<?php
-		return ob_get_clean();
-	}
-	?>
+return ob_get_clean();
+    }
+    ?>
 
 	<div class="rfs-ref-banner-container flex items-center justify-center" id="<?php echo esc_attr( $banner_id ); ?>" data-slides-count="<?php echo count( $slides ); ?>">
 		<!-- Banner Container -->
-		<div class="rfs-ref-banner-wrapper container flex flex-col lg:flex-row gap-4 lg:gap-5  lg:py-0">
+		<div class="rfs-ref-banner-wrapper container flex flex-col lg:flex-row gap-4 lg:gap-5 lg:py-0 mb-4 xl:mb-8">
 			<!-- Sidebar (Navigation) -->
 			<div class="rfs-ref-banner-sidebar w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-md overflow-hidden flex flex-col relative z-20 h-fit">
 
@@ -130,18 +130,18 @@ function component_banner_html( string $output, string $layout ): string {
 						<div class="flex flex-col py-2">
 							<?php if ( !empty( $product_categories ) && !is_wp_error( $product_categories ) ): ?>
 								<?php foreach ( $product_categories as $category ):
-									$category_link     = get_term_link( $category );
-									$short_description = get_field( 'category_nav_short_description', $category );
-								?>
-									<a href="<?php echo esc_url( $category_link ); ?>" class="rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]">
-										<h3 class="text-[13px] font-bold uppercase tracking-wider text-white mb-0.5 group-hover:text-[#fbbf24] transition-colors">
-											<?php echo esc_html( $category->name ); ?>
-										</h3>
-										<?php if ( $short_description ): ?>
-											<p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
-												<?php echo esc_html( $short_description ); ?>
-											</p>
-										<?php endif; ?>
+        $category_link     = get_term_link( $category );
+        $short_description = get_field( 'category_nav_short_description', $category );
+        ?>
+														<a href="<?php echo esc_url( $category_link ); ?>" class="rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]">
+															<h3 class="text-[13px] font-bold uppercase tracking-wider text-white mb-0.5 group-hover:text-[#fbbf24] transition-colors">
+																<?php echo esc_html( $category->name ); ?>
+															</h3>
+															<?php if ( $short_description ): ?>
+																<p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
+																	<?php echo esc_html( $short_description ); ?>
+																</p>
+															<?php endif; ?>
 									</a>
 								<?php endforeach; ?>
 							<?php endif; ?>
@@ -154,41 +154,41 @@ function component_banner_html( string $output, string $layout ): string {
 			<div class="rfs-ref-banner-carousel w-full lg:flex-1 relative h-[500px] lg:h-auto rounded-lg overflow-hidden shadow-xl bg-gray-900 group">
 				<div class="rfs-ref-carousel-slides absolute inset-0 w-full h-full">
 					<?php foreach ( $slides as $index => $slide ):
-						$image     = $slide['image'];
-						$image_url = is_array( $image ) ? $image['url'] : wp_get_attachment_image_url( $image, 'full' );
-						$image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ): get_post_meta( $image, '_wp_attachment_image_alt', true );
+        $image     = $slide['image'];
+        $image_url = is_array( $image ) ? $image['url'] : wp_get_attachment_image_url( $image, 'full' );
+        $image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ): get_post_meta( $image, '_wp_attachment_image_alt', true );
 
-						$button        = $slide['button'];
-						$button_url    = '';
-						$button_text   = '';
-						$button_target = '_self';
+        $button        = $slide['button'];
+        $button_url    = '';
+        $button_text   = '';
+        $button_target = '_self';
 
-						if ( is_array( $button ) ) {
-							$button_url    = isset( $button['url'] ) ? $button['url'] : '';
-							$button_text   = isset( $button['title'] ) ? $button['title'] : '';
-							$button_target = isset( $button['target'] ) && $button['target'] ? $button['target'] : '_self';
-						}
-					?>
-						<div class="rfs-ref-slide-item absolute inset-0 transition-opacity duration-1000 ease-in-out <?php echo $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'; ?>">
-							<div class="absolute inset-0">
-								<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" class="w-full h-full object-cover" />
-								<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-							</div>
-							<div class="absolute inset-0 flex flex-col justify-center p-8 lg:p-16 max-w-2xl">
-								<?php if ( !empty( $slide['prefix'] ) ): ?>
-									<span class="ats-btn ats-btn-xs ats-btn-primary-300 w-fit">
-										<?php echo esc_html( $slide['prefix'] ); ?>
-									</span>
-								<?php endif; ?>
+        if ( is_array( $button ) ) {
+            $button_url    = isset( $button['url'] ) ? $button['url'] : '';
+            $button_text   = isset( $button['title'] ) ? $button['title'] : '';
+            $button_target = isset( $button['target'] ) && $button['target'] ? $button['target'] : '_self';
+        }
+        ?>
+											<div class="rfs-ref-slide-item absolute inset-0 transition-opacity duration-1000 ease-in-out <?php echo $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'; ?>">
+												<div class="absolute inset-0">
+													<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" class="w-full h-full object-cover" />
+													<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+												</div>
+												<div class="absolute inset-0 flex flex-col justify-center p-8 lg:p-16 max-w-2xl">
+													<?php if ( !empty( $slide['prefix'] ) ): ?>
+														<span class="ats-btn ats-btn-xs ats-btn-primary-300 w-fit mb-2">
+															<?php echo esc_html( $slide['prefix'] ); ?>
+														</span>
+													<?php endif; ?>
 
 								<?php if ( !empty( $slide['title'] ) ): ?>
-									<h2 class="text-3xl lg:text-5xl font-bold text-white mb-4 leading-tight shadow-sm">
+									<h2 class="text-3xl lg:text-5xl font-bold text-white mb-3 leading-tight shadow-sm">
 										<?php echo esc_html( $slide['title'] ); ?>
 									</h2>
 								<?php endif; ?>
 
 								<?php if ( !empty( $slide['subtitle'] ) ): ?>
-									<p class="text-gray-200 text-base lg:text-lg mb-8 leading-relaxed max-w-md drop-shadow-md">
+									<p class="text-gray-200 text-base lg:text-lg mb-4 leading-relaxed max-w-md drop-shadow-md">
 										<?php echo esc_html( $slide['subtitle'] ); ?>
 									</p>
 								<?php endif; ?>
@@ -231,11 +231,11 @@ function component_banner_html( string $output, string $layout ): string {
 	</div>
 
 	<?php
-	return ob_get_clean();
+return ob_get_clean();
 }
 add_filter( 'skylinewp_flexible_content_output', 'component_banner_html', 10, 2 );
 
 // Define the custom layout for flexible content
 return Layout::make( 'Banner', 'banner' )
-	->layout( 'block' )
-	->fields( banner_fields() );
+    ->layout( 'block' )
+    ->fields( banner_fields() );

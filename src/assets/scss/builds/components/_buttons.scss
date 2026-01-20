@@ -1,0 +1,498 @@
+// ==========================================================================
+// ATS Buttons System
+// Using Tailwind colors from tailwind.config.js
+// ==========================================================================
+
+// Color Variables (matching Tailwind config)
+$primary-300: #D5C3CE;
+$primary-500: #9D8592;
+$primary-600: #84536F;
+$primary-700: #57434E;
+$primary-800: #757575;
+$primary-900: #373737;
+
+$neutral-500: #DEDEDE;
+$neutral-700: #757575;
+
+$accent-yellow: #FFD902;
+$accent-green: #367A33;
+
+$ats-yellow: #FFD902;
+$ats-dark: #373737;
+$ats-gray: #DEDEDE;
+$ats-text: #373737;
+
+// ==========================================================================
+// Base Button Styles
+// ==========================================================================
+.dpn-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	font-family: 'Inter', sans-serif;
+	font-weight: 500;
+	text-decoration: none;
+	border: 2px solid transparent;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba($ats-yellow, 0.4);
+	}
+
+	&:disabled,
+	&.is-disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	// Icon styles
+	svg,
+	.dpn-btn-icon {
+		width: 1em;
+		height: 1em;
+		flex-shrink: 0;
+	}
+}
+
+// ==========================================================================
+// Button Sizes
+// ==========================================================================
+
+// Extra Small
+.dpn-btn--xs {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	line-height: 1rem;
+}
+
+// Small
+.dpn-btn--sm {
+	padding: 0.375rem 0.75rem;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+}
+
+// Medium (Default)
+.dpn-btn--md {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	line-height: 1.5rem;
+}
+
+// Large
+.dpn-btn--lg {
+	padding: 0.75rem 1.5rem;
+	font-size: 1.125rem;
+	line-height: 1.75rem;
+}
+
+// Extra Large
+.dpn-btn--xl {
+	padding: 1rem 2rem;
+	font-size: 1.25rem;
+	line-height: 1.75rem;
+}
+
+// ==========================================================================
+// Primary Button Variants
+// ==========================================================================
+
+// Primary Yellow (Brand Color)
+.dpn-btn--primary {
+	background-color: $ats-yellow;
+	color: $ats-dark;
+	border-color: $ats-yellow;
+
+	&:hover {
+		background-color: darken($ats-yellow, 8%);
+		border-color: darken($ats-yellow, 8%);
+	}
+
+	&:active {
+		background-color: darken($ats-yellow, 12%);
+		border-color: darken($ats-yellow, 12%);
+	}
+}
+
+// Primary Dark
+.dpn-btn--primary-dark {
+	background-color: $ats-dark;
+	color: #fff;
+	border-color: $ats-dark;
+
+	&:hover {
+		background-color: lighten($ats-dark, 10%);
+		border-color: lighten($ats-dark, 10%);
+	}
+
+	&:active {
+		background-color: lighten($ats-dark, 5%);
+		border-color: lighten($ats-dark, 5%);
+	}
+}
+
+// Primary Mauve (Primary 600)
+.dpn-btn--primary-mauve {
+	background-color: $primary-600;
+	color: #fff;
+	border-color: $primary-600;
+
+	&:hover {
+		background-color: darken($primary-600, 8%);
+		border-color: darken($primary-600, 8%);
+	}
+
+	&:active {
+		background-color: darken($primary-600, 12%);
+		border-color: darken($primary-600, 12%);
+	}
+}
+
+// ==========================================================================
+// Secondary Button Variants (Outline)
+// ==========================================================================
+
+// Secondary Yellow
+.dpn-btn--secondary {
+	background-color: transparent;
+	color: $ats-dark;
+	border-color: $ats-yellow;
+
+	&:hover {
+		background-color: $ats-yellow;
+		color: $ats-dark;
+	}
+
+	&:active {
+		background-color: darken($ats-yellow, 5%);
+	}
+}
+
+// Secondary Dark
+.dpn-btn--secondary-dark {
+	background-color: transparent;
+	color: $ats-dark;
+	border-color: $ats-dark;
+
+	&:hover {
+		background-color: $ats-dark;
+		color: #fff;
+	}
+
+	&:active {
+		background-color: lighten($ats-dark, 5%);
+	}
+}
+
+// Secondary Mauve
+.dpn-btn--secondary-mauve {
+	background-color: transparent;
+	color: $primary-600;
+	border-color: $primary-600;
+
+	&:hover {
+		background-color: $primary-600;
+		color: #fff;
+	}
+
+	&:active {
+		background-color: darken($primary-600, 5%);
+	}
+}
+
+// Secondary Gray
+.dpn-btn--secondary-gray {
+	background-color: transparent;
+	color: $neutral-700;
+	border-color: $neutral-500;
+
+	&:hover {
+		background-color: $neutral-500;
+		color: $ats-dark;
+	}
+
+	&:active {
+		background-color: darken($neutral-500, 5%);
+	}
+}
+
+// ==========================================================================
+// Accent Button Variants
+// ==========================================================================
+
+// Accent Green
+.dpn-btn--accent-green {
+	background-color: $accent-green;
+	color: #fff;
+	border-color: $accent-green;
+
+	&:hover {
+		background-color: darken($accent-green, 8%);
+		border-color: darken($accent-green, 8%);
+	}
+
+	&:active {
+		background-color: darken($accent-green, 12%);
+		border-color: darken($accent-green, 12%);
+	}
+}
+
+// Accent Green Outline
+.dpn-btn--accent-green-outline {
+	background-color: transparent;
+	color: $accent-green;
+	border-color: $accent-green;
+
+	&:hover {
+		background-color: $accent-green;
+		color: #fff;
+	}
+
+	&:active {
+		background-color: darken($accent-green, 5%);
+	}
+}
+
+// ==========================================================================
+// Ghost & Text Buttons
+// ==========================================================================
+
+// Ghost (Transparent with border)
+.dpn-btn--ghost {
+	background-color: transparent;
+	color: $ats-dark;
+	border-color: transparent;
+
+	&:hover {
+		background-color: rgba($ats-dark, 0.08);
+	}
+
+	&:active {
+		background-color: rgba($ats-dark, 0.12);
+	}
+}
+
+// Ghost Light (For dark backgrounds)
+.dpn-btn--ghost-light {
+	background-color: transparent;
+	color: #fff;
+	border-color: transparent;
+
+	&:hover {
+		background-color: rgba(#fff, 0.15);
+	}
+
+	&:active {
+		background-color: rgba(#fff, 0.2);
+	}
+}
+
+// Text Link Button
+.dpn-btn--link {
+	background-color: transparent;
+	color: $primary-600;
+	border-color: transparent;
+	padding-left: 0;
+	padding-right: 0;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+
+	&:hover {
+		color: darken($primary-600, 10%);
+	}
+
+	&:active {
+		color: darken($primary-600, 15%);
+	}
+}
+
+// ==========================================================================
+// Special Variants
+// ==========================================================================
+
+// White Button (For dark backgrounds)
+.dpn-btn--white {
+	background-color: #fff;
+	color: $ats-dark;
+	border-color: #fff;
+
+	&:hover {
+		background-color: darken(#fff, 5%);
+		border-color: darken(#fff, 5%);
+	}
+
+	&:active {
+		background-color: darken(#fff, 10%);
+		border-color: darken(#fff, 10%);
+	}
+}
+
+// White Outline
+.dpn-btn--white-outline {
+	background-color: transparent;
+	color: #fff;
+	border-color: #fff;
+
+	&:hover {
+		background-color: #fff;
+		color: $ats-dark;
+	}
+
+	&:active {
+		background-color: darken(#fff, 5%);
+	}
+}
+
+// Danger/Error
+.dpn-btn--danger {
+	background-color: #dc2626;
+	color: #fff;
+	border-color: #dc2626;
+
+	&:hover {
+		background-color: darken(#dc2626, 8%);
+		border-color: darken(#dc2626, 8%);
+	}
+
+	&:active {
+		background-color: darken(#dc2626, 12%);
+		border-color: darken(#dc2626, 12%);
+	}
+}
+
+// Danger Outline
+.dpn-btn--danger-outline {
+	background-color: transparent;
+	color: #dc2626;
+	border-color: #dc2626;
+
+	&:hover {
+		background-color: #dc2626;
+		color: #fff;
+	}
+
+	&:active {
+		background-color: darken(#dc2626, 5%);
+	}
+}
+
+// ==========================================================================
+// Button Modifiers
+// ==========================================================================
+
+// Full Width
+.dpn-btn--full {
+	width: 100%;
+}
+
+// Pill Shape (Rounded)
+.dpn-btn--pill {
+	border-radius: 9999px;
+}
+
+// Square (No border radius)
+.dpn-btn--square {
+	border-radius: 0;
+}
+
+// Icon Only Button
+.dpn-btn--icon-only {
+	padding: 0.5rem;
+
+	&.dpn-btn--xs {
+		padding: 0.25rem;
+	}
+
+	&.dpn-btn--sm {
+		padding: 0.375rem;
+	}
+
+	&.dpn-btn--lg {
+		padding: 0.75rem;
+	}
+
+	&.dpn-btn--xl {
+		padding: 1rem;
+	}
+}
+
+// Loading State
+.dpn-btn--loading {
+	position: relative;
+	color: transparent !important;
+	pointer-events: none;
+
+	&::after {
+		content: '';
+		position: absolute;
+		width: 1em;
+		height: 1em;
+		border: 2px solid currentColor;
+		border-right-color: transparent;
+		border-radius: 50%;
+		animation: btn-spinner 0.6s linear infinite;
+	}
+
+	// Restore color for the spinner based on button variant
+	&.dpn-btn--primary::after {
+		border-color: $ats-dark;
+		border-right-color: transparent;
+	}
+
+	&.dpn-btn--primary-dark::after,
+	&.dpn-btn--primary-mauve::after,
+	&.dpn-btn--accent-green::after,
+	&.dpn-btn--danger::after {
+		border-color: #fff;
+		border-right-color: transparent;
+	}
+}
+
+@keyframes btn-spinner {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// ==========================================================================
+// Button Group
+// ==========================================================================
+.dpn-btn-group {
+	display: inline-flex;
+
+	.dpn-btn {
+		border-radius: 0;
+
+		&:first-child {
+			border-top-left-radius: 0.375rem;
+			border-bottom-left-radius: 0.375rem;
+		}
+
+		&:last-child {
+			border-top-right-radius: 0.375rem;
+			border-bottom-right-radius: 0.375rem;
+		}
+
+		&:not(:first-child) {
+			margin-left: -2px;
+		}
+	}
+
+	// Pill variant
+	&--pill {
+		.dpn-btn:first-child {
+			border-top-left-radius: 9999px;
+			border-bottom-left-radius: 9999px;
+		}
+
+		.dpn-btn:last-child {
+			border-top-right-radius: 9999px;
+			border-bottom-right-radius: 9999px;
+		}
+	}
+}

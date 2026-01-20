@@ -10,7 +10,7 @@
 	// Header with line through middle
 	.rfs-ref-product-scroller-header {
 		&::before {
-			content: '';
+			content: "";
 			position: absolute;
 			left: 0;
 			right: 0;
@@ -38,8 +38,8 @@
 	}
 
 	// Ensure arrow buttons don't shrink
-	.rfs-ref-prev-arrow,
-	.rfs-ref-next-arrow {
+	.ats-heading-prev-arrow,
+	.ats-heading-next-arrow {
 		flex-shrink: 0;
 	}
 
@@ -111,24 +111,19 @@
 
 	// Hide default Splide arrows (we're using custom ones in header)
 	.splide__arrow {
-		&:not(.rfs-ref-prev-arrow):not(.rfs-ref-next-arrow) {
+		&:not(.ats-heading-prev-arrow):not(.ats-heading-next-arrow) {
 			display: none;
 		}
 	}
 
 	// Custom arrows styling
-	.rfs-ref-prev-arrow,
-	.rfs-ref-next-arrow {
+	.ats-heading-prev-arrow,
+	.ats-heading-next-arrow {
 		position: static;
 		opacity: 1;
 
 		&:disabled {
 			display: none !important; // Hide when nothing to scroll
 		}
-	}
-
-	// Flip prev arrow to point left
-	.rfs-ref-prev-arrow svg {
-		transform: scaleX(-1);
 	}
 }
