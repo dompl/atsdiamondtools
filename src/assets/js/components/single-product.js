@@ -93,7 +93,7 @@ function initQuantityButtons() {
 	$(document).on('click', '.ats-qty-btn', function (e) {
 		e.preventDefault();
 		const $btn = $(this);
-		const $input = $btn.closest('.quantity').find('.qty');
+		const $input = $btn.closest('.ats-quantity, .quantity').find('input[type="number"], .qty');
 		const currentVal = parseFloat($input.val());
 		const max = parseFloat($input.attr('max'));
 		const min = parseFloat($input.attr('min')) || 1;
@@ -251,6 +251,4 @@ function initCustomDropdowns() {
 		const $wrapper = $(this).closest('.flowbite-dropdown-wrapper');
 		refreshDropdown($wrapper);
 	});
-}
-
 }

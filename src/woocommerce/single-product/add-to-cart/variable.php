@@ -77,7 +77,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 				/**
 				 * Hook: woocommerce_before_single_variation.
 				 */
-				do_action( 'woocommerce_before_single_variation' );
+				   do_action( 'woocommerce_before_single_variation' );
 
                 // Add flex wrapper logic via CSS or wrapper here.
                 // Since woocommerce_single_variation outputs the button, we can wrap it or style the button form if we can target it.
