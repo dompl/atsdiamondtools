@@ -188,6 +188,8 @@ function initCustomDropdowns() {
 		const $select = $wrapper.find('select');
 		const $list = $wrapper.find('.dropdown-options-list');
 		const $btnText = $wrapper.find('.dropdown-selected-text');
+		const selectName = $select.data('attribute_name') || $select.attr('name');
+		const variationsData = $form.data('product_variations') || [];
 
 		$list.empty();
 
@@ -202,13 +204,62 @@ function initCustomDropdowns() {
 			$btnText.text('Choose an option');
 		}
 
+		// Helper to find price for a specific attribute value
+		const getPriceForOption = (val) => {
+			if (!variationsData.length) return null;
+
+			// Get other selections
+			const currentSelections = {};
+			$form.find('select').each(function () {
+				const name = $(this).data('attribute_name') || $(this).attr('name');
+				if (name && name !== selectName) {
+					currentSelections[name] = $(this).val();
+				}
+			});
+
+			// Find matching variation
+			const match = variationsData.find((v) => {
+				// 1. Matches this option
+				const attrVal = v.attributes[selectName];
+				// attributes[selectName] can be specific value or empty string (any)
+				if (attrVal && attrVal !== val) return false;
+
+				// 2. Matches other selections
+				for (const key in currentSelections) {
+					const otherVal = currentSelections[key];
+					// If other dropdown is "Choose option" (empty), we can't be sure, but we return first possible match
+					// If other dropdown HAS value, we must match it
+					if (otherVal && v.attributes[key] && v.attributes[key] !== otherVal) {
+						return false;
+					}
+				}
+				return true;
+			});
+
+			if (match && match.price_html) {
+				// Strip HTML tags to get plain text price
+				let tmp = document.createElement('DIV');
+				tmp.innerHTML = match.price_html;
+				let priceText = tmp.textContent || tmp.innerText || '';
+				return priceText.trim();
+			}
+
+			return null;
+		};
+
 		// Rebuild list
 		$select.find('option').each(function () {
 			const $opt = $(this);
 			const value = $opt.val();
-			const text = $opt.text();
+			let text = $opt.text();
 
 			if (!value) return; // Skip placeholder
+
+			// Append Price
+			const price = getPriceForOption(value);
+			if (price) {
+				text += ` (${price})`;
+			}
 
 			const li = $('<li>');
 			const btn = $('<button type="button">').addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-2 hover:bg-gray-100 transition-colors duration-150').data('value', value).text(text);
