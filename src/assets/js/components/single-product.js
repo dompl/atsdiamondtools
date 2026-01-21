@@ -129,10 +129,18 @@ function initQuantityButtons() {
 function initVariationLogic() {
 	const $form = $('form.variations_form');
 	const $priceHtml = $('#ats-product-main-price');
+	const $productGallery = $('.woocommerce-product-gallery');
+	const $mainImg = $productGallery.find('.woocommerce-product-gallery__image').first().find('img');
 
-	// Store original price html
+	// Store original data
 	if ($priceHtml.length) {
 		$priceHtml.data('original-html', $priceHtml.html());
+	}
+	if ($mainImg.length) {
+		$mainImg.data('original-src', $mainImg.attr('src'));
+		$mainImg.data('original-srcset', $mainImg.attr('srcset'));
+		$mainImg.data('original-sizes', $mainImg.attr('sizes'));
+		$mainImg.data('original-alt', $mainImg.attr('alt'));
 	}
 
 	if ($form.length === 0) return;
@@ -152,12 +160,35 @@ function initVariationLogic() {
 				$priceHtml.html(priceHtml);
 			}
 		}
+
+		// Update Image
+		if (variation.image && variation.image.src && variation.image.src.length > 1) {
+			if ($mainImg.length) {
+				$mainImg.attr('src', variation.image.src);
+				if (variation.image.srcset) {
+					$mainImg.attr('srcset', variation.image.srcset);
+				}
+				if (variation.image.sizes) {
+					$mainImg.attr('sizes', variation.image.sizes);
+				}
+				if (variation.image.alt) {
+					$mainImg.attr('alt', variation.image.alt);
+				}
+			}
+		}
 	});
 
 	$form.on('reset_data', function () {
 		// Reset to variable price range
 		if ($priceHtml.length && $priceHtml.data('original-html')) {
 			$priceHtml.html($priceHtml.data('original-html'));
+		}
+		// Reset Image
+		if ($mainImg.length && $mainImg.data('original-src')) {
+			$mainImg.attr('src', $mainImg.data('original-src'));
+			$mainImg.attr('srcset', $mainImg.data('original-srcset') || '');
+			$mainImg.attr('sizes', $mainImg.data('original-sizes') || '');
+			$mainImg.attr('alt', $mainImg.data('original-alt') || '');
 		}
 	});
 }
