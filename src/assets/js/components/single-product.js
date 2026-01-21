@@ -155,7 +155,7 @@ function initAjaxAddToCart() {
 
 	// Create loading overlay HTML
 	const loadingOverlay = `
-		<div class="rfs-ref-product-loading-overlay absolute inset-0 bg-white/90 flex items-center justify-center z-50 transition-opacity duration-300">
+		<div class="rfs-ref-product-loading-overlay absolute inset-0 bg-white/90 flex items-center justify-center z-50 transition-opacity duration-300" style="opacity: 0;">
 			<div class="rfs-ref-loading-spinner text-center">
 				<svg class="animate-spin h-12 w-12 mx-auto mb-4 text-ats-yellow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -166,25 +166,47 @@ function initAjaxAddToCart() {
 		</div>
 	`;
 
-	$form.on('submit', function (e) {
-		e.preventDefault();
+	// Helper function to remove loading overlay
+	function removeLoadingOverlay() {
+		if ($productInfo.length) {
+			const $overlay = $productInfo.find('.rfs-ref-product-loading-overlay');
+			$overlay.css('opacity', '0');
+			setTimeout(() => {
+				$overlay.remove();
+			}, 300);
+		}
+	}
 
-		const $this = $(this);
-		const $btn = $this.find('.single_add_to_cart_button');
+	// Intercept button click BEFORE WooCommerce handlers
+	$(document).on('click', '.single_add_to_cart_button', function (e) {
+		e.preventDefault();
+		e.stopImmediatePropagation(); // Stop WooCommerce handler from running
+
+		console.log('Add to cart button clicked - AJAX handler triggered');
+
+		const $btn = $(this);
+		const $thisForm = $btn.closest('form.cart');
 
 		if ($btn.hasClass('disabled') || $btn.hasClass('loading')) {
-			return;
+			console.log('Button disabled or loading, preventing duplicate submission');
+			return false;
 		}
 
-		// Ensure wc_add_to_cart_params exists
-		if (typeof wc_add_to_cart_params === 'undefined') {
-			// Fallback to standard submit
-			$this.off('submit').submit();
-			return;
+		// Check if variation is selected for variable products
+		const variationId = $thisForm.find('[name="variation_id"]').val();
+		const isVariableProduct = $thisForm.hasClass('variations_form');
+
+		if (isVariableProduct && !variationId) {
+			console.log('Variable product but no variation selected');
+			// Let WooCommerce show its error message
+			alert('Please select product options before adding to cart.');
+			return false;
 		}
+
+		console.log('Proceeding with AJAX add to cart...');
 
 		// Add loading state to button
-		$btn.addClass('loading');
+		$btn.addClass('loading').prop('disabled', true);
 
 		// Show loading overlay on product info section
 		if ($productInfo.length) {
@@ -202,62 +224,85 @@ function initAjaxAddToCart() {
 			}, 10);
 		}
 
-		const formData = new FormData($this[0]);
-		formData.append('add-to-cart', $this.find('[name="add-to-cart"]').val() || $this.find('[name="product_id"]').val() || $('input[name="product_id"]').val());
+		// Get product ID and add-to-cart parameter
+		const productId = $thisForm.find('[name="product_id"]').val() || $thisForm.find('[name="add-to-cart"]').val();
+
+		// Build AJAX data
+		const ajaxData = {
+			action: 'ats_add_to_cart',
+			product_id: productId,
+			quantity: $thisForm.find('[name="quantity"]').val() || 1,
+		};
+
+		// Add variation data if this is a variable product
+		if (variationId) {
+			ajaxData.variation_id = variationId;
+
+			// Add variation attributes
+			$thisForm.find('[name^="attribute_"]').each(function () {
+				const $input = $(this);
+				ajaxData[$input.attr('name')] = $input.val();
+			});
+		}
+
+		console.log('AJAX data:', ajaxData);
 
 		$.ajax({
-			url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+			url: window.location.origin + '/wp-admin/admin-ajax.php',
 			type: 'POST',
-			data: formData,
-			processData: false,
-			contentType: false,
+			data: ajaxData,
 			success: function (response) {
-				if (response.error && response.product_url) {
-					window.location = response.product_url;
+				console.log('AJAX response:', response);
+
+				// Check if response has error
+				if (response && response.error) {
+					console.error('Add to cart error:', response);
+					removeLoadingOverlay();
+					$btn.removeClass('loading').prop('disabled', false);
+					alert(response.error || 'Failed to add product to cart.');
 					return;
 				}
 
-				// Trigger event so minicart updates
+				// Trigger WooCommerce event for cart updates
 				$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $btn]);
 
 				// Small delay to ensure cart is updated, then open modal
 				setTimeout(() => {
-					// Remove loading overlay
-					if ($productInfo.length) {
-						const $overlay = $productInfo.find('.rfs-ref-product-loading-overlay');
-						$overlay.css('opacity', '0');
-						setTimeout(() => {
-							$overlay.remove();
-						}, 300);
+					removeLoadingOverlay();
+					$btn.removeClass('loading').prop('disabled', false);
+
+					// Reload mini cart data
+					if (window.ATSMiniCart && typeof window.ATSMiniCart.loadCart === 'function') {
+						console.log('Reloading mini cart...');
+						window.ATSMiniCart.loadCart();
 					}
 
-					// Open MiniCart Modal
-					if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
-						window.ATSMiniCartModal.open();
-					} else if (window.ATSMiniCart && window.ATSMiniCart.modal) {
-						// Fallback check
-						window.ATSMiniCart.modal.open();
-					}
-
-					$btn.removeClass('loading');
-				}, 300); // Short delay for smooth transition
-			},
-			error: function () {
-				// Remove loading overlay on error
-				if ($productInfo.length) {
-					const $overlay = $productInfo.find('.rfs-ref-product-loading-overlay');
-					$overlay.css('opacity', '0');
+					// Open MiniCart Modal after cart is updated
 					setTimeout(() => {
-						$overlay.remove();
-					}, 300);
-				}
-
-				$btn.removeClass('loading');
-
-				// Fallback to standard submit
-				$this.off('submit').submit();
+						if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
+							console.log('Opening mini cart modal...');
+							window.ATSMiniCartModal.open();
+						}
+					}, 200);
+				}, 300);
+			},
+			error: function (xhr, status, error) {
+				console.error('AJAX Add to cart error:', error, xhr);
+				removeLoadingOverlay();
+				$btn.removeClass('loading').prop('disabled', false);
+				alert('Failed to add product to cart. Please try again.');
 			},
 		});
+
+		return false;
+	});
+
+	// Also prevent form submission as a backup
+	$form.on('submit', function (e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		console.log('Form submit prevented - button handler should have already executed');
+		return false;
 	});
 }
 
@@ -365,8 +410,7 @@ function initVariationLogic() {
 					const imgSrcset = $img.attr('srcset') || '';
 
 					// Check if any variation image URL matches the slide image
-					if (imgSrc === varSrc || imgSrc === varFullSrc || imgSrc === varThumb ||
-						imgSrcset.includes(varSrc) || imgSrcset.includes(varThumb)) {
+					if (imgSrc === varSrc || imgSrc === varFullSrc || imgSrc === varThumb || imgSrcset.includes(varSrc) || imgSrcset.includes(varThumb)) {
 						foundIndex = index;
 					}
 				});

@@ -15,6 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Register AJAX actions for mini cart
  */
+add_action( 'wp_ajax_ats_add_to_cart', 'ats_ajax_add_to_cart' );
+add_action( 'wp_ajax_nopriv_ats_add_to_cart', 'ats_ajax_add_to_cart' );
+
 add_action( 'wp_ajax_ats_get_mini_cart', 'ats_ajax_get_mini_cart' );
 add_action( 'wp_ajax_nopriv_ats_get_mini_cart', 'ats_ajax_get_mini_cart' );
 
@@ -23,6 +26,99 @@ add_action( 'wp_ajax_nopriv_ats_update_cart_item', 'ats_ajax_update_cart_item' )
 
 add_action( 'wp_ajax_ats_remove_cart_item', 'ats_ajax_remove_cart_item' );
 add_action( 'wp_ajax_nopriv_ats_remove_cart_item', 'ats_ajax_remove_cart_item' );
+
+/**
+ * Add product to cart via AJAX
+ *
+ * Handles AJAX add to cart requests from single product pages.
+ * Supports both simple and variable products.
+ *
+ * @return void
+ */
+function ats_ajax_add_to_cart() {
+	// Ensure WooCommerce is loaded
+	if ( ! function_exists( 'WC' ) ) {
+		wp_send_json_error( array( 'error' => __( 'WooCommerce is not available.', 'skylinewp-dev-child' ) ) );
+	}
+
+	// Ensure cart is loaded
+	if ( is_null( WC()->cart ) ) {
+		wc_load_cart();
+	}
+
+	// Get product ID
+	$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+	$quantity = isset( $_POST['quantity'] ) ? absint( $_POST['quantity'] ) : 1;
+	$variation_id = isset( $_POST['variation_id'] ) ? absint( $_POST['variation_id'] ) : 0;
+
+	if ( ! $product_id ) {
+		wp_send_json_error( array( 'error' => __( 'Invalid product.', 'skylinewp-dev-child' ) ) );
+	}
+
+	// Collect variation data if this is a variable product
+	$variation = array();
+	if ( $variation_id ) {
+		foreach ( $_POST as $key => $value ) {
+			if ( strpos( $key, 'attribute_' ) === 0 ) {
+				$variation[ sanitize_text_field( $key ) ] = sanitize_text_field( $value );
+			}
+		}
+	}
+
+	// Add to cart
+	$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity, $variation_id, $variation );
+
+	if ( ! $passed_validation ) {
+		wp_send_json_error( array( 'error' => __( 'Product validation failed.', 'skylinewp-dev-child' ) ) );
+	}
+
+	// Add the product to cart
+	$cart_item_key = WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation );
+
+	if ( ! $cart_item_key ) {
+		wp_send_json_error( array( 'error' => __( 'Failed to add product to cart.', 'skylinewp-dev-child' ) ) );
+	}
+
+	// Calculate cart totals
+	WC()->cart->calculate_totals();
+
+	// Get updated cart data
+	$cart = WC()->cart;
+	$cart_count = $cart->get_cart_contents_count();
+	$cart_subtotal = $cart->get_subtotal();
+	$cart_total = $cart->get_total( 'edit' );
+	$cart_tax = $cart->get_total_tax();
+
+	// Generate cart hash for fragments
+	$cart_hash = WC()->cart->get_cart_hash();
+
+	// Prepare fragments for response (similar to WooCommerce's default)
+	$fragments = apply_filters(
+		'woocommerce_add_to_cart_fragments',
+		array(
+			'ats_mini_cart_data' => array(
+				'count'      => $cart_count,
+				'count_text' => sprintf(
+					_n( '%d item', '%d items', $cart_count, 'skylinewp-dev-child' ),
+					$cart_count
+				),
+				'subtotal'   => wc_price( $cart_subtotal ),
+				'total'      => wc_price( $cart_total ),
+				'tax'        => wc_price( $cart_tax ),
+				'is_empty'   => $cart->is_empty(),
+			),
+		)
+	);
+
+	// Send success response
+	wp_send_json_success(
+		array(
+			'fragments'  => $fragments,
+			'cart_hash'  => $cart_hash,
+			'cart_count' => $cart_count,
+		)
+	);
+}
 
 /**
  * Get mini cart data via AJAX

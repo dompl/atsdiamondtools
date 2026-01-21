@@ -52,7 +52,7 @@ $product_id = $product->get_id();
                     </div>
 
                     <!-- Middle Column: Product Summary (Inner Col 4) -->
-                    <div class="lg:col-span-5">
+                    <div class="lg:col-span-5" id="ats-single-product-info">
                         <div class="space-y-4">
                             <!-- Breadcrumbs -->
                             <div class="mb-2">
