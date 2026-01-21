@@ -57,11 +57,11 @@ function shortcode_category_navigation( $atts ) {
 	$product_categories = get_terms( $args );
 
 	?>
-	<div class="rfs-ref-banner-container rfs-ref-banner-sidebar w-full lg:<?php echo esc_attr( $args['width'] ); ?> flex-shrink-0 bg-[#594652] text-white rounded-md overflow-hidden flex flex-col relative z-20 h-fit">
+	<div class="rfs-ref-banner-container rfs-ref-banner-sidebar w-full lg:<?php echo esc_attr( $args['width'] ); ?> flex-shrink-0 bg-ats-brand text-white rounded-md overflow-hidden flex flex-col relative z-20 h-fit mb-10">
 
 		<!-- Toggle Button -->
 		<button
-            class="rfs-ref-category-btn w-full flex items-center justify-between p-2 lg:p-4 border-b border-white/10 <?php echo esc_attr( $btn_cursor_class ); ?> text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20"
+            class="rfs-ref-category-btn w-full flex items-center justify-between p-2 lg:p-4 border-b border-white/10 <?php echo esc_attr( $btn_cursor_class ); ?> text-left outline-none focus:bg-white/5 bg-ats-brand relative z-20"
             data-allow-desktop-toggle="<?php echo esc_attr( $allow_desktop_toggle ); ?>"
         >
 			<div class="flex items-center gap-3">

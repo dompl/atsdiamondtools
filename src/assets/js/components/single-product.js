@@ -262,7 +262,7 @@ function initCustomDropdowns() {
 			}
 
 			const li = $('<li>');
-			const btn = $('<button type="button">').addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-2 hover:bg-gray-100 transition-colors duration-150').data('value', value).text(text);
+			const btn = $('<button type="button">').addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-1 hover:bg-brand-dark transition-colors duration-150').data('value', value).text(text);
 
 			// Active state
 			if (currentVal === value) {

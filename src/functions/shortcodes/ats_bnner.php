@@ -7,10 +7,10 @@ function ats_banner_html() {
 		  <div class="w-full container mx-auto flex flex-col-reverse lg:flex-row gap-4 lg:gap-5 p-4 lg:p-0">
 
 			<!-- Sidebar (Navigation) -->
-			<div class="w-full lg:w-[320px] flex-shrink-0 bg-[#594652] text-white rounded-lg overflow-hidden shadow-xl flex flex-col relative z-20 h-fit">
+			<div class="w-full lg:w-[320px] flex-shrink-0 bg-ats-brand text-white rounded-lg overflow-hidden shadow-xl flex flex-col relative z-20 h-fit">
 
 			  <!-- Toggle Button -->
-			  <button id="category-btn" class="w-full flex items-center justify-between p-5 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20">
+			  <button id="category-btn" class="w-full flex items-center justify-between p-5 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-ats-brand relative z-20">
 				<div class="flex items-center gap-3">
 				  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />

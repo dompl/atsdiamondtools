@@ -55,9 +55,13 @@ module.exports = {
 				ats: {
 					yellow: '#FFD902',
 					dark: '#373737',
+					brand: '#594652',
 					gray: '#DEDEDE',
 					text: '#373737',
 					footer: '#F4F1F3',
+				},
+				brand: {
+					dark: '#382e34',
 				},
 			},
 			fontFamily: {

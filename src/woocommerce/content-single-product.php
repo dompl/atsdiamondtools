@@ -34,11 +34,13 @@ $product_id = $product->get_id();
             <div class="lg:col-span-9 xl:col-span-9">
 
                 <!-- Top Section: Images & Summary Split -->
-                <div class="grid grid-cols-1 lg:grid-cols-9 gap-8 mb-12">
+                <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-12">
 
                     <!-- Left Column: Product Images (Inner Col 5) -->
                     <div class="lg:col-span-5">
+								<div class="mb-10">
                         <?php echo do_shortcode('[category_navigation width="w-full" collapsed=true]'); ?>
+								</div>
                         <?php
                         /**
                          * Hook: woocommerce_before_single_product_summary.
@@ -50,7 +52,7 @@ $product_id = $product->get_id();
                     </div>
 
                     <!-- Middle Column: Product Summary (Inner Col 4) -->
-                    <div class="lg:col-span-4">
+                    <div class="lg:col-span-5">
                         <div class="space-y-4">
                             <!-- Breadcrumbs -->
                             <div class="mb-2">

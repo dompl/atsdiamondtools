@@ -1,8 +1,8 @@
 <?php
 function shortcode_product_navigation() {
-	ob_start(); ?>asdfasdfasdfs
+	ob_start(); ?>
 <div class="text-center">
-	<button class="rfs-ref-category-btn w-full flex items-center justify-between p-2 lg:p-4 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-[#594652] relative z-20"  type="button" data-drawer-target="ats-category-drawer" data-drawer-show="ats-category-drawer" aria-controls="ats-category-drawer">
+	<button class="rfs-ref-category-btn w-full flex items-center justify-between p-2 lg:p-4 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-ats-brand relative z-20"  type="button" data-drawer-target="ats-category-drawer" data-drawer-show="ats-category-drawer" aria-controls="ats-category-drawer">
 			<div class="flex items-center gap-3">
 				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
