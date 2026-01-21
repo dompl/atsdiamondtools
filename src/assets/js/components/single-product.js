@@ -147,10 +147,24 @@ function initProductGallery() {
 }
 
 /**
- * AJAX Add to Cart for Single Product
+ * AJAX Add to Cart for Single Product with Enhanced Loading UI
  */
 function initAjaxAddToCart() {
 	const $form = $('form.cart');
+	const $productInfo = $('#ats-single-product-info');
+
+	// Create loading overlay HTML
+	const loadingOverlay = `
+		<div class="rfs-ref-product-loading-overlay absolute inset-0 bg-white/90 flex items-center justify-center z-50 transition-opacity duration-300">
+			<div class="rfs-ref-loading-spinner text-center">
+				<svg class="animate-spin h-12 w-12 mx-auto mb-4 text-ats-yellow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+				</svg>
+				<p class="text-gray-700 font-medium">Adding to cart...</p>
+			</div>
+		</div>
+	`;
 
 	$form.on('submit', function (e) {
 		e.preventDefault();
@@ -169,8 +183,24 @@ function initAjaxAddToCart() {
 			return;
 		}
 
-		// Add loading state
+		// Add loading state to button
 		$btn.addClass('loading');
+
+		// Show loading overlay on product info section
+		if ($productInfo.length) {
+			// Make sure parent has relative positioning
+			if ($productInfo.css('position') === 'static') {
+				$productInfo.css('position', 'relative');
+			}
+
+			// Add overlay
+			$productInfo.append(loadingOverlay);
+
+			// Fade in overlay
+			setTimeout(() => {
+				$productInfo.find('.rfs-ref-product-loading-overlay').css('opacity', '1');
+			}, 10);
+		}
 
 		const formData = new FormData($this[0]);
 		formData.append('add-to-cart', $this.find('[name="add-to-cart"]').val() || $this.find('[name="product_id"]').val() || $('input[name="product_id"]').val());
@@ -190,17 +220,40 @@ function initAjaxAddToCart() {
 				// Trigger event so minicart updates
 				$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $btn]);
 
-				// Open MiniCart if available
-				if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
-					window.ATSMiniCartModal.open();
-				} else if (window.ATSMiniCart && window.ATSMiniCart.modal) {
-					// Fallback check
-					window.ATSMiniCart.modal.open();
+				// Small delay to ensure cart is updated, then open modal
+				setTimeout(() => {
+					// Remove loading overlay
+					if ($productInfo.length) {
+						const $overlay = $productInfo.find('.rfs-ref-product-loading-overlay');
+						$overlay.css('opacity', '0');
+						setTimeout(() => {
+							$overlay.remove();
+						}, 300);
+					}
+
+					// Open MiniCart Modal
+					if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
+						window.ATSMiniCartModal.open();
+					} else if (window.ATSMiniCart && window.ATSMiniCart.modal) {
+						// Fallback check
+						window.ATSMiniCart.modal.open();
+					}
+
+					$btn.removeClass('loading');
+				}, 300); // Short delay for smooth transition
+			},
+			error: function () {
+				// Remove loading overlay on error
+				if ($productInfo.length) {
+					const $overlay = $productInfo.find('.rfs-ref-product-loading-overlay');
+					$overlay.css('opacity', '0');
+					setTimeout(() => {
+						$overlay.remove();
+					}, 300);
 				}
 
 				$btn.removeClass('loading');
-			},
-			error: function () {
+
 				// Fallback to standard submit
 				$this.off('submit').submit();
 			},
