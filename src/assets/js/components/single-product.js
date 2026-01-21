@@ -8,7 +8,11 @@
  * - "Shop By Category" toggle
  */
 
+import Splide from '@splidejs/splide';
 import $ from 'jquery';
+
+// Store splide instance globally for access
+let mainSplide = null;
 
 export function initSingleProduct() {
 	if (!$('body').hasClass('single-product')) {
@@ -17,6 +21,9 @@ export function initSingleProduct() {
 
 	// Initialize Quantity Buttons
 	initQuantityButtons();
+
+	// Initialize Splide Gallery
+	initProductGallery();
 
 	// Initialize Variation Logic
 	initVariationLogic();
@@ -29,6 +36,114 @@ export function initSingleProduct() {
 
 	// Initialize AJAX Add to Cart
 	initAjaxAddToCart();
+}
+
+/**
+ * Initialize Splide Gallery & Lightbox
+ */
+function initProductGallery() {
+	const mainSliderEl = document.querySelector('#product-main-splide');
+	const thumbSliderEl = document.querySelector('#product-thumbnail-splide');
+
+	if (mainSliderEl && thumbSliderEl) {
+		// Main Slider
+		mainSplide = new Splide(mainSliderEl, {
+			type: 'fade', // Fade transition for main image
+			rewind: true,
+			pagination: false,
+			arrows: false, // No arrows on main image
+			heightRatio: 0.8, // Fallback aspect ratio
+			classes: {
+				pagination: 'splide__pagination bottom-4',
+				page: 'splide__pagination__page w-2 h-2 bg-gray-300 rounded-full mx-1 opacity-100 [&.is-active]:bg-primary-600 [&.is-active]:scale-125 transition-all',
+			},
+		});
+
+		// Thumbnail Slider
+		const thumbSplide = new Splide(thumbSliderEl, {
+			fixedWidth: 95, // Roughly w-20
+			fixedHeight: 95, // Roughly h-20
+			gap: 10,
+			rewind: true,
+			pagination: false,
+			isNavigation: true, // Acts as nav for main slider
+			arrows: true, // Show arrows if needed
+			breakpoints: {
+				600: {
+					fixedWidth: 60,
+					fixedHeight: 60,
+				},
+			},
+			classes: {
+				arrows: 'splide__arrows splide__arrows--ltr absolute top-1/2 w-full flex justify-between z-10 -translate-y-1/2 pointer-events-none',
+				arrow: 'splide__arrow w-10 h-10 bg-transparent shadow-none flex items-center justify-center transition-opacity pointer-events-auto hover:opacity-70',
+				prev: 'splide__arrow--prev !-left-12',
+				next: 'splide__arrow--next !-right-12',
+			},
+		});
+
+		// Sync main slider to thumbnails
+		mainSplide.sync(thumbSplide);
+		mainSplide.mount();
+		thumbSplide.mount();
+	} else if (mainSliderEl) {
+		// Fallback if only one slider exists (e.g. no thumbnails)
+		mainSplide = new Splide(mainSliderEl, {
+			type: 'slide',
+			perPage: 1,
+			arrows: true,
+			pagination: true,
+			heightRatio: 0.8, // Fallback aspect ratio
+			autoHeight: true, // Adapt to image height
+			classes: {
+				arrows: 'splide__arrows absolute top-1/2 w-full flex justify-between px-4 z-10 -translate-y-1/2',
+				arrow: 'splide__arrow w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-colors',
+				prev: 'splide__arrow--prev',
+				next: 'splide__arrow--next',
+				pagination: 'splide__pagination bottom-4',
+				page: 'splide__pagination__page w-2 h-2 bg-gray-300 rounded-full mx-1 opacity-100 [&.is-active]:bg-primary-600 [&.is-active]:scale-125 transition-all',
+			},
+		}).mount();
+	}
+
+	// Lightbox Logic
+	const $modal = $('#product-lightbox-modal');
+	const $modalImg = $modal.find('img');
+	const $closeBtn = $modal.find('.lightbox-close');
+
+	$(document).on('click', '.product-gallery-lightbox-trigger', function (e) {
+		e.preventDefault();
+		const fullSrc = $(this).attr('href');
+		$modalImg.attr('src', fullSrc);
+
+		$modal.removeClass('hidden');
+		// Small delay for fade in
+		setTimeout(() => {
+			$modal.removeClass('opacity-0');
+		}, 10);
+	});
+
+	const closeModal = () => {
+		$modal.addClass('opacity-0');
+		setTimeout(() => {
+			$modal.addClass('hidden');
+			$modalImg.attr('src', '');
+		}, 300);
+	};
+
+	$closeBtn.on('click', closeModal);
+	$modal.on('click', function (e) {
+		if (e.target === this || $(e.target).hasClass('lightbox-content')) {
+			closeModal();
+		}
+	});
+
+	// Escape key close
+	$(document).on('keydown', function (e) {
+		if (e.key === 'Escape' && !$modal.hasClass('hidden')) {
+			closeModal();
+		}
+	});
 }
 
 /**
@@ -129,8 +244,9 @@ function initQuantityButtons() {
 function initVariationLogic() {
 	const $form = $('form.variations_form');
 	const $priceHtml = $('#ats-product-main-price');
-	const $productGallery = $('.woocommerce-product-gallery');
-	const $mainImg = $productGallery.find('.woocommerce-product-gallery__image').first().find('img');
+	// Updated selector to target the Splide slide image directly (first slide of main slider)
+	const $mainImg = $('#product-main-splide .splide__slide').first().find('img');
+	const $mainLink = $mainImg.closest('a');
 
 	// Store original data
 	if ($priceHtml.length) {
@@ -141,6 +257,9 @@ function initVariationLogic() {
 		$mainImg.data('original-srcset', $mainImg.attr('srcset'));
 		$mainImg.data('original-sizes', $mainImg.attr('sizes'));
 		$mainImg.data('original-alt', $mainImg.attr('alt'));
+		if ($mainLink.length) {
+			$mainImg.data('original-href', $mainLink.attr('href'));
+		}
 	}
 
 	if ($form.length === 0) return;
@@ -161,19 +280,61 @@ function initVariationLogic() {
 			}
 		}
 
-		// Update Image
+		// Update Image (Splide Aware)
 		if (variation.image && variation.image.src && variation.image.src.length > 1) {
-			if ($mainImg.length) {
-				$mainImg.attr('src', variation.image.src);
+			let foundIndex = -1;
+
+			// 1. Try matching by checking data-image-id from attribute
+			const variationImageId = variation.image_id || (variation.image ? variation.image.id : null);
+			if (variationImageId && mainSplide) {
+				const slides = mainSplide.Components.Slides.get();
+				slides.forEach((slide, index) => {
+					// Use attr for safer string comparison
+					const slideImageId = $(slide.slide).attr('data-image-id');
+					if (slideImageId == variationImageId) {
+						foundIndex = index;
+					}
+				});
+			}
+
+			// 2. Fallback: Try matching by SRC
+			if (foundIndex === -1 && mainSplide) {
+				const slides = mainSplide.Components.Slides.get();
+				slides.forEach((slide, index) => {
+					const $img = $(slide.slide).find('img');
+					if ($img.attr('src') === variation.image.src || $img.attr('src') === variation.image.full_src) {
+						foundIndex = index;
+					}
+				});
+			}
+
+			if (foundIndex > -1) {
+				mainSplide.go(foundIndex);
+			} else if (mainSplide) {
+				// Image not in slider -> Replace first slide image
+				const $firstSlide = $(mainSplide.Components.Slides.getAt(0).slide);
+				const $img = $firstSlide.find('img');
+				const $link = $firstSlide.find('a');
+
+				$img.attr('src', variation.image.src);
 				if (variation.image.srcset) {
-					$mainImg.attr('srcset', variation.image.srcset);
+					$img.attr('srcset', variation.image.srcset);
+				} else {
+					$img.removeAttr('srcset');
 				}
-				if (variation.image.sizes) {
-					$mainImg.attr('sizes', variation.image.sizes);
+
+				if (variation.image.sizes) $img.attr('sizes', variation.image.sizes);
+				if (variation.image.alt) $img.attr('alt', variation.image.alt);
+
+				if ($link.length) {
+					if (variation.image.full_src) {
+						$link.attr('href', variation.image.full_src);
+					} else {
+						$link.attr('href', variation.image.src);
+					}
 				}
-				if (variation.image.alt) {
-					$mainImg.attr('alt', variation.image.alt);
-				}
+
+				mainSplide.go(0);
 			}
 		}
 	});
@@ -183,12 +344,20 @@ function initVariationLogic() {
 		if ($priceHtml.length && $priceHtml.data('original-html')) {
 			$priceHtml.html($priceHtml.data('original-html'));
 		}
-		// Reset Image
-		if ($mainImg.length && $mainImg.data('original-src')) {
-			$mainImg.attr('src', $mainImg.data('original-src'));
-			$mainImg.attr('srcset', $mainImg.data('original-srcset') || '');
-			$mainImg.attr('sizes', $mainImg.data('original-sizes') || '');
-			$mainImg.attr('alt', $mainImg.data('original-alt') || '');
+
+		if (mainSplide) {
+			// Restore original image
+			if ($mainImg.length && $mainImg.data('original-src')) {
+				$mainImg.attr('src', $mainImg.data('original-src'));
+				$mainImg.attr('srcset', $mainImg.data('original-srcset') || '');
+				$mainImg.attr('sizes', $mainImg.data('original-sizes') || '');
+				$mainImg.attr('alt', $mainImg.data('original-alt') || '');
+
+				if ($mainLink.length && $mainImg.data('original-href')) {
+					$mainLink.attr('href', $mainImg.data('original-href'));
+				}
+			}
+			mainSplide.go(0);
 		}
 	});
 }
