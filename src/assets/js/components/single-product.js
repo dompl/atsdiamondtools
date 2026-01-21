@@ -47,6 +47,13 @@ function initAjaxAddToCart() {
 			return;
 		}
 
+		// Ensure wc_add_to_cart_params exists
+		if (typeof wc_add_to_cart_params === 'undefined') {
+			// Fallback to standard submit
+			$this.off('submit').submit();
+			return;
+		}
+
 		// Add loading state
 		$btn.addClass('loading');
 

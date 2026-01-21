@@ -27,7 +27,7 @@ $product_id = $product->get_id();
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class( '', $product ); ?>>
 
 
-    <div class="container mx-auto px-4 pb-12 pt-8">
+    <div class="pb-12 pt-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
             <!-- Main Content Area: Images + Summary + Tabs (Col 9) -->

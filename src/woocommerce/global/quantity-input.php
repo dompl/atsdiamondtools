@@ -11,8 +11,8 @@ defined( 'ABSPATH' ) || exit;
 $label = ! empty( $args['product_name'] ) ? sprintf( esc_html__( '%s quantity', 'woocommerce' ), $args['product_name'] ) : esc_html__( 'Quantity', 'woocommerce' );
 
 ?>
-<div class="ats-quantity relative flex items-center border border-gray-300 rounded-sm w-[140px] h-12 overflow-hidden bg-white">
-    <button type="button" class="ats-qty-btn ats-qty-minus w-10 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors border-r border-gray-200">
+<div class="ats-quantity relative flex items-center border border-gray-300 rounded-md w-[180px] h-12 overflow-hidden bg-white">
+    <button type="button" class="ats-qty-btn ats-qty-minus w-20 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors">
         <span class="text-xl font-bold leading-none">&minus;</span>
     </button>
 
@@ -20,7 +20,7 @@ $label = ! empty( $args['product_name'] ) ? sprintf( esc_html__( '%s quantity', 
     <input
         type="number"
         id="<?php echo esc_attr( $input_id ); ?>"
-        class="<?php echo esc_attr( join( ' ', (array) $classes ) ); ?> w-full h-full text-center border-none p-0 text-gray-900 font-bold focus:ring-0 appearance-none bg-white quantity-input-no-spinners"
+        class="<?php echo esc_attr( join( ' ', (array) $classes ) ); ?> w-full h-full text-center border-none p-0 text-ats-text font-bold focus:ring-0 appearance-none bg-white quantity-input-no-spinners text-xl"
         step="<?php echo esc_attr( $step ); ?>"
         min="<?php echo esc_attr( $min_value ); ?>"
         max="<?php echo esc_attr( 0 < $max_value ? $max_value : '' ); ?>"
@@ -34,7 +34,7 @@ $label = ! empty( $args['product_name'] ) ? sprintf( esc_html__( '%s quantity', 
         style="-moz-appearance: textfield;"
     />
 
-    <button type="button" class="ats-qty-btn ats-qty-plus w-10 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors border-l border-gray-200">
+    <button type="button" class="ats-qty-btn ats-qty-plus w-20 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors">
         <span class="text-xl font-bold leading-none">&plus;</span>
     </button>
 </div>
