@@ -280,42 +280,55 @@ function initVariationLogic() {
 			}
 		}
 
-		// Update Image (Splide Aware)
-		if (variation.image && variation.image.src && variation.image.src.length > 1) {
+		// Update Image (Splide Aware) - Enhanced matching logic
+		if (variation.image && variation.image.src && variation.image.src.length > 1 && mainSplide) {
 			let foundIndex = -1;
 
-			// 1. Try matching by checking data-image-id from attribute
-			const variationImageId = variation.image_id || (variation.image ? variation.image.id : null);
-			if (variationImageId && mainSplide) {
+			// Get the variation image ID from multiple possible locations
+			const variationImageId = variation.image_id || (variation.image && variation.image.image_id);
+
+			if (variationImageId) {
+				// 1. Try matching by data-image-id attribute
 				const slides = mainSplide.Components.Slides.get();
 				slides.forEach((slide, index) => {
-					// Use attr for safer string comparison
 					const slideImageId = $(slide.slide).attr('data-image-id');
-					if (slideImageId == variationImageId) {
+					// Compare as strings to avoid type issues
+					if (slideImageId && slideImageId == variationImageId) {
 						foundIndex = index;
 					}
 				});
 			}
 
-			// 2. Fallback: Try matching by SRC
-			if (foundIndex === -1 && mainSplide) {
+			// 2. Fallback: Try matching by thumbnail URL or gallery URL
+			if (foundIndex === -1) {
 				const slides = mainSplide.Components.Slides.get();
+				const varThumb = variation.image.thumb_src || variation.image.src;
+				const varSrc = variation.image.src;
+				const varFullSrc = variation.image.full_src;
+
 				slides.forEach((slide, index) => {
 					const $img = $(slide.slide).find('img');
-					if ($img.attr('src') === variation.image.src || $img.attr('src') === variation.image.full_src) {
+					const imgSrc = $img.attr('src');
+					const imgSrcset = $img.attr('srcset') || '';
+
+					// Check if any variation image URL matches the slide image
+					if (imgSrc === varSrc || imgSrc === varFullSrc || imgSrc === varThumb ||
+						imgSrcset.includes(varSrc) || imgSrcset.includes(varThumb)) {
 						foundIndex = index;
 					}
 				});
 			}
 
 			if (foundIndex > -1) {
+				// Image found in gallery - navigate to it
 				mainSplide.go(foundIndex);
-			} else if (mainSplide) {
-				// Image not in slider -> Replace first slide image
+			} else {
+				// Image not in gallery - replace first slide
 				const $firstSlide = $(mainSplide.Components.Slides.getAt(0).slide);
 				const $img = $firstSlide.find('img');
 				const $link = $firstSlide.find('a');
 
+				// Update main image
 				$img.attr('src', variation.image.src);
 				if (variation.image.srcset) {
 					$img.attr('srcset', variation.image.srcset);
@@ -326,11 +339,24 @@ function initVariationLogic() {
 				if (variation.image.sizes) $img.attr('sizes', variation.image.sizes);
 				if (variation.image.alt) $img.attr('alt', variation.image.alt);
 
+				// Update lightbox link
 				if ($link.length) {
 					if (variation.image.full_src) {
 						$link.attr('href', variation.image.full_src);
 					} else {
 						$link.attr('href', variation.image.src);
+					}
+				}
+
+				// Update thumbnail if it exists
+				const thumbSlides = $('#product-thumbnail-splide .splide__slide');
+				if (thumbSlides.length > 0) {
+					const $firstThumb = thumbSlides.first();
+					const $thumbImg = $firstThumb.find('img');
+					if ($thumbImg.length && variation.image.gallery_thumbnail_src) {
+						$thumbImg.attr('src', variation.image.gallery_thumbnail_src);
+					} else if ($thumbImg.length) {
+						$thumbImg.attr('src', variation.image.thumb_src || variation.image.src);
 					}
 				}
 

@@ -86,3 +86,85 @@ add_filter( 'pre_count_terms', function( $value, $taxonomies, $args ) {
 	// Return null to allow normal processing
 	return $value;
 }, 10, 3 );
+
+/**
+ * Enhance variation data with proper image information
+ *
+ * Ensures that variation images are properly included in the available_variations
+ * JSON data so that the frontend can switch images when variations are selected.
+ */
+add_filter( 'woocommerce_available_variation', function( $data, $product, $variation ) {
+	// Get the variation's own image ID
+	$variation_image_id = $variation->get_image_id();
+
+	// If variation has its own image, use that
+	if ( $variation_image_id ) {
+		$data['image_id'] = $variation_image_id;
+
+		// Build complete image data
+		$image = wp_get_attachment_image_src( $variation_image_id, 'woocommerce_single' );
+		$full_image = wp_get_attachment_image_src( $variation_image_id, 'full' );
+		$thumb_image = wp_get_attachment_image_src( $variation_image_id, 'woocommerce_thumbnail' );
+		$gallery_thumb = wp_get_attachment_image_src( $variation_image_id, 'woocommerce_gallery_thumbnail' );
+
+		if ( $image ) {
+			$data['image'] = array(
+				'title'                   => get_the_title( $variation_image_id ),
+				'caption'                 => get_post_field( 'post_excerpt', $variation_image_id ),
+				'url'                     => $full_image ? $full_image[0] : '',
+				'alt'                     => get_post_meta( $variation_image_id, '_wp_attachment_image_alt', true ),
+				'src'                     => $image[0],
+				'srcset'                  => wp_get_attachment_image_srcset( $variation_image_id, 'woocommerce_single' ),
+				'sizes'                   => wp_get_attachment_image_sizes( $variation_image_id, 'woocommerce_single' ),
+				'full_src'                => $full_image ? $full_image[0] : '',
+				'full_src_w'              => $full_image ? $full_image[1] : '',
+				'full_src_h'              => $full_image ? $full_image[2] : '',
+				'gallery_thumbnail_src'   => $gallery_thumb ? $gallery_thumb[0] : '',
+				'gallery_thumbnail_src_w' => $gallery_thumb ? $gallery_thumb[1] : '',
+				'gallery_thumbnail_src_h' => $gallery_thumb ? $gallery_thumb[2] : '',
+				'thumb_src'               => $thumb_image ? $thumb_image[0] : '',
+				'thumb_src_w'             => $thumb_image ? $thumb_image[1] : '',
+				'thumb_src_h'             => $thumb_image ? $thumb_image[2] : '',
+				'src_w'                   => $image[1],
+				'src_h'                   => $image[2],
+				'image_id'                => $variation_image_id,
+				'id'                      => $variation_image_id,
+			);
+		}
+	} else {
+		// Enhance existing image data if present
+		if ( ! empty( $data['image_id'] ) ) {
+			$image_id = $data['image_id'];
+
+			// Add additional image data for better matching
+			$data['image']['image_id'] = $image_id;
+			$data['image']['id'] = $image_id;
+
+			// Ensure full_src is set
+			if ( empty( $data['image']['full_src'] ) ) {
+				$full_src = wp_get_attachment_image_url( $image_id, 'full' );
+				if ( $full_src ) {
+					$data['image']['full_src'] = $full_src;
+				}
+			}
+
+			// Ensure thumb_src is set
+			if ( empty( $data['image']['thumb_src'] ) ) {
+				$thumb_src = wp_get_attachment_image_url( $image_id, 'woocommerce_thumbnail' );
+				if ( $thumb_src ) {
+					$data['image']['thumb_src'] = $thumb_src;
+				}
+			}
+
+			// Ensure gallery_thumbnail_src is set
+			if ( empty( $data['image']['gallery_thumbnail_src'] ) ) {
+				$gallery_thumb = wp_get_attachment_image_url( $image_id, 'woocommerce_gallery_thumbnail' );
+				if ( $gallery_thumb ) {
+					$data['image']['gallery_thumbnail_src'] = $gallery_thumb;
+				}
+			}
+		}
+	}
+
+	return $data;
+}, 10, 3 );
