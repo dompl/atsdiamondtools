@@ -15,14 +15,20 @@ if (!is_singular('post')) {
 		include($parent_template);
 		return;
 	}
-	// Fallback to WordPress default
+
+	// Fallback with proper container structure
 	get_header();
-	if (have_posts()) {
-		while (have_posts()) {
-			the_post();
-			the_content();
-		}
-	}
+	?>
+	<!-- Main Content Area -->
+	<?php if (have_posts()) : ?>
+		<?php while (have_posts()) : the_post(); ?>
+			<section class="container mx-auto relative av-padding-small">
+				<?php the_content(); ?>
+			</section>
+		<?php endwhile; ?>
+	<?php endif; ?>
+	<?php get_template_part('aside'); ?>
+	<?php
 	get_footer();
 	return;
 }
