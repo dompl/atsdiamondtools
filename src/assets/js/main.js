@@ -8,6 +8,7 @@ import 'flowbite';
 import './components/add_to_cart.js';
 import './components/newsletter.js';
 import './components/product-scroller.js';
+import './components/product-quick-view.js';
 import { initATSSearch } from './components/search.js';
 import { initSingleProduct } from './components/single-product.js';
 import { initWooCommerceAccount } from './components/woocommerce-account.js';
