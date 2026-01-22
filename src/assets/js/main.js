@@ -12,6 +12,8 @@ import './components/product-quick-view.js';
 import { initATSSearch } from './components/search.js';
 import { initSingleProduct } from './components/single-product.js';
 import { initWooCommerceAccount } from './components/woocommerce-account.js';
+import { initProductTabs } from './components/product-tabs.js';
+import { initReviewForm } from './components/review-form.js';
 
 // Inactive Components
 import './components/banner.js';
@@ -35,4 +37,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	initATSSearch();
 	initWooCommerceAccount();
 	initSingleProduct();
+	initProductTabs();
+	initReviewForm();
 });

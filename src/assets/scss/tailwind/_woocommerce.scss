@@ -7,3 +7,66 @@
 		@apply ats-message bg-green-700 text-white  border-green-500;
 	}
 }
+
+// ============================================================================
+// Product Reviews Styling
+// ============================================================================
+
+// Review comment text
+.rfs-ref-review-content {
+	.woocommerce-review__author {
+		@apply font-semibold text-base text-ats-dark;
+	}
+
+	.description {
+		@apply text-ats-text leading-relaxed mt-1;
+
+		p {
+			@apply mb-2 last:mb-0;
+		}
+	}
+}
+
+// Review list styling
+.rfs-ref-reviews-list {
+	@apply list-none m-0 p-0;
+
+	.rfs-ref-review-item {
+		@apply list-none;
+	}
+}
+
+// Review form styling
+.rfs-ref-review-form {
+	.comment-reply-title {
+		@apply text-xl font-bold text-ats-dark mb-6;
+	}
+
+	.comment-form {
+		@apply space-y-4;
+
+		// Hide default WooCommerce stars paragraph (we have custom star rating)
+		p.stars {
+			@apply hidden;
+		}
+	}
+
+	.form-submit {
+		@apply mt-6;
+	}
+}
+
+// Pagination styling for reviews
+.rfs-ref-reviews-pagination {
+	.page-numbers {
+		@apply px-3 py-2 border border-gray-300 rounded hover:bg-ats-gray transition-colors;
+
+		&.current {
+			@apply bg-ats-yellow text-ats-dark border-ats-yellow font-semibold;
+		}
+
+		&.dots {
+			@apply border-0;
+		}
+	}
+}
