@@ -70,3 +70,34 @@
 		}
 	}
 }
+
+// ============================================================================
+// Product Card Expand Button Styling
+// ============================================================================
+
+// Product card expand button - hidden by default, shows on hover
+.ats-product-card,
+.ats-product-list {
+	.ats-expand-product {
+		@apply opacity-0 transition-all duration-300 ease-in-out;
+
+		svg {
+			@apply transition-all duration-300;
+			fill: #FFD200; // ats-yellow
+		}
+
+		&:hover {
+			@apply scale-110;
+
+			svg {
+				fill: #e6bd00; // Darker yellow on hover
+			}
+		}
+	}
+
+	&:hover {
+		.ats-expand-product {
+			@apply opacity-100;
+		}
+	}
+}
