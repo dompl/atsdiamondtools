@@ -1,11 +1,26 @@
 <?php
 /**
- * The template for displaying archive pages
+ * The template for displaying blog archive pages
  *
  * @package skylinewp-dev-child
  */
 
 defined('ABSPATH') || exit;
+
+// Only use this template for blog post archives, not products or other post types
+// Check if this is a WooCommerce archive (products, product categories, etc.)
+if (function_exists('is_woocommerce') && (is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy())) {
+	// Load WooCommerce archive template
+	wc_get_template('archive-product.php');
+	return;
+}
+
+// Check if this is a product archive
+if (is_post_type_archive('product') || is_tax(array('product_cat', 'product_tag'))) {
+	// Load the parent theme's archive template
+	get_template_part('archive');
+	return;
+}
 
 get_header();
 ?>

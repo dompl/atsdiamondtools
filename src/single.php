@@ -7,6 +7,13 @@
 
 defined('ABSPATH') || exit;
 
+// Only use this template for regular blog posts, not products or other post types
+if (!is_singular('post')) {
+	// Load the parent theme's single template for other post types
+	get_template_part('single');
+	return;
+}
+
 get_header();
 ?>
 
