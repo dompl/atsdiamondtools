@@ -18,8 +18,11 @@ if (function_exists('is_woocommerce') && (is_shop() || is_product_category() || 
 // Check if this is a product archive
 if (is_post_type_archive('product') || is_tax(array('product_cat', 'product_tag'))) {
 	// Load the parent theme's archive template
-	get_template_part('archive');
-	return;
+	$parent_template = get_template_directory() . '/src/archive.php';
+	if (file_exists($parent_template)) {
+		include($parent_template);
+		return;
+	}
 }
 
 get_header();

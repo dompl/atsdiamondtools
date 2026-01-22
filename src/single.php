@@ -10,7 +10,20 @@ defined('ABSPATH') || exit;
 // Only use this template for regular blog posts, not products or other post types
 if (!is_singular('post')) {
 	// Load the parent theme's single template for other post types
-	get_template_part('single');
+	$parent_template = get_template_directory() . '/src/single.php';
+	if (file_exists($parent_template)) {
+		include($parent_template);
+		return;
+	}
+	// Fallback to WordPress default
+	get_header();
+	if (have_posts()) {
+		while (have_posts()) {
+			the_post();
+			the_content();
+		}
+	}
+	get_footer();
 	return;
 }
 
