@@ -1,0 +1,392 @@
+/**
+ * Blog Styles
+ *
+ * Styles for blog archive, single posts, and blog components
+ *
+ * @package SkylineWP Dev Child
+ */
+
+// Blog Archive
+.rfs-ref-blog-archive {
+	min-height: 100vh;
+}
+
+// Blog Header
+.rfs-ref-blog-header {
+	position: relative;
+	overflow: hidden;
+}
+
+// Blog Posts Grid
+.rfs-ref-blog-posts-grid {
+	transition: opacity 0.3s ease;
+}
+
+// Blog Card
+.rfs-ref-blog-card {
+	transition: all 0.3s ease;
+
+	&:hover {
+		.rfs-ref-blog-card-inner {
+			transform: translateY(-4px);
+		}
+	}
+}
+
+.rfs-ref-blog-card-inner {
+	transition: all 0.3s ease;
+	height: 100%;
+}
+
+.rfs-ref-blog-card-image {
+	position: relative;
+	overflow: hidden;
+
+	a {
+		display: block;
+		position: relative;
+	}
+}
+
+.rfs-ref-blog-card-img {
+	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rfs-ref-blog-card-overlay {
+	transition: opacity 0.3s ease;
+}
+
+// Blog Pagination
+.rfs-ref-blog-pagination {
+	ul.page-numbers {
+		@apply flex items-center justify-center gap-2 flex-wrap;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+
+		li {
+			margin: 0;
+		}
+
+		a.page-numbers,
+		span.page-numbers {
+			@apply inline-flex items-center justify-center min-w-[40px] h-10 px-3 rounded-lg font-medium transition-all;
+			@apply border border-gray-300 bg-white text-gray-700;
+			@apply hover:bg-primary-500 hover:border-primary-600 hover:text-primary-900;
+
+			&.current {
+				@apply bg-primary-700 border-primary-700 text-white;
+				@apply cursor-default;
+				pointer-events: none;
+			}
+
+			&.prev,
+			&.next {
+				@apply flex items-center gap-2;
+
+				svg {
+					@apply w-5 h-5;
+				}
+			}
+
+			&.dots {
+				@apply border-0 bg-transparent;
+				pointer-events: none;
+			}
+		}
+	}
+}
+
+// Single Post
+.rfs-ref-single-post {
+	// Post Hero
+	.rfs-ref-post-hero {
+		min-height: 500px;
+		display: flex;
+		align-items: center;
+
+		@media (max-width: 768px) {
+			min-height: 400px;
+		}
+	}
+
+	.rfs-ref-post-hero-image {
+		img {
+			object-fit: cover;
+		}
+	}
+
+	// Post Content
+	.rfs-ref-post-content {
+		// Typography enhancements
+		h1, h2, h3, h4, h5, h6 {
+			@apply font-bold text-ats-dark;
+			margin-top: 2em;
+			margin-bottom: 0.75em;
+		}
+
+		h2 {
+			@apply text-3xl;
+			padding-bottom: 0.5rem;
+			border-bottom: 2px solid theme('colors.primary.500');
+		}
+
+		h3 {
+			@apply text-2xl;
+		}
+
+		h4 {
+			@apply text-xl;
+		}
+
+		p {
+			@apply text-gray-700 leading-relaxed;
+			margin-bottom: 1.5em;
+		}
+
+		a {
+			@apply text-primary-700 font-medium underline;
+			@apply hover:text-primary-900 hover:no-underline;
+			transition: all 0.2s ease;
+		}
+
+		ul, ol {
+			@apply ml-6 mb-6;
+
+			li {
+				@apply mb-2 text-gray-700;
+			}
+		}
+
+		ul {
+			@apply list-disc;
+		}
+
+		ol {
+			@apply list-decimal;
+		}
+
+		blockquote {
+			@apply border-l-4 border-primary-600 bg-gray-50 p-6 my-8 italic;
+
+			p {
+				@apply text-gray-800 mb-0;
+			}
+		}
+
+		img {
+			@apply rounded-lg shadow-md my-8;
+		}
+
+		code {
+			@apply bg-gray-100 text-primary-800 px-2 py-1 rounded text-sm;
+			font-family: 'Courier New', monospace;
+		}
+
+		pre {
+			@apply bg-ats-dark text-white p-6 rounded-lg my-8 overflow-x-auto;
+
+			code {
+				@apply bg-transparent text-white p-0;
+			}
+		}
+
+		table {
+			@apply w-full my-8 border-collapse;
+
+			thead {
+				@apply bg-gray-100;
+
+				th {
+					@apply px-4 py-3 text-left font-bold text-ats-dark border border-gray-300;
+				}
+			}
+
+			tbody {
+				tr {
+					@apply border-b border-gray-200;
+
+					&:hover {
+						@apply bg-gray-50;
+					}
+				}
+
+				td {
+					@apply px-4 py-3 border border-gray-200;
+				}
+			}
+		}
+
+		// Featured Images in content
+		.wp-block-image {
+			@apply my-8;
+
+			img {
+				@apply w-full h-auto;
+			}
+
+			figcaption {
+				@apply text-sm text-gray-500 text-center mt-2 italic;
+			}
+		}
+	}
+
+	// Author Bio
+	.rfs-ref-post-author-bio {
+		transition: all 0.3s ease;
+
+		&:hover {
+			@apply shadow-md;
+		}
+	}
+
+	// Post Navigation
+	.rfs-ref-post-navigation {
+		.rfs-ref-nav-prev,
+		.rfs-ref-nav-next {
+			transition: all 0.3s ease;
+			position: relative;
+			overflow: hidden;
+
+			&::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(157, 133, 146, 0.1), transparent);
+				transition: left 0.5s ease;
+			}
+
+			&:hover::before {
+				left: 100%;
+			}
+		}
+	}
+}
+
+// Sidebar Widgets
+.rfs-ref-blog-sidebar,
+.rfs-ref-post-sidebar {
+	.rfs-ref-sidebar-categories,
+	.rfs-ref-sidebar-popular,
+	.rfs-ref-sidebar-related {
+		transition: all 0.3s ease;
+
+		&:hover {
+			@apply shadow-md;
+		}
+	}
+
+	.rfs-ref-sidebar-icon-wrapper {
+		transition: all 0.3s ease;
+
+		&:hover {
+			@apply scale-110;
+		}
+	}
+}
+
+// Category Links
+.rfs-ref-category-link {
+	transition: all 0.2s ease;
+
+	.rfs-ref-category-count {
+		transition: all 0.2s ease;
+	}
+}
+
+// Popular/Related Posts
+.rfs-ref-popular-post-item,
+.rfs-ref-related-post-item {
+	.rfs-ref-popular-post-thumb,
+	.rfs-ref-related-post-thumb {
+		img {
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+	}
+}
+
+// Loading Animation
+@keyframes slide-in-right {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+.animate-slide-in-right {
+	animation: slide-in-right 0.3s ease-out;
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+	.rfs-ref-blog-sidebar,
+	.rfs-ref-post-sidebar {
+		.lg\:sticky {
+			position: static !important;
+		}
+	}
+}
+
+// Dark mode support (optional - if needed in future)
+@media (prefers-color-scheme: dark) {
+	// Add dark mode styles if needed
+}
+
+// Print styles
+@media print {
+	.rfs-ref-blog-pagination,
+	.rfs-ref-blog-sidebar,
+	.rfs-ref-post-sidebar,
+	.rfs-ref-post-navigation {
+		display: none;
+	}
+
+	.rfs-ref-post-content {
+		max-width: 100%;
+	}
+}
+
+// Accessibility enhancements
+.rfs-ref-blog-card,
+.rfs-ref-category-link,
+.rfs-ref-popular-post-link,
+.rfs-ref-related-post-link {
+	&:focus-visible {
+		@apply outline-2 outline-offset-2 outline-primary-700;
+	}
+}
+
+// Screen reader only class
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+// Line clamp utilities (if not in Tailwind config)
+.line-clamp-2 {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.line-clamp-3 {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}

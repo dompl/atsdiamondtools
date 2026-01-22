@@ -9,11 +9,16 @@ import './components/add_to_cart.js';
 import './components/newsletter.js';
 import './components/product-scroller.js';
 import './components/product-quick-view.js';
+import './components/favorites.js';
+import './components/favorites-drawer.js';
+import './components/blog.js';
 import { initATSSearch } from './components/search.js';
 import { initSingleProduct } from './components/single-product.js';
 import { initWooCommerceAccount } from './components/woocommerce-account.js';
 import { initProductTabs } from './components/product-tabs.js';
 import { initReviewForm } from './components/review-form.js';
+import { initCart } from './components/cart.js';
+import { initCheckout } from './components/checkout.js';
 
 // Inactive Components
 import './components/banner.js';
@@ -39,4 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	initSingleProduct();
 	initProductTabs();
 	initReviewForm();
+	initCart();
+	initCheckout();
 });
