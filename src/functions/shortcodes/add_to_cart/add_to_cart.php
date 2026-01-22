@@ -109,7 +109,7 @@ function ats_render_mini_cart_modal() {
     <!-- Mini Cart Modal (Flowbite) -->
     <div id="ats-mini-cart-modal" tabindex="-1" aria-hidden="true" class="rfs-ref-mini-cart-modal js-mini-cart-modal hidden fixed inset-0 z-50 justify-center items-center">
         <div class="rfs-ref-mini-cart-modal-backdrop js-mini-cart-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
-        <div class="rfs-ref-mini-cart-modal-container js-mini-cart-modal-container relative p-4 w-full max-w-lg mx-auto">
+        <div class="rfs-ref-mini-cart-modal-container js-mini-cart-modal-container relative p-4 w-full max-w-xl mx-auto">
             <!-- Modal content -->
             <div class="rfs-ref-mini-cart-modal-content js-mini-cart-modal-content relative bg-white rounded-lg shadow-xl max-h-[90vh] flex flex-col">
                 <!-- Modal header -->

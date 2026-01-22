@@ -234,69 +234,71 @@ function ats_get_cart_items_html( $cart_items ) {
     ?>
     <div class="rfs-ref-mini-cart-items-list js-mini-cart-items-list space-y-4">
         <?php foreach ( $cart_items as $item ) : ?>
-            <div class="rfs-ref-mini-cart-item js-mini-cart-item flex gap-4 pb-4 border-b border-ats-gray last:border-0" data-cart-key="<?php echo esc_attr( $item['key'] ); ?>">
-                <!-- Product Image -->
-                <a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-image js-mini-cart-item-image flex-shrink-0">
-                    <img src="<?php echo esc_url( $item['image'] ); ?>"
-                         alt="<?php echo esc_attr( $item['name'] ); ?>"
-                         class="w-16 h-16 object-cover rounded border border-ats-gray">
-                </a>
+				<div class="rfs-ref-mini-cart-item js-mini-cart-item grid grid-cols-12 gap-1 pb-4 border-b border-ats-gray last:border-0" data-cart-key="<?php echo esc_attr( $item['key'] ); ?>">
+					<!-- Product Image (col-span-3) -->
+					<div class="col-span-2 flex items-center">
+						<a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-image js-mini-cart-item-image flex-shrink-0">
+							<img src="<?php echo esc_url( $item['image'] ); ?>"
+								 alt="<?php echo esc_attr( $item['name'] ); ?>"
+								 class="w-16 h-16 object-cover rounded border border-ats-gray">
+						</a>
+					</div>
 
-                <!-- Product Details -->
-                <div class="rfs-ref-mini-cart-item-details flex-grow min-w-0">
-                    <a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-name text-sm font-medium text-ats-dark hover:text-ats-yellow transition-colors line-clamp-2">
-                        <?php echo esc_html( $item['name'] ); ?>
-                    </a>
+					<!-- Product Details & Controls (col-span-6) -->
+					<div class="rfs-ref-mini-cart-item-details flex flex-col min-w-0 col-span-8">
+						<a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-name text-sm font-medium text-ats-dark hover:text-ats-yellow transition-colors line-clamp-2">
+							<?php echo esc_html( $item['name'] ); ?>
+						</a>
 
-                    <div class="rfs-ref-mini-cart-item-price text-xs text-ats-text mt-1">
-                        <?php echo wp_kses_post( $item['price'] ); ?> <?php esc_html_e( 'each', 'skylinewp-dev-child' ); ?>
-                    </div>
+						<div class="rfs-ref-mini-cart-item-price text-xs text-ats-text mt-2 mb-1">
+							<?php echo wp_kses_post( $item['price'] ); ?> <?php esc_html_e( 'each', 'skylinewp-dev-child' ); ?>
+						</div>
 
-                    <!-- Quantity Controls -->
-                    <div class="rfs-ref-mini-cart-item-qty flex items-center gap-2 mt-2">
-                        <?php if ( ! $item['sold_individually'] ) : ?>
-                            <div class="flex items-center border border-ats-gray rounded">
-                                <button type="button"
-                                        class="rfs-ref-qty-decrease js-qty-decrease w-7 h-7 flex items-center justify-center text-ats-text hover:bg-ats-gray transition-colors"
-                                        data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
-                                        data-action="decrease"
-                                        <?php echo $item['quantity'] <= 1 ? 'disabled' : ''; ?>>
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
-                                        <path d="M200-440v-80h560v80H200Z"/>
-                                    </svg>
-                                </button>
-                                <span class="rfs-ref-qty-value js-qty-value w-10 text-center text-sm font-medium"><?php echo esc_html( $item['quantity'] ); ?></span>
-                                <button type="button"
-                                        class="rfs-ref-qty-increase js-qty-increase w-7 h-7 flex items-center justify-center text-ats-text hover:bg-ats-gray transition-colors"
-                                        data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
-                                        data-action="increase"
-                                        <?php echo $item['quantity'] >= $item['max_qty'] ? 'disabled' : ''; ?>>
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
-                                        <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        <?php else : ?>
-                            <span class="text-sm text-ats-text"><?php esc_html_e( 'Qty:', 'skylinewp-dev-child' ); ?> <?php echo esc_html( $item['quantity'] ); ?></span>
-                        <?php endif; ?>
+						<!-- Quantity Controls -->
+						<div class="rfs-ref-mini-cart-item-qty flex items-center gap-2 mt-2">
+							<?php if ( ! $item['sold_individually'] ) : ?>
+								<div class="flex items-center border border-ats-gray rounded">
+									<button type="button"
+											class="rfs-ref-qty-decrease js-qty-decrease w-7 h-7 flex items-center justify-center text-ats-text hover:bg-ats-gray transition-colors"
+											data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
+											data-action="decrease"
+											<?php echo $item['quantity'] <= 1 ? 'disabled' : ''; ?>>
+										<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
+											<path d="M200-440v-80h560v80H200Z"/>
+										</svg>
+									</button>
+									<span class="rfs-ref-qty-value js-qty-value w-10 text-center text-sm font-medium"><?php echo esc_html( $item['quantity'] ); ?></span>
+									<button type="button"
+											class="rfs-ref-qty-increase js-qty-increase w-7 h-7 flex items-center justify-center text-ats-text hover:bg-ats-gray transition-colors"
+											data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
+											data-action="increase"
+											<?php echo $item['quantity'] >= $item['max_qty'] ? 'disabled' : ''; ?>>
+										<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
+											<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+										</svg>
+									</button>
+								</div>
+							<?php else : ?>
+								<span class="text-sm text-ats-text"><?php esc_html_e( 'Qty:', 'skylinewp-dev-child' ); ?> <?php echo esc_html( $item['quantity'] ); ?></span>
+							<?php endif; ?>
 
-                        <!-- Remove Button -->
-                        <button type="button"
-                                class="rfs-ref-remove-item js-remove-item ml-auto text-ats-text hover:text-ats-yellow transition-colors"
-                                data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
-                                title="<?php esc_attr_e( 'Remove item', 'skylinewp-dev-child' ); ?>">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">
-                                <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+							<!-- Remove Button -->
+							<button type="button"
+									class="rfs-ref-remove-item js-remove-item ml-auto text-ats-text hover:text-ats-yellow transition-colors"
+									data-cart-key="<?php echo esc_attr( $item['key'] ); ?>"
+									title="<?php esc_attr_e( 'Remove item', 'skylinewp-dev-child' ); ?>">
+								<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">
+									<path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+								</svg>
+							</button>
+						</div>
+					</div>
 
-                <!-- Item Subtotal -->
-                <div class="rfs-ref-mini-cart-item-subtotal text-right flex-shrink-0">
-                    <span class="text-sm font-semibold text-ats-dark"><?php echo wp_kses_post( $item['subtotal'] ); ?></span>
-                </div>
-            </div>
+					<!-- Item Subtotal (col-span-3) -->
+					<div class="rfs-ref-mini-cart-item-subtotal text-right flex  justify-end col-span-2">
+						<span class="text-sm font-semibold text-ats-dark"><?php echo wp_kses_post( $item['subtotal'] ); ?></span>
+					</div>
+				</div>
         <?php endforeach; ?>
     </div>
     <?php
