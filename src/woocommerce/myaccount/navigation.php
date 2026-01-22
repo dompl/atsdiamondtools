@@ -9,13 +9,11 @@ if ( !defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Map WooCommerce endpoints to custom labels
-$nav_items = [
-    'dashboard' => __( 'Dashboard', 'woocommerce' ),
-    'edit-account' => __( 'Edit Profile', 'woocommerce' ),
-    'orders' => __( 'Order History', 'woocommerce' ),
-    'edit-address' => __( 'Addresses', 'woocommerce' ),
-];
+// Get all WooCommerce account menu items (includes favorites and other endpoints)
+$nav_items = wc_get_account_menu_items();
+
+// Remove logout from nav_items as we handle it separately
+unset( $nav_items['customer-logout'] );
 
 $current_endpoint = WC()->query->get_current_endpoint();
 if ( empty( $current_endpoint ) ) {

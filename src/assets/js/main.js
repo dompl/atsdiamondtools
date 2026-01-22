@@ -10,7 +10,6 @@ import './components/newsletter.js';
 import './components/product-scroller.js';
 import './components/product-quick-view.js';
 import './components/favorites.js';
-import './components/favorites-drawer.js';
 import './components/blog.js';
 import { initATSSearch } from './components/search.js';
 import { initSingleProduct } from './components/single-product.js';
