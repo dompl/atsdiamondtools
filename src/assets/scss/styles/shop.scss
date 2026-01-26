@@ -1,0 +1,126 @@
+/**
+ * Shop Page Styles
+ *
+ * Minimal styles for shop and category pages
+ * - Price slider customization
+ *
+ * @package ATS Diamond Tools
+ */
+
+/**
+ * Price Slider Range Input Styling
+ */
+.rfs-ref-price-slider-min,
+.rfs-ref-price-slider-max {
+	pointer-events: all;
+	-webkit-appearance: none;
+	appearance: none;
+	height: 0;
+	outline: none;
+
+	&::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #FFD200; /* ats-yellow */
+		border: 2px solid #222222; /* ats-dark */
+		cursor: pointer;
+		pointer-events: all;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+		&:hover {
+			transform: scale(1.1);
+			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+		}
+
+		&:active {
+			transform: scale(1.05);
+		}
+	}
+
+	&::-moz-range-thumb {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #FFD200; /* ats-yellow */
+		border: 2px solid #222222; /* ats-dark */
+		cursor: pointer;
+		pointer-events: all;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+		&:hover {
+			transform: scale(1.1);
+			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+		}
+
+		&:active {
+			transform: scale(1.05);
+		}
+	}
+
+	&::-ms-thumb {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #FFD200; /* ats-yellow */
+		border: 2px solid #222222; /* ats-dark */
+		cursor: pointer;
+		pointer-events: all;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+		&:hover {
+			transform: scale(1.1);
+			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+		}
+
+		&:active {
+			transform: scale(1.05);
+		}
+	}
+}
+
+/**
+ * Price Slider Track
+ */
+.rfs-ref-price-slider-track {
+	position: absolute;
+	height: 100%;
+	background-color: #FFD200; /* ats-yellow */
+	border-radius: 9999px;
+	pointer-events: none;
+	z-index: 1;
+}
+
+/**
+ * Sidebar Sticky Positioning
+ */
+.rfs-ref-sidebar-sticky {
+	@media (min-width: 1024px) {
+		max-height: calc(100vh - 120px);
+		overflow-y: auto;
+
+		/* Custom scrollbar */
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			border-radius: 10px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: #888;
+			border-radius: 10px;
+
+			&:hover {
+				background: #555;
+			}
+		}
+	}
+}

@@ -10,7 +10,13 @@ defined('ABSPATH') || exit;
 // Only use this template for blog post archives, not products or other post types
 // Check if this is a WooCommerce archive (products, product categories, etc.)
 if (function_exists('is_woocommerce') && (is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy())) {
-	// Load WooCommerce archive template
+	// Load WooCommerce archive template directly
+	$wc_template = get_stylesheet_directory() . '/woocommerce/archive-product.php';
+	if (file_exists($wc_template)) {
+		include($wc_template);
+		return;
+	}
+	// Fallback to wc_get_template if our custom template doesn't exist
 	wc_get_template('archive-product.php');
 	return;
 }

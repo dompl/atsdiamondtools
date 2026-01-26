@@ -15,6 +15,13 @@ class SkylineWPChildThemeSetup {
      * 'skylinewp_additional_acf_directories' to add custom ACF directories.
      */
     public function __construct() {
+
+	 add_action( 'after_setup_theme', 'setup_woocommerce_support' );
+
+ function setup_woocommerce_support()
+{
+  add_theme_support('woocommerce');
+}
         // Hook into after_setup_theme to initialize functionality
         add_action( 'after_setup_theme', [$this, 'load_parent_autoloader'], 0 );
         add_filter( 'skylinewp_additional_acf_directories', [$this, 'skyline_add_custom_acf_directories'], 0 );
@@ -70,6 +77,7 @@ new SkylineWPChildThemeSetup();
  * Load template parts
  */
 require_once get_stylesheet_directory() . '/functions/template-parts/favorite-button.php';
+require_once get_stylesheet_directory() . '/functions/template-parts/newsletter-widget.php';
 
 /**
  * Remove WooCommerce default registration privacy policy text

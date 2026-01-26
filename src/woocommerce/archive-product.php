@@ -1,0 +1,251 @@
+<?php
+/**
+ * The Template for displaying product archives
+ *
+ * This template can be overridden by copying it to yourtheme/woocommerce/archive-product.php.
+ *
+ * @package SkylineWP Dev Child
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+get_header();
+
+// Get current filters.
+$current_category = 0;
+$current_orderby  = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : 'default';
+
+// Get categories for sidebar.
+$categories = ats_get_product_categories_for_sidebar( $current_category );
+
+// Get price range.
+$price_range = ats_get_price_range_for_products( $current_category );
+
+// Get sorting options.
+$sorting_options    = ats_get_sorting_options();
+$current_sort_label = ats_get_current_sorting_label( $current_orderby );
+
+// Get products per page.
+$products_per_page = 12;
+?>
+
+<div class="rfs-ref-shop-page bg-white py-8 min-h-screen">
+	<div class="rfs-ref-shop-container container mx-auto px-4">
+
+		<!-- Page Header -->
+		<div class="rfs-ref-shop-header mb-8">
+			<h1 class="rfs-ref-shop-title text-3xl md:text-4xl font-bold text-ats-dark mb-2">
+				<?php woocommerce_page_title(); ?>
+			</h1>
+			<?php if ( category_description() ) : ?>
+				<div class="rfs-ref-shop-description text-gray-600 leading-relaxed">
+					<?php echo wp_kses_post( category_description() ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+
+		<!-- Main Grid: Sidebar + Products -->
+		<div class="rfs-ref-shop-grid grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+			<!-- LEFT SIDEBAR -->
+			<aside class="rfs-ref-shop-sidebar lg:col-span-1">
+				<div class="rfs-ref-sidebar-sticky lg:sticky lg:top-24 space-y-6">
+
+					<!-- Categories Section -->
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories bg-white border border-gray-200 rounded-lg p-6">
+						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
+							<?php esc_html_e( 'Categories', 'skylinewp-dev-child' ); ?>
+						</h3>
+
+						<?php if ( ! empty( $categories ) ) : ?>
+							<ul class="rfs-ref-category-list space-y-2">
+								<!-- All Products -->
+								<li class="rfs-ref-category-item">
+									<button type="button"
+									   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-ats-gray bg-ats-brand text-whitefont-bold"
+									   data-category-id="0">
+										<span class="rfs-ref-category-name"><?php esc_html_e( 'All Products', 'skylinewp-dev-child' ); ?></span>
+									</button>
+								</li>
+
+								<?php foreach ( $categories as $category ) : ?>
+									<li class="rfs-ref-category-item">
+										<button type="button"
+										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-ats-gray <?php echo $category['is_current'] ? 'bg-ats-yellow text-ats-dark font-bold' : 'text-gray-700'; ?>"
+										   data-category-id="<?php echo esc_attr( $category['id'] ); ?>">
+											<span class="rfs-ref-category-name"><?php echo esc_html( $category['name'] ); ?></span>
+											<span class="rfs-ref-category-count text-xs text-gray-500">(<?php echo esc_html( $category['count'] ); ?>)</span>
+										</button>
+
+										<?php if ( ! empty( $category['children'] ) ) : ?>
+											<ul class="rfs-ref-category-children ml-4 mt-2 space-y-1">
+												<?php foreach ( $category['children'] as $child ) : ?>
+													<li class="rfs-ref-category-child-item">
+														<button type="button"
+														   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-ats-gray <?php echo $child['is_current'] ? 'bg-ats-yellow text-ats-dark font-bold' : 'text-gray-600'; ?>"
+														   data-category-id="<?php echo esc_attr( $child['id'] ); ?>">
+															<span class="rfs-ref-category-name"><?php echo esc_html( $child['name'] ); ?></span>
+															<span class="rfs-ref-category-count text-xs text-gray-400">(<?php echo esc_html( $child['count'] ); ?>)</span>
+														</button>
+													</li>
+												<?php endforeach; ?>
+											</ul>
+										<?php endif; ?>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
+					</div>
+
+					<!-- Price Filter Section -->
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter bg-white border border-gray-200 rounded-lg p-6">
+						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
+							<?php esc_html_e( 'Price Range', 'skylinewp-dev-child' ); ?>
+						</h3>
+
+						<div class="rfs-ref-price-slider-container">
+							<!-- Dual Range Slider -->
+							<div class="rfs-ref-price-slider-wrapper relative h-2 bg-gray-200 rounded-full mb-8">
+								<div class="rfs-ref-price-slider-track absolute h-full bg-ats-yellow rounded-full"></div>
+								<input type="range"
+								       class="rfs-ref-price-slider-min absolute w-full pointer-events-none appearance-none bg-transparent"
+								       min="<?php echo esc_attr( $price_range['min'] ); ?>"
+								       max="<?php echo esc_attr( $price_range['max'] ); ?>"
+								       value="<?php echo esc_attr( $price_range['min'] ); ?>"
+								       step="1">
+								<input type="range"
+								       class="rfs-ref-price-slider-max absolute w-full pointer-events-none appearance-none bg-transparent"
+								       min="<?php echo esc_attr( $price_range['min'] ); ?>"
+								       max="<?php echo esc_attr( $price_range['max'] ); ?>"
+								       value="<?php echo esc_attr( $price_range['max'] ); ?>"
+								       step="1">
+							</div>
+
+							<div class="rfs-ref-price-values flex items-center justify-between text-sm">
+								<div class="rfs-ref-price-min-container">
+									<span class="text-gray-600"><?php esc_html_e( 'Min:', 'skylinewp-dev-child' ); ?></span>
+									<span class="rfs-ref-price-min-value font-bold text-ats-dark">£<?php echo esc_html( $price_range['min'] ); ?></span>
+								</div>
+								<div class="rfs-ref-price-max-container">
+									<span class="text-gray-600"><?php esc_html_e( 'Max:', 'skylinewp-dev-child' ); ?></span>
+									<span class="rfs-ref-price-max-value font-bold text-ats-dark">£<?php echo esc_html( $price_range['max'] ); ?></span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Newsletter Widget -->
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-newsletter">
+						<?php echo ats_render_newsletter_widget(); ?>
+					</div>
+
+				</div>
+			</aside>
+
+			<!-- RIGHT CONTENT AREA -->
+			<main class="rfs-ref-shop-content lg:col-span-3">
+
+				<!-- Toolbar: Results Count + Sort Dropdown -->
+				<div class="rfs-ref-shop-toolbar flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-gray-200">
+					<!-- Results Count -->
+					<div class="rfs-ref-results-count text-sm text-gray-600">
+						<?php
+						$total   = $GLOBALS['wp_query']->found_posts;
+						$showing = min( $products_per_page, $total );
+						?>
+						<span class="rfs-ref-showing-text">
+							<?php
+							echo esc_html__( 'Showing ', 'skylinewp-dev-child' );
+							?>
+							<span class="rfs-ref-showing-count font-bold text-ats-dark"><?php echo esc_html( $showing ); ?></span>
+							<?php echo esc_html__( ' of ', 'skylinewp-dev-child' ); ?>
+							<span class="rfs-ref-total-count font-bold text-ats-dark"><?php echo esc_html( $total ); ?></span>
+							<?php echo esc_html__( ' products', 'skylinewp-dev-child' ); ?>
+						</span>
+					</div>
+
+					<!-- Sort Dropdown (Flowbite) -->
+					<div class="rfs-ref-sort-dropdown-container">
+						<button id="dropdownSortButton"
+						        data-dropdown-toggle="dropdownSort"
+						        class="rfs-ref-sort-dropdown-button text-ats-dark bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center transition-colors duration-200"
+						        type="button">
+							<span class="rfs-ref-sort-label"><?php esc_html_e( 'Order by:', 'skylinewp-dev-child' ); ?></span>
+							<span class="rfs-ref-current-sort ml-2 font-bold"><?php echo esc_html( $current_sort_label ); ?></span>
+							<svg class="w-2.5 h-2.5 ml-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+								<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+							</svg>
+						</button>
+
+						<!-- Dropdown menu -->
+						<div id="dropdownSort" class="rfs-ref-sort-dropdown-menu z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-56">
+							<ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownSortButton">
+								<?php foreach ( $sorting_options as $sort_key => $sort_label ) : ?>
+									<li>
+										<button type="button"
+										   class="rfs-ref-sort-option w-full text-left block px-4 py-2 hover:bg-ats-gray transition-colors duration-200 <?php echo $current_orderby === $sort_key ? 'bg-ats-yellow font-bold' : ''; ?>"
+										   data-sort="<?php echo esc_attr( $sort_key ); ?>">
+											<?php echo esc_html( $sort_label ); ?>
+										</button>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+				<!-- Products Grid Container -->
+				<div class="rfs-ref-products-container relative">
+
+					<!-- Products Grid -->
+					<div class="rfs-ref-products-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+						<?php
+						if ( woocommerce_product_loop() ) {
+							while ( have_posts() ) {
+								the_post();
+								echo do_shortcode( '[ats_product id="' . get_the_ID() . '" display="1"]' );
+							}
+							wp_reset_postdata();
+						} else {
+							?>
+							<div class="rfs-ref-no-products col-span-full text-center py-16">
+								<p class="text-gray-600 text-lg"><?php esc_html_e( 'No products found.', 'skylinewp-dev-child' ); ?></p>
+							</div>
+							<?php
+						}
+						?>
+					</div>
+
+					<!-- Loading Overlay -->
+					<div class="rfs-ref-loading-overlay hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+						<div role="status" class="rfs-ref-loading-spinner">
+							<svg aria-hidden="true" class="w-12 h-12 text-gray-200 animate-spin fill-ats-yellow" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+								<path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+							</svg>
+							<span class="sr-only"><?php esc_html_e( 'Loading...', 'skylinewp-dev-child' ); ?></span>
+						</div>
+					</div>
+
+				</div>
+
+				<!-- Pagination -->
+				<?php if ( woocommerce_product_loop() ) : ?>
+					<div class="rfs-ref-shop-pagination mt-8">
+						<?php
+						do_action( 'woocommerce_after_shop_loop' );
+						?>
+					</div>
+				<?php endif; ?>
+
+			</main>
+
+		</div>
+
+	</div>
+</div>
+
+<?php
+get_footer();
