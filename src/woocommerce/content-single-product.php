@@ -59,11 +59,16 @@ $product_id = $product->get_id();
                                 <?php woocommerce_breadcrumb(); ?>
                             </div>
 
-                            <!-- Title -->
-                            <h1 class="single-product-title">
-
-                                <?php the_title(); ?>
-                            </h1>
+                            <!-- Title with Favorite Button -->
+                            <div class="flex items-start justify-between gap-4">
+                                <h1 class="single-product-title flex-grow">
+                                    <?php the_title(); ?>
+                                </h1>
+                                <!-- Favorite Button -->
+                                <div class="flex-shrink-0 pt-1">
+                                    <?php ats_render_favorite_button( $product_id, 'lg', true ); ?>
+                                </div>
+                            </div>
 
                             <!-- Reviews (Star Rating) -->
                             <div class="flex items-center gap-2 mb-2">

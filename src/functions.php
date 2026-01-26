@@ -67,6 +67,11 @@ class SkylineWPChildThemeSetup {
 new SkylineWPChildThemeSetup();
 
 /**
+ * Load template parts
+ */
+require_once get_stylesheet_directory() . '/functions/template-parts/favorite-button.php';
+
+/**
  * Remove WooCommerce default registration privacy policy text
  * We're using custom privacy text in the form-login.php template
  */

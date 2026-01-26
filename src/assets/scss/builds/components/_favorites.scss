@@ -133,16 +133,6 @@
 	}
 }
 
-// Tooltip styling
-.rfs-ref-favorite-tooltip {
-	@apply z-50;
-	font-size: 0.75rem;
-	line-height: 1rem;
-
-	// Ensure proper positioning
-	white-space: nowrap;
-}
-
 // Line clamp utility for product titles
 .line-clamp-2 {
 	display: -webkit-box;

@@ -99,19 +99,27 @@ add_action( 'wp_enqueue_scripts', function () {
     wp_dequeue_script( 'wc-cart' );
     wp_dequeue_script( 'wc-cart-fragments' );
 
-    // Keep country-select and address scripts on account pages for address forms
-    if ( ! is_account_page() ) {
+    // Keep country-select and address scripts on account/checkout pages for address forms
+    if ( ! is_account_page() && ! is_checkout() ) {
         wp_dequeue_script( 'wc-country-select' );
         wp_dequeue_script( 'wc-address-i18n' );
     }
 
-    wp_dequeue_script( 'wc-checkout' );
+    // Keep checkout script on checkout page for AJAX functionality
+    if ( ! is_checkout() ) {
+        wp_dequeue_script( 'wc-checkout' );
+    }
+
     wp_dequeue_script( 'wc-credit-card-form' );
     // wp_dequeue_script( 'wc-single-product' ); // Needed for gallery
     wp_dequeue_script( 'woocommerce' );
     wp_dequeue_script( 'prettyPhoto' );
     wp_dequeue_script( 'prettyPhoto-init' );
-    wp_dequeue_script( 'jquery-blockui' );
+
+    // Keep jquery-blockui on checkout for loading overlay
+    if ( ! is_checkout() ) {
+        wp_dequeue_script( 'jquery-blockui' );
+    }
     wp_dequeue_script( 'jquery-placeholder' );
     wp_dequeue_script( 'jquery-payment' );
     wp_dequeue_script( 'jqueryui' );

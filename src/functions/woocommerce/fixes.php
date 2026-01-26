@@ -168,3 +168,23 @@ add_filter( 'woocommerce_available_variation', function( $data, $product, $varia
 
 	return $data;
 }, 10, 3 );
+
+
+// You can directly override the package name using the filter as WooCommerce does internally.
+// The filter 'woocommerce_shipping_package_name' is the correct and only way to modify the shipping package name
+// without overriding WooCommerce core files. The code you have is the right approach.
+
+add_filter('woocommerce_shipping_package_name', function( $package_name, $package_index, $package ) {
+	if ( is_string( $package_name ) ) {
+
+		// Replace the word "Shipping" (case-insensitive, only the word, not substrings)
+		$package_name = preg_replace_callback(
+			'/\b(Shipping)\b/i',
+			function( $matches ) {
+				return '<span class="font-sm">' . $matches[1] . '</span>';
+			},
+			$package_name
+		);
+	}
+	return $package_name;
+}, 10, 3);

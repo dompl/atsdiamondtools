@@ -75,6 +75,7 @@ add_action( 'wp_enqueue_scripts', function () {
         'ajax_url'               => admin_url( 'admin-ajax.php' ),
         'nonce'                  => wp_create_nonce( 'theme_nonce' ),
         'mini_cart_nonce'        => wp_create_nonce( 'ats_mini_cart_nonce' ),
+        'cart_nonce'             => wp_create_nonce( 'ats-cart-nonce' ),
         'calculator_nonce'       => wp_create_nonce( 'avolve_calculator_nonce' ),
         'avolve_load_more_nonce' => wp_create_nonce( 'avolve_load_more_posts' ),
         'theme_dir'              => get_stylesheet_directory_uri(),

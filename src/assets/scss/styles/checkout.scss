@@ -1,0 +1,146 @@
+/**
+ * Checkout Page Styles
+ *
+ * Custom styling for WooCommerce checkout
+ */
+
+// ============================================
+// Checkout Specific Overrides
+// ============================================
+
+.woocommerce-checkout {
+	// Required field asterisk
+	.required {
+		@apply text-red-500 ml-1;
+	}
+
+	// Select dropdown arrow
+	select {
+		@apply appearance-none bg-white;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23333333'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.75rem center;
+		background-size: 1.25rem;
+		@apply pr-10;
+	}
+
+	// Textarea
+	textarea {
+		@apply min-h-[100px] resize-y;
+	}
+
+	// Placeholder text
+	input::placeholder,
+	textarea::placeholder {
+		@apply text-gray-400;
+	}
+
+	// Validation states
+	.woocommerce-invalid {
+		input,
+		select,
+		textarea {
+			@apply border-red-500 focus:ring-red-500 focus:border-red-500 #{!important};
+		}
+
+		label {
+			@apply text-red-600;
+		}
+	}
+
+	.woocommerce-validated {
+		input:not([type="checkbox"]):not([type="radio"]),
+		select,
+		textarea {
+			@apply border-green-500 focus:ring-green-500 focus:border-green-500 #{!important};
+		}
+	}
+
+	// Error messages
+	.woocommerce-error,
+	.woocommerce-NoticeGroup-checkout {
+		@apply bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 mb-6;
+
+		li {
+			@apply text-sm list-none;
+		}
+
+		a {
+			@apply text-red-600 hover:text-red-800 underline font-medium;
+		}
+	}
+}
+
+// ============================================
+// Shipping Methods Styling
+// ============================================
+
+.woocommerce-checkout-review-order {
+	// Shipping methods container
+	#shipping_method {
+		@apply space-y-3;
+
+		li {
+			@apply list-none m-0 p-0;
+
+			// All labels styled as cards
+			label {
+				@apply flex items-center gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer;
+				@apply transition-all duration-200;
+				@apply hover:border-gray-300;
+
+				input[type="radio"] {
+					@apply w-4 h-4 text-ats-yellow bg-white border-gray-300;
+					@apply focus:ring-ats-yellow focus:ring-2;
+					@apply cursor-pointer flex-shrink-0;
+				}
+
+				.woocommerce-Price-amount {
+					@apply font-semibold text-ats-dark;
+				}
+			}
+
+			// Selected shipping method gets yellow background
+			label:has(input:checked) {
+				@apply bg-ats-yellow bg-opacity-10 border-ats-yellow #{!important};
+			}
+		}
+	}
+
+	// Shipping row in totals
+	.rfs-ref-review-shipping {
+		@apply text-sm;
+
+		table {
+			@apply w-full;
+
+			// Shipping label row
+			tr {
+				@apply flex justify-between items-start;
+
+				th {
+					@apply text-ats-text font-normal p-0 mb-3 w-full;
+				}
+
+				td {
+					@apply p-0 w-full;
+
+					label {
+						@apply mb-0;
+					}
+				}
+			}
+		}
+
+		// Override for shipping methods in review
+		#shipping_method {
+			@apply mt-3 space-y-2;
+
+			li {
+				label {
+					@apply p-3 text-sm;
+				}
+			}
+		}
+	}
+}

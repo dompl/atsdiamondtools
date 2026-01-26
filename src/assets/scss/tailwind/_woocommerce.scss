@@ -72,6 +72,66 @@
 }
 
 // ============================================================================
+// Cart Page Styling
+// ============================================================================
+
+// Cart item transitions
+.rfs-ref-cart-item {
+	transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
+}
+
+// Quantity input - hide number spinners
+.ats-qty-input {
+	// Hide spinners in Chrome, Safari, Edge, Opera
+	&::-webkit-outer-spin-button,
+	&::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	// Hide spinners in Firefox
+	-moz-appearance: textfield;
+}
+
+// Cart totals shipping row styling
+.rfs-ref-cart-shipping {
+	.woocommerce-shipping-methods {
+		@apply list-none m-0 p-0 space-y-2;
+
+		li {
+			@apply flex items-center gap-2;
+
+			input[type="radio"] {
+				@apply w-4 h-4 text-ats-yellow focus:ring-ats-yellow;
+			}
+
+			label {
+				@apply text-sm text-ats-text cursor-pointer flex-grow;
+			}
+		}
+	}
+}
+
+// Coupon remove button in totals
+.woocommerce-remove-coupon {
+	@apply text-red-500 hover:text-red-700 transition-colors ml-2 text-sm;
+}
+
+// Loading states
+.rfs-ref-cart-item[style*="opacity: 0.5"] {
+	@apply pointer-events-none;
+}
+
+// Empty cart styling
+.rfs-ref-cart-empty {
+	min-height: 400px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+// ============================================================================
 // Product Card Expand Button Styling
 // ============================================================================
 

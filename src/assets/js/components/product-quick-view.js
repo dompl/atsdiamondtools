@@ -94,6 +94,34 @@ import $ from 'jquery';
 					}
 				});
 			});
+
+			// Close button click
+			const closeButton = this.elements.modal?.querySelector('[data-modal-hide]');
+			if (closeButton) {
+				closeButton.addEventListener('click', function (e) {
+					e.preventDefault();
+					self.closeModal();
+				});
+			}
+
+			// Close on backdrop click
+			if (this.elements.modal) {
+				this.elements.modal.addEventListener('click', function (e) {
+					// Only close if clicking the backdrop (modal itself, not its children)
+					if (e.target === self.elements.modal) {
+						self.closeModal();
+					}
+				});
+			}
+		},
+
+		/**
+		 * Close the modal
+		 */
+		closeModal: function () {
+			if (this.modalInstance) {
+				this.modalInstance.hide();
+			}
 		},
 
 		/**

@@ -357,44 +357,46 @@ function ats_ajax_update_cart_item() {
  *
  * @return void
  */
-function ats_ajax_remove_cart_item() {
-    // Verify nonce
-    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ats_mini_cart_nonce' ) ) {
-        wp_send_json_error(
-            array( 'message' => __( 'Security check failed.', 'skylinewp-dev-child' ) ),
-            403
-        );
-    }
+if ( ! function_exists( 'ats_ajax_remove_cart_item' ) ) {
+    function ats_ajax_remove_cart_item() {
+        // Verify nonce
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ats_mini_cart_nonce' ) ) {
+            wp_send_json_error(
+                array( 'message' => __( 'Security check failed.', 'skylinewp-dev-child' ) ),
+                403
+            );
+        }
 
-    // Validate inputs
-    if ( ! isset( $_POST['cart_key'] ) ) {
-        wp_send_json_error(
-            array( 'message' => __( 'Missing cart item key.', 'skylinewp-dev-child' ) ),
-            400
-        );
-    }
+        // Validate inputs
+        if ( ! isset( $_POST['cart_key'] ) ) {
+            wp_send_json_error(
+                array( 'message' => __( 'Missing cart item key.', 'skylinewp-dev-child' ) ),
+                400
+            );
+        }
 
-    $cart_key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ) );
+        $cart_key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ) );
 
-    // Ensure WooCommerce cart is loaded
-    if ( is_null( WC()->cart ) ) {
-        wc_load_cart();
-    }
+        // Ensure WooCommerce cart is loaded
+        if ( is_null( WC()->cart ) ) {
+            wc_load_cart();
+        }
 
-    // Remove cart item
-    $result = WC()->cart->remove_cart_item( $cart_key );
+        // Remove cart item
+        $result = WC()->cart->remove_cart_item( $cart_key );
 
-    if ( $result ) {
-        // Recalculate cart totals
-        WC()->cart->calculate_totals();
+        if ( $result ) {
+            // Recalculate cart totals
+            WC()->cart->calculate_totals();
 
-        // Get updated cart data
-        wp_send_json_success( ats_get_updated_cart_data() );
-    } else {
-        wp_send_json_error(
-            array( 'message' => __( 'Failed to remove item.', 'skylinewp-dev-child' ) ),
-            500
-        );
+            // Get updated cart data
+            wp_send_json_success( ats_get_updated_cart_data() );
+        } else {
+            wp_send_json_error(
+                array( 'message' => __( 'Failed to remove item.', 'skylinewp-dev-child' ) ),
+                500
+            );
+        }
     }
 }
 

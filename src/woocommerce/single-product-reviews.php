@@ -33,28 +33,55 @@ if ( ! comments_open() ) {
 		</h2>
 
 		<?php if ( have_comments() ) : ?>
-            <div class="space-y-6 mb-8">
-    			<ol class="rfs-ref-reviews-list commentlist space-y-6">
-    				<?php wp_list_comments( apply_filters( 'woocommerce_product_review_list_args', array( 'callback' => 'woocommerce_comments' ) ) ); ?>
+            <div class="space-y-6 mb-8" id="reviews-list-container">
+    			<ol class="rfs-ref-reviews-list commentlist space-y-6" id="reviews-list">
+    				<?php
+					// Set 5 comments per page
+					$comments_per_page = 5;
+					$paged = get_query_var('cpage') ? get_query_var('cpage') : 1;
+
+					wp_list_comments( apply_filters( 'woocommerce_product_review_list_args', array(
+						'callback' => 'woocommerce_comments',
+						'per_page' => $comments_per_page,
+					) ) );
+					?>
     			</ol>
             </div>
 
 			<?php
-			if ( get_comment_pages_count() > 1 && get_option( 'page_comments' ) ) :
-				echo '<nav class="rfs-ref-reviews-pagination woocommerce-pagination flex items-center justify-center gap-2 my-8">';
-				paginate_comments_links(
-					apply_filters(
-						'woocommerce_comment_pagination_args',
-						array(
-							'prev_text' => '<span class="inline-flex items-center justify-center w-8 h-8 rounded border border-gray-200 hover:bg-gray-50 text-ats-text"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></span>',
-							'next_text' => '<span class="inline-flex items-center justify-center w-8 h-8 rounded border border-gray-200 hover:bg-gray-50 text-ats-text"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></span>',
-							'type'      => 'list',
-						)
-					)
-				);
-				echo '</nav>';
-			endif;
-			?>
+			$total_comments = get_comments_number();
+			$total_pages = ceil( $total_comments / 5 );
+
+			if ( $total_pages > 1 ) :
+				?>
+				<nav class="rfs-ref-reviews-pagination woocommerce-pagination flex items-center justify-center gap-2 my-8" id="reviews-pagination" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-total-pages="<?php echo esc_attr( $total_pages ); ?>">
+					<?php
+					$current_page = max( 1, get_query_var('cpage') );
+
+					// Previous button
+					if ( $current_page > 1 ) :
+						?>
+						<button class="ats-reviews-prev page-numbers inline-flex items-center justify-center w-8 h-8 rounded border border-gray-200 hover:bg-gray-50 text-ats-text" data-page="<?php echo esc_attr( $current_page - 1 ); ?>">
+							<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+						</button>
+					<?php endif; ?>
+
+					<?php for ( $i = 1; $i <= $total_pages; $i++ ) : ?>
+						<button class="ats-reviews-page page-numbers inline-flex items-center justify-center w-8 h-8 rounded border border-gray-200 hover:bg-gray-50 text-ats-text <?php echo $i === $current_page ? 'current bg-ats-yellow text-ats-dark border-ats-yellow font-semibold' : ''; ?>" data-page="<?php echo esc_attr( $i ); ?>">
+							<?php echo $i; ?>
+						</button>
+					<?php endfor; ?>
+
+					<?php
+					// Next button
+					if ( $current_page < $total_pages ) :
+						?>
+						<button class="ats-reviews-next page-numbers inline-flex items-center justify-center w-8 h-8 rounded border border-gray-200 hover:bg-gray-50 text-ats-text" data-page="<?php echo esc_attr( $current_page + 1 ); ?>">
+							<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+						</button>
+					<?php endif; ?>
+				</nav>
+			<?php endif; ?>
 		<?php else : ?>
 			<div class="rfs-ref-no-reviews woocommerce-noreviews bg-ats-gray border border-gray-200 rounded-lg p-8 text-center">
 				<svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#9CA3AF" class="mx-auto mb-4 opacity-50">
@@ -89,37 +116,38 @@ if ( ! comments_open() ) {
 				);
 
 				$name_email_required = (bool) get_option( 'require_name_email', 1 );
-				$fields              = array(
-					'author' => array(
-						'label'        => __( 'Name', 'woocommerce' ),
-						'type'         => 'text',
-						'value'        => $commenter['comment_author'],
-						'required'     => $name_email_required,
-						'autocomplete' => 'name',
-					),
-					'email'  => array(
-						'label'        => __( 'Email', 'woocommerce' ),
-						'type'         => 'email',
-						'value'        => $commenter['comment_author_email'],
-						'required'     => $name_email_required,
-						'autocomplete' => 'email',
-					),
-				);
 
+				// Build name and email fields in one row
 				$comment_form['fields'] = array();
 
-				foreach ( $fields as $key => $field ) {
-					$field_html  = '<p class="rfs-ref-review-field-' . esc_attr( $key ) . ' comment-form-' . esc_attr( $key ) . ' mb-4">';
-					$field_html .= '<label for="' . esc_attr( $key ) . '" class="block text-sm font-medium text-ats-dark mb-2">' . esc_html( $field['label'] );
+				// Name and Email fields in one row
+				$name_email_html = '<div class="rfs-ref-review-name-email-row grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">';
 
-					if ( $field['required'] ) {
-						$field_html .= '&nbsp;<span class="required text-red-500">*</span>';
-					}
-
-					$field_html .= '</label><input id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" type="' . esc_attr( $field['type'] ) . '" autocomplete="' . esc_attr( $field['autocomplete'] ) . '" value="' . esc_attr( $field['value'] ) . '" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow transition-colors" ' . ( $field['required'] ? 'required' : '' ) . ' /></p>';
-
-					$comment_form['fields'][ $key ] = $field_html;
+				// Name field
+				$name_email_html .= '<div class="rfs-ref-review-field-author">';
+				$name_email_html .= '<label for="author" class="block text-sm font-medium text-ats-dark mb-2">' . esc_html__( 'Name', 'woocommerce' );
+				if ( $name_email_required ) {
+					$name_email_html .= '&nbsp;<span class="required text-red-500">*</span>';
 				}
+				$name_email_html .= '</label>';
+				$name_email_html .= '<input id="author" name="author" type="text" autocomplete="name" value="' . esc_attr( $commenter['comment_author'] ) . '" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow transition-colors" ' . ( $name_email_required ? 'required' : '' ) . ' />';
+				$name_email_html .= '<p class="text-red-500 text-sm mt-1 hidden" id="author-error">' . esc_html__( 'Please enter your name', 'woocommerce' ) . '</p>';
+				$name_email_html .= '</div>';
+
+				// Email field
+				$name_email_html .= '<div class="rfs-ref-review-field-email">';
+				$name_email_html .= '<label for="email" class="block text-sm font-medium text-ats-dark mb-2">' . esc_html__( 'Email', 'woocommerce' );
+				if ( $name_email_required ) {
+					$name_email_html .= '&nbsp;<span class="required text-red-500">*</span>';
+				}
+				$name_email_html .= '</label>';
+				$name_email_html .= '<input id="email" name="email" type="email" autocomplete="email" value="' . esc_attr( $commenter['comment_author_email'] ) . '" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow transition-colors" ' . ( $name_email_required ? 'required' : '' ) . ' />';
+				$name_email_html .= '<p class="text-red-500 text-sm mt-1 hidden" id="email-error">' . esc_html__( 'Please enter a valid email', 'woocommerce' ) . '</p>';
+				$name_email_html .= '</div>';
+
+				$name_email_html .= '</div>';
+
+				$comment_form['fields']['name_email_row'] = $name_email_html;
 
 				$account_page_url = wc_get_page_permalink( 'myaccount' );
 				if ( $account_page_url ) {
