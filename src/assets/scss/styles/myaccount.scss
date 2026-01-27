@@ -1,0 +1,94 @@
+/**
+ * My Account Page Styles
+ *
+ * Override default styles for WooCommerce My Account pages
+ * - Replace yellow with ATS brand color
+ * - Remove shadows only, no borders
+ *
+ * @package ATS Diamond Tools
+ */
+
+/**
+ * Remove all shadows from My Account page elements
+ */
+.woocommerce-account {
+	// Remove shadows from all elements
+	* {
+		box-shadow: none !important;
+	}
+
+	// Remove borders from containers
+	.woocommerce-MyAccount-navigation,
+	.woocommerce-MyAccount-content,
+	.woocommerce-Address,
+	.woocommerce-customer-details,
+	.woocommerce-order-details,
+	.addresses,
+	.address {
+		border: none !important;
+	}
+
+	// Remove yellow colors and replace with ATS brand color
+	.button,
+	button,
+	input[type="submit"],
+	.woocommerce-button {
+		&.alt,
+		&:not(.button-secondary) {
+			background-color: #222222 !important; // ats-brand
+			border-color: #222222 !important;
+
+			&:hover {
+				background-color: #333333 !important;
+				border-color: #333333 !important;
+			}
+		}
+	}
+
+	// Active navigation item
+	.woocommerce-MyAccount-navigation ul li.is-active a {
+		background-color: #222222 !important;
+		color: white !important;
+
+		&:hover {
+			background-color: #333333 !important;
+		}
+	}
+
+	// Navigation hover
+	.woocommerce-MyAccount-navigation ul li a:hover {
+		background-color: #f4f4f4 !important; // ats-gray
+	}
+
+	// Remove yellow from any other elements
+	.bg-ats-yellow,
+	.bg-yellow-400,
+	.bg-yellow-500 {
+		background-color: #222222 !important;
+	}
+
+	.text-ats-yellow,
+	.text-yellow-400,
+	.text-yellow-500 {
+		color: #222222 !important;
+	}
+
+	.border-ats-yellow,
+	.border-yellow-400,
+	.border-yellow-500 {
+		border-color: #222222 !important;
+	}
+
+	// Focus and ring colors
+	.focus\:ring-ats-yellow:focus,
+	.focus\:ring-yellow-400:focus,
+	.focus\:ring-yellow-500:focus {
+		--tw-ring-color: #222222 !important;
+	}
+
+	.focus\:border-ats-yellow:focus,
+	.focus\:border-yellow-400:focus,
+	.focus\:border-yellow-500:focus {
+		border-color: #222222 !important;
+	}
+}

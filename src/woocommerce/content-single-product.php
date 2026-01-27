@@ -26,8 +26,7 @@ $product_id = $product->get_id();
 
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class( '', $product ); ?>>
 
-
-    <div class="pb-12 pt-8">
+    <div class="rfs-ref-single-product-container container mx-auto px-4 pb-12 pt-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
             <!-- Main Content Area: Images + Summary + Tabs (Col 9) -->
@@ -54,11 +53,6 @@ $product_id = $product->get_id();
                     <!-- Middle Column: Product Summary (Inner Col 4) -->
                     <div class="lg:col-span-5" id="ats-single-product-info">
                         <div class="space-y-4">
-                            <!-- Breadcrumbs -->
-                            <div class="mb-2">
-                                <?php woocommerce_breadcrumb(); ?>
-                            </div>
-
                             <!-- Title with Favorite Button -->
                             <div class="flex items-start justify-between gap-4">
                                 <h1 class="single-product-title flex-grow">

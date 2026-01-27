@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 
-<div class="rfs-ref-thankyou-page woocommerce-order">
+<div class="rfs-ref-thankyou-page woocommerce-order container mx-auto px-4 py-8">
 
 	<?php
 	if ( $order ) :
@@ -55,7 +55,7 @@ defined( 'ABSPATH' ) || exit;
 			<!-- Order Details -->
 			<div class="rfs-ref-order-overview-wrapper bg-white border border-gray-200 rounded-lg p-6 mt-6">
 				<h2 class="rfs-ref-order-details-title text-xl font-bold text-ats-dark mb-6"><?php esc_html_e( 'Order details', 'woocommerce' ); ?></h2>
-				<ul class="rfs-ref-order-overview woocommerce-order-overview woocommerce-thankyou-order-details order_details grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				<ul class="rfs-ref-order-overview woocommerce-order-overview woocommerce-thankyou-order-details order_details grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
 					<li class="rfs-ref-order-number woocommerce-order-overview__order order">
 						<span class="block text-xs text-ats-text mb-1"><?php esc_html_e( 'Order number:', 'woocommerce' ); ?></span>

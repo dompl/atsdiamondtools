@@ -57,7 +57,7 @@ if (empty($attachment_ids)) {
         </div>
     </section>
 
-
+    <?php if ( count($attachment_ids) > 1 ) : ?>
     <!-- Thumbnails Slider -->
     <section id="product-thumbnail-splide" class="splide px-12 relative" aria-label="Product Thumbnails">
         <div class="splide__track">
@@ -80,6 +80,7 @@ if (empty($attachment_ids)) {
 			</button>
 		</div>
     </section>
+    <?php endif; ?>
 
     <!-- Custom Lightbox Modal (Hidden) -->
     <div id="product-lightbox-modal" class="fixed inset-0 z-50 hidden bg-ats-brand/90 flex items-center justify-center opacity-0 transition-opacity duration-300">

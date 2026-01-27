@@ -34,12 +34,13 @@ function ats_handle_filter_products() {
 	}
 
 	// Get filter parameters.
-	$category   = isset( $_POST['category'] ) ? absint( $_POST['category'] ) : 0;
-	$min_price  = isset( $_POST['min_price'] ) ? floatval( $_POST['min_price'] ) : 0;
-	$max_price  = isset( $_POST['max_price'] ) ? floatval( $_POST['max_price'] ) : 0;
-	$orderby    = isset( $_POST['orderby'] ) ? sanitize_text_field( wp_unslash( $_POST['orderby'] ) ) : 'default';
-	$paged      = isset( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
-	$per_page   = isset( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 12;
+	$category        = isset( $_POST['category'] ) ? absint( $_POST['category'] ) : 0;
+	$min_price       = isset( $_POST['min_price'] ) ? floatval( $_POST['min_price'] ) : 0;
+	$max_price       = isset( $_POST['max_price'] ) ? floatval( $_POST['max_price'] ) : 0;
+	$orderby         = isset( $_POST['orderby'] ) ? sanitize_text_field( wp_unslash( $_POST['orderby'] ) ) : 'default';
+	$paged           = isset( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
+	$per_page        = isset( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 12;
+	$favourites_only = isset( $_POST['favourites_only'] ) && $_POST['favourites_only'] === '1';
 
 	// Validate per_page to prevent abuse.
 	if ( $per_page < 1 || $per_page > 48 ) {
@@ -70,6 +71,11 @@ function ats_handle_filter_products() {
 		$query_args['orderby'] = $orderby;
 	}
 
+	// Add favourites filter.
+	if ( $favourites_only ) {
+		$query_args['favourites_only'] = true;
+	}
+
 	// Render products HTML.
 	$products_html = ats_render_product_grid( $query_args );
 
@@ -97,6 +103,30 @@ function ats_handle_filter_products() {
 
 	wp_reset_postdata();
 
+	// Get banner data for category pages
+	$banner_data = array(
+		'show_banner'   => false,
+		'category_name' => '',
+		'category_desc' => '',
+		'banner_image'  => '',
+	);
+
+	if ( $category > 0 ) {
+		$category_term = get_term( $category, 'product_cat' );
+		if ( $category_term && ! is_wp_error( $category_term ) ) {
+			$thumbnail_id        = get_term_meta( $category, 'thumbnail_id', true );
+			$banner_image_id     = $thumbnail_id ? $thumbnail_id : 43462;
+			$banner_image_url    = wpimage( $banner_image_id, array( 1920, 400 ), false, true, true, true, 85 );
+
+			$banner_data = array(
+				'show_banner'   => true,
+				'category_name' => $category_term->name,
+				'category_desc' => $category_term->description,
+				'banner_image'  => $banner_image_url,
+			);
+		}
+	}
+
 	// Send success response.
 	wp_send_json_success(
 		array(
@@ -108,6 +138,7 @@ function ats_handle_filter_products() {
 			'current_page'   => $current_page,
 			'has_prev'       => $current_page > 1,
 			'has_next'       => $current_page < $max_pages,
+			'banner_data'    => $banner_data,
 		)
 	);
 }

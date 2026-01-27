@@ -196,6 +196,19 @@ function ats_render_product_grid( $args = array() ) {
 		$query_args = array_merge( $query_args, ats_get_catalog_ordering_args( $args['orderby'] ) );
 	}
 
+	// Handle favourites filtering.
+	if ( ! empty( $args['favourites_only'] ) && is_user_logged_in() ) {
+		$user_id = get_current_user_id();
+		$favorites = get_user_meta( $user_id, 'ats_favorite_products', true );
+
+		// If user has no favorites or favorites is not an array, show no products
+		if ( empty( $favorites ) || ! is_array( $favorites ) ) {
+			$query_args['post__in'] = array( 0 ); // No results
+		} else {
+			$query_args['post__in'] = array_map( 'absint', $favorites );
+		}
+	}
+
 	$products_query = new WP_Query( $query_args );
 
 	ob_start();

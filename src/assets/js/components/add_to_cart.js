@@ -618,6 +618,10 @@
 			const itemEl = MiniCartModal.elements.items.querySelector('[data-cart-key="' + cartKey + '"]');
 			if (!itemEl) return;
 
+			// Prevent multiple removal attempts
+			if (self.isLoading) return;
+			self.isLoading = true;
+
 			// Animate out
 			itemEl.style.transition = 'opacity 0.3s, transform 0.3s';
 			itemEl.style.opacity = '0';
@@ -633,22 +637,22 @@
 				},
 				success: function (response) {
 					if (response.success) {
-						// Update modal content
-						MiniCartModal.updateContent(response.data);
-						// Update all mini cart instances
-						self.updateAllInstances(response.data);
+						// Wait for animation to complete before reloading cart data
+						setTimeout(function() {
+							// Reload the entire cart to ensure fresh data
+							self.loadCart();
 
-						// Close modal if cart is empty
-						if (response.data.is_empty) {
-							setTimeout(function () {
+							// Close modal if cart is empty
+							if (response.data.is_empty) {
 								MiniCartModal.close();
-							}, 300);
-						}
+							}
+						}, 300);
 					} else {
 						console.error('Remove item error:', response.data);
 						// Restore item visibility
 						itemEl.style.opacity = '1';
 						itemEl.style.transform = 'translateX(0)';
+						self.isLoading = false;
 					}
 				},
 				error: function (xhr, status, error) {
@@ -656,6 +660,7 @@
 					// Restore item visibility
 					itemEl.style.opacity = '1';
 					itemEl.style.transform = 'translateX(0)';
+					self.isLoading = false;
 				},
 			});
 		},

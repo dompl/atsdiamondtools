@@ -41,7 +41,7 @@ function ats_render_newsletter_widget() {
 				       class="rfs-ref-newsletter-email w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 block p-3" />
 
 				<button type="submit"
-				        class="rfs-ref-newsletter-submit w-full bg-ats-yellow text-ats-dark hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-bold rounded-lg text-sm px-5 py-3 text-center transition-colors duration-200">
+				        class="rfs-ref-newsletter-submit w-full bg-primary-600 text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-600 font-bold rounded-lg text-sm px-5 py-3 text-center transition-colors duration-200">
 					<?php esc_html_e( 'Subscribe', 'skylinewp-dev-child' ); ?>
 				</button>
 			</div>

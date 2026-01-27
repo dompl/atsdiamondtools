@@ -14,8 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 // Get current filters.
+// Check if we're on a category page
 $current_category = 0;
-$current_orderby  = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : 'default';
+if ( is_product_category() ) {
+	$queried_object   = get_queried_object();
+	$current_category = $queried_object->term_id;
+}
+$current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : 'default';
 
 // Get categories for sidebar.
 $categories = ats_get_product_categories_for_sidebar( $current_category );
@@ -27,30 +32,91 @@ $price_range = ats_get_price_range_for_products( $current_category );
 $sorting_options    = ats_get_sorting_options();
 $current_sort_label = ats_get_current_sorting_label( $current_orderby );
 
-// Get products per page.
+// Get products per page - will load 12 initially, then 8 at a time on scroll.
 $products_per_page = 12;
 ?>
 
-<div class="rfs-ref-shop-page bg-white py-8 min-h-screen">
-	<div class="rfs-ref-shop-container container mx-auto px-4">
+<div class="rfs-ref-shop-page bg-white min-h-screen">
 
-		<!-- Page Header -->
-		<div class="rfs-ref-shop-header mb-8">
-			<h1 class="rfs-ref-shop-title text-3xl md:text-4xl font-bold text-ats-dark mb-2">
-				<?php woocommerce_page_title(); ?>
-			</h1>
-			<?php if ( category_description() ) : ?>
-				<div class="rfs-ref-shop-description text-gray-600 leading-relaxed">
-					<?php echo wp_kses_post( category_description() ); ?>
+	<?php
+	// Category Banner (for category pages only)
+	if ( is_product_category() ) :
+		$queried_object = get_queried_object();
+		$category_name  = $queried_object->name;
+		$category_desc  = $queried_object->description;
+
+		// Get category image or fallback to default
+		$thumbnail_id = get_term_meta( $queried_object->term_id, 'thumbnail_id', true );
+		$banner_image_id = $thumbnail_id ? $thumbnail_id : 43462; // Fallback to image ID 43462
+
+		// Use wpimage() to get the image URL with retina support
+		$banner_image_url = wpimage( $banner_image_id, [1920, 400], false, true, true, true, 85 );
+		?>
+
+		<!-- Category Banner -->
+		<div class="rfs-ref-shop-container container mx-auto px-4 pt-4 mb-6">
+			<div class="rfs-ref-category-banner relative h-[200px] md:h-[250px] overflow-hidden rounded-lg">
+				<!-- Background Image -->
+				<div class="absolute inset-0">
+					<img src="<?php echo esc_url( $banner_image_url ); ?>"
+					     alt="<?php echo esc_attr( $category_name ); ?>"
+					     class="w-full h-full object-cover" />
+					<!-- Overlay Gradient -->
+					<div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
 				</div>
-			<?php endif; ?>
+
+				<!-- Decorative Brand Elements -->
+				<div class="rfs-ref-banner-decorations absolute inset-0 pointer-events-none opacity-20">
+					<!-- Large Circle - Top Right -->
+					<div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-600 blur-3xl"></div>
+					<!-- Medium Circle - Bottom Left -->
+					<div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-ats-yellow blur-2xl"></div>
+					<!-- Small Accent - Middle -->
+					<div class="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-primary-300 blur-xl"></div>
+				</div>
+
+				<!-- Content -->
+				<div class="rfs-ref-category-banner-content relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
+					<div class="max-w-3xl">
+						<h1 class="rfs-ref-category-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+							<?php echo esc_html( $category_name ); ?>
+						</h1>
+
+						<?php if ( ! empty( $category_desc ) ) : ?>
+							<div class="rfs-ref-category-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
+								<?php echo wp_kses_post( $category_desc ); ?>
+							</div>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
 		</div>
 
+	<?php else : ?>
+
+		<!-- Shop Page Header (for main shop page) -->
+		<div class="rfs-ref-shop-container container mx-auto px-4 pt-8">
+			<div class="rfs-ref-shop-header mb-8">
+				<h1 class="rfs-ref-shop-title text-3xl md:text-4xl font-bold text-ats-dark mb-2">
+					<?php woocommerce_page_title(); ?>
+				</h1>
+				<?php if ( category_description() ) : ?>
+					<div class="rfs-ref-shop-description text-gray-600 leading-relaxed">
+						<?php echo wp_kses_post( category_description() ); ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+
+	<?php endif; ?>
+
+	<div class="rfs-ref-shop-container container mx-auto px-4 <?php echo is_product_category() ? 'pt-4' : 'pt-0'; ?>">
+
 		<!-- Main Grid: Sidebar + Products -->
-		<div class="rfs-ref-shop-grid grid grid-cols-1 lg:grid-cols-4 gap-8">
+		<div class="rfs-ref-shop-grid grid grid-cols-1 lg:grid-cols-12 gap-8">
 
 			<!-- LEFT SIDEBAR -->
-			<aside class="rfs-ref-shop-sidebar lg:col-span-1">
+			<aside class="rfs-ref-shop-sidebar lg:col-span-3">
 				<div class="rfs-ref-sidebar-sticky lg:sticky lg:top-24 space-y-6">
 
 					<!-- Categories Section -->
@@ -64,7 +130,7 @@ $products_per_page = 12;
 								<!-- All Products -->
 								<li class="rfs-ref-category-item">
 									<button type="button"
-									   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-ats-gray bg-ats-brand text-whitefont-bold"
+									   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $current_category === 0 ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
 									   data-category-id="0">
 										<span class="rfs-ref-category-name"><?php esc_html_e( 'All Products', 'skylinewp-dev-child' ); ?></span>
 									</button>
@@ -73,10 +139,10 @@ $products_per_page = 12;
 								<?php foreach ( $categories as $category ) : ?>
 									<li class="rfs-ref-category-item">
 										<button type="button"
-										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-ats-gray <?php echo $category['is_current'] ? 'bg-ats-yellow text-ats-dark font-bold' : 'text-gray-700'; ?>"
+										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $category['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
 										   data-category-id="<?php echo esc_attr( $category['id'] ); ?>">
 											<span class="rfs-ref-category-name"><?php echo esc_html( $category['name'] ); ?></span>
-											<span class="rfs-ref-category-count text-xs text-gray-500">(<?php echo esc_html( $category['count'] ); ?>)</span>
+											<span class="rfs-ref-category-count text-xs <?php echo $category['is_current'] ? 'text-white opacity-80' : 'text-gray-500'; ?>">(<?php echo esc_html( $category['count'] ); ?>)</span>
 										</button>
 
 										<?php if ( ! empty( $category['children'] ) ) : ?>
@@ -84,10 +150,10 @@ $products_per_page = 12;
 												<?php foreach ( $category['children'] as $child ) : ?>
 													<li class="rfs-ref-category-child-item">
 														<button type="button"
-														   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-ats-gray <?php echo $child['is_current'] ? 'bg-ats-yellow text-ats-dark font-bold' : 'text-gray-600'; ?>"
+														   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $child['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-600'; ?>"
 														   data-category-id="<?php echo esc_attr( $child['id'] ); ?>">
 															<span class="rfs-ref-category-name"><?php echo esc_html( $child['name'] ); ?></span>
-															<span class="rfs-ref-category-count text-xs text-gray-400">(<?php echo esc_html( $child['count'] ); ?>)</span>
+															<span class="rfs-ref-category-count text-xs <?php echo $child['is_current'] ? 'text-white opacity-80' : 'text-gray-400'; ?>">(<?php echo esc_html( $child['count'] ); ?>)</span>
 														</button>
 													</li>
 												<?php endforeach; ?>
@@ -108,7 +174,7 @@ $products_per_page = 12;
 						<div class="rfs-ref-price-slider-container">
 							<!-- Dual Range Slider -->
 							<div class="rfs-ref-price-slider-wrapper relative h-2 bg-gray-200 rounded-full mb-8">
-								<div class="rfs-ref-price-slider-track absolute h-full bg-ats-yellow rounded-full"></div>
+								<div class="rfs-ref-price-slider-track absolute h-full bg-primary-600 rounded-full"></div>
 								<input type="range"
 								       class="rfs-ref-price-slider-min absolute w-full pointer-events-none appearance-none bg-transparent"
 								       min="<?php echo esc_attr( $price_range['min'] ); ?>"
@@ -145,7 +211,7 @@ $products_per_page = 12;
 			</aside>
 
 			<!-- RIGHT CONTENT AREA -->
-			<main class="rfs-ref-shop-content lg:col-span-3">
+			<main class="rfs-ref-shop-content lg:col-span-9">
 
 				<!-- Toolbar: Results Count + Sort Dropdown -->
 				<div class="rfs-ref-shop-toolbar flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-gray-200">
@@ -164,6 +230,18 @@ $products_per_page = 12;
 							<span class="rfs-ref-total-count font-bold text-ats-dark"><?php echo esc_html( $total ); ?></span>
 							<?php echo esc_html__( ' products', 'skylinewp-dev-child' ); ?>
 						</span>
+					</div>
+
+					<!-- Show Favourite Products Button -->
+					<div class="rfs-ref-favourites-filter">
+						<button type="button"
+						        class="rfs-ref-show-favourites-btn text-ats-dark bg-white border border-gray-300 hover:bg-ats-brand hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors duration-200"
+						        data-filter-favourites="false">
+							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+								<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+							</svg>
+							<span><?php esc_html_e( 'Favourite Products', 'skylinewp-dev-child' ); ?></span>
+						</button>
 					</div>
 
 					<!-- Sort Dropdown (Flowbite) -->
@@ -197,10 +275,10 @@ $products_per_page = 12;
 				</div>
 
 				<!-- Products Grid Container -->
-				<div class="rfs-ref-products-container relative">
+				<div class="rfs-ref-products-container relative" data-current-category="<?php echo esc_attr( $current_category ); ?>">
 
-					<!-- Products Grid -->
-					<div class="rfs-ref-products-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+					<!-- Products Grid: 4 columns on desktop, 2 on tablet, 1 on mobile, centered -->
+					<div class="rfs-ref-products-grid grid grid-cols-1 sm:grid-cols-2 sm:justify-items-center lg:grid-cols-2 xl:grid-cols-4 xl:justify-items-start gap-3">
 						<?php
 						if ( woocommerce_product_loop() ) {
 							while ( have_posts() ) {
@@ -229,16 +307,10 @@ $products_per_page = 12;
 						</div>
 					</div>
 
-				</div>
+					<!-- Infinite Scroll Trigger (Hidden) -->
+					<div class="rfs-ref-infinite-scroll-trigger h-px" data-page="1" data-max-pages="<?php echo esc_attr( $GLOBALS['wp_query']->max_num_pages ); ?>"></div>
 
-				<!-- Pagination -->
-				<?php if ( woocommerce_product_loop() ) : ?>
-					<div class="rfs-ref-shop-pagination mt-8">
-						<?php
-						do_action( 'woocommerce_after_shop_loop' );
-						?>
-					</div>
-				<?php endif; ?>
+				</div>
 
 			</main>
 
