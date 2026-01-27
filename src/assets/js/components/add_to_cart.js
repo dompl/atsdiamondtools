@@ -637,14 +637,19 @@
 				},
 				success: function (response) {
 					if (response.success) {
-						// Wait for animation to complete before reloading cart data
+						// Wait for animation to complete before updating UI
 						setTimeout(function() {
-							// Reload the entire cart to ensure fresh data
-							self.loadCart();
-
-							// Close modal if cart is empty
+							// Close modal first if cart is empty
 							if (response.data.is_empty) {
 								MiniCartModal.close();
+								// Update all instances to show empty state
+								self.updateAllInstances(response.data);
+								self.isLoading = false;
+							} else {
+								// Reset loading flag before reloading cart
+								self.isLoading = false;
+								// Reload the entire cart to ensure fresh data
+								self.loadCart();
 							}
 						}, 300);
 					} else {

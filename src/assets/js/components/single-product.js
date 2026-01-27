@@ -591,7 +591,7 @@ function initCustomDropdowns() {
 			if (currentVal === value) {
 				btn.addClass('bg-gray-100 text-primary-600 font-bold');
 			} else {
-				btn.addClass('text-gray-700 dark:text-gray-200');
+				btn.addClass('text-white');
 			}
 
 			li.append(btn);

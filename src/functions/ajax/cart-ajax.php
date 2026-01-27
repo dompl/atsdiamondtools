@@ -4,10 +4,11 @@
  *
  * Handles AJAX requests for cart page:
  * - Update quantity
- * - Remove item
  * - Apply coupon
  * - Remove coupon
  * - Get cart totals
+ *
+ * Note: ats_remove_cart_item is handled by mini cart ajax-handler.php
  *
  * @package skylinewp-dev-child
  */
@@ -52,38 +53,6 @@ function ats_ajax_update_cart_quantity() {
 }
 add_action( 'wp_ajax_ats_update_cart_quantity', 'ats_ajax_update_cart_quantity' );
 add_action( 'wp_ajax_nopriv_ats_update_cart_quantity', 'ats_ajax_update_cart_quantity' );
-
-/**
- * Remove cart item via AJAX
- */
-if ( ! function_exists( 'ats_ajax_remove_cart_item' ) ) {
-	function ats_ajax_remove_cart_item() {
-		// Verify nonce
-		check_ajax_referer( 'ats-cart-nonce', 'nonce' );
-
-		$cart_key = isset( $_POST['cart_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_key'] ) ) : '';
-
-		if ( empty( $cart_key ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid request', 'woocommerce' ) ) );
-		}
-
-		// Remove item
-		WC()->cart->remove_cart_item( $cart_key );
-
-		$is_empty = WC()->cart->is_empty();
-
-		wp_send_json_success(
-			array(
-				'message'    => __( 'Item removed from cart', 'woocommerce' ),
-				'is_empty'   => $is_empty,
-				'cart_count' => WC()->cart->get_cart_contents_count(),
-				'cart_total' => WC()->cart->get_cart_total(),
-			)
-		);
-	}
-	add_action( 'wp_ajax_ats_remove_cart_item', 'ats_ajax_remove_cart_item' );
-	add_action( 'wp_ajax_nopriv_ats_remove_cart_item', 'ats_ajax_remove_cart_item' );
-}
 
 /**
  * Apply coupon via AJAX

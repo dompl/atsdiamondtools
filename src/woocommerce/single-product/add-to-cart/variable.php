@@ -58,7 +58,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 
                         <!-- Flowbite Dropdown Menu -->
                         <div id="<?php echo esc_attr($dropdown_id); ?>" class="z-20 hidden bg-ats-brand divide-y divide-gray-100 rounded-lg shadow w-full">
-                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200 dropdown-options-list" aria-labelledby="<?php echo esc_attr($dropdown_id); ?>_button">
+                            <ul class="py-2 text-sm text-white dropdown-options-list" aria-labelledby="<?php echo esc_attr($dropdown_id); ?>_button">
                                 <!-- Options will be populated by JS from the select -->
                             </ul>
                         </div>
