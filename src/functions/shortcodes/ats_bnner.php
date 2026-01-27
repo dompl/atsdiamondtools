@@ -4,13 +4,13 @@ function ats_banner_html() {
     ?>
 		<div class=" flex items-center justify-center p-4 lg:p-8">
 		  <!-- Banner Container -->
-		  <div class="w-full container mx-auto flex flex-col-reverse lg:flex-row gap-4 lg:gap-5 p-4 lg:p-0">
+		  <div class="w-full container mx-auto flex flex-col-reverse lg:flex-row lg:items-stretch gap-4 lg:gap-5 p-4 lg:p-0">
 
 			<!-- Sidebar (Navigation) -->
-			<div class="w-full lg:w-[320px] flex-shrink-0 bg-ats-brand text-white rounded-lg overflow-hidden shadow-xl flex flex-col relative z-20 h-fit">
+			<div class="ats-category-sidebar w-full lg:w-[320px] flex-shrink-0 bg-ats-brand text-white rounded-lg overflow-hidden flex flex-col relative z-20">
 
 			  <!-- Toggle Button -->
-			  <button id="category-btn" class="w-full flex items-center justify-between p-5 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-ats-brand relative z-20">
+			  <button id="category-btn" class="w-full flex items-center justify-between p-5 border-b border-white/10 lg:cursor-default cursor-pointer text-left outline-none focus:bg-white/5 bg-ats-brand relative z-20 flex-shrink-0">
 				<div class="flex items-center gap-3">
 				  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -23,18 +23,18 @@ function ats_banner_html() {
 				</svg>
 			  </button>
 
-			  <!-- List Container -->
-			  <div id="category-list" class="grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
-				<div class="overflow-hidden">
-				  <div class="flex flex-col py-2" id="category-items">
+			  <!-- List Container - flex-1 to fill remaining height -->
+			  <div id="category-list" class="flex-1 grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
+				<div class="overflow-hidden h-full">
+				  <div class="flex flex-col py-2 h-full" id="category-items">
 					<!-- Items injected via JS -->
 				  </div>
 				</div>
 			  </div>
 			</div>
 
-			<!-- Carousel -->
-			<div class="w-full lg:flex-1 relative h-[500px] lg:h-auto rounded-lg overflow-hidden shadow-xl bg-gray-900 group">
+			<!-- Carousel - min height ensures consistent sizing -->
+			<div class="w-full lg:flex-1 relative h-[400px] lg:h-[420px] rounded-lg overflow-hidden bg-gray-900 group">
 				<div id="carousel-slides" class="absolute inset-0 w-full h-full">
 					<!-- Slides injected via JS -->
 				</div>

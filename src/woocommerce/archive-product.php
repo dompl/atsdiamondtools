@@ -117,7 +117,7 @@ $products_per_page = 12;
 
 			<!-- LEFT SIDEBAR -->
 			<aside class="rfs-ref-shop-sidebar lg:col-span-3">
-				<div class="rfs-ref-sidebar-sticky lg:sticky lg:top-24 space-y-6">
+				<div class="rfs-ref-sidebar-sticky lg:sticky lg:top-4 space-y-6">
 
 					<!-- Categories Section -->
 					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories bg-white border border-gray-200 rounded-lg p-6">
@@ -159,6 +159,45 @@ $products_per_page = 12;
 												<?php endforeach; ?>
 											</ul>
 										<?php endif; ?>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
+					</div>
+
+					<!-- Applications Filter Section -->
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications bg-white border border-gray-200 rounded-lg p-6">
+						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
+							<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
+						</h3>
+
+						<?php
+						// Get all application terms
+						$applications = get_terms( array(
+							'taxonomy'   => 'product_application',
+							'hide_empty' => true,
+						) );
+						?>
+
+						<?php if ( ! empty( $applications ) && ! is_wp_error( $applications ) ) : ?>
+							<ul class="rfs-ref-application-list space-y-2">
+								<!-- All Applications -->
+								<li class="rfs-ref-application-item">
+									<button type="button"
+									   class="rfs-ref-application-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white bg-primary-600 text-white font-bold"
+									   data-application-id="0">
+										<span class="rfs-ref-application-name"><?php esc_html_e( 'All Applications', 'skylinewp-dev-child' ); ?></span>
+									</button>
+								</li>
+
+								<?php foreach ( $applications as $app ) : ?>
+									<li class="rfs-ref-application-item">
+										<button type="button"
+										   class="rfs-ref-application-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white text-gray-700"
+										   data-application-id="<?php echo esc_attr( $app->term_id ); ?>">
+											<span class="rfs-ref-application-name"><?php echo esc_html( $app->name ); ?></span>
+											<span class="rfs-ref-application-count text-xs text-gray-500">(<?php echo esc_html( $app->count ); ?>)</span>
+										</button>
 									</li>
 								<?php endforeach; ?>
 							</ul>
@@ -232,19 +271,21 @@ $products_per_page = 12;
 						</span>
 					</div>
 
-					<!-- Show Favourite Products Button -->
-					<div class="rfs-ref-favourites-filter">
-						<button type="button"
-						        class="rfs-ref-show-favourites-btn text-ats-dark bg-white border border-gray-300 hover:bg-ats-brand hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors duration-200"
-						        data-filter-favourites="false">
-							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-								<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-							</svg>
-							<span><?php esc_html_e( 'Favourite Products', 'skylinewp-dev-child' ); ?></span>
-						</button>
-					</div>
+					<!-- Favourites + Sort Dropdown Container (right side) -->
+					<div class="rfs-ref-toolbar-right flex items-center gap-3">
+						<!-- Show Favourite Products Button -->
+						<div class="rfs-ref-favourites-filter">
+							<button type="button"
+							        class="rfs-ref-show-favourites-btn text-ats-dark bg-white border border-gray-300 hover:bg-ats-brand hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors duration-200"
+							        data-filter-favourites="false">
+								<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+								</svg>
+								<span><?php esc_html_e( 'Favourite Products', 'skylinewp-dev-child' ); ?></span>
+							</button>
+						</div>
 
-					<!-- Sort Dropdown (Flowbite) -->
+						<!-- Sort Dropdown (Flowbite) -->
 					<div class="rfs-ref-sort-dropdown-container">
 						<button id="dropdownSortButton"
 						        data-dropdown-toggle="dropdownSort"
@@ -272,6 +313,7 @@ $products_per_page = 12;
 							</ul>
 						</div>
 					</div>
+					</div><!-- /.rfs-ref-toolbar-right -->
 				</div>
 
 				<!-- Products Grid Container -->

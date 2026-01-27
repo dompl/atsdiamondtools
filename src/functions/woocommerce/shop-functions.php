@@ -166,6 +166,18 @@ function ats_render_product_grid( $args = array() ) {
 		);
 	}
 
+	// Handle application filtering.
+	if ( ! empty( $args['application'] ) ) {
+		if ( ! isset( $query_args['tax_query'] ) ) {
+			$query_args['tax_query'] = array();
+		}
+		$query_args['tax_query'][] = array(
+			'taxonomy' => 'product_application',
+			'field'    => 'term_id',
+			'terms'    => absint( $args['application'] ),
+		);
+	}
+
 	// Handle price filtering.
 	if ( isset( $args['min_price'] ) || isset( $args['max_price'] ) ) {
 		$query_args['meta_query'] = array(
@@ -197,11 +209,19 @@ function ats_render_product_grid( $args = array() ) {
 	}
 
 	// Handle favourites filtering.
-	if ( ! empty( $args['favourites_only'] ) && is_user_logged_in() ) {
-		$user_id = get_current_user_id();
-		$favorites = get_user_meta( $user_id, 'ats_favorite_products', true );
+	if ( ! empty( $args['favourites_only'] ) ) {
+		$favorites = array();
 
-		// If user has no favorites or favorites is not an array, show no products
+		if ( is_user_logged_in() ) {
+			// Logged-in user: get from user meta
+			$user_id   = get_current_user_id();
+			$favorites = get_user_meta( $user_id, 'ats_favorite_products', true );
+		} elseif ( ! empty( $args['favorite_ids'] ) ) {
+			// Guest: use provided favorite IDs (from localStorage via AJAX)
+			$favorites = $args['favorite_ids'];
+		}
+
+		// If no favorites, show no products
 		if ( empty( $favorites ) || ! is_array( $favorites ) ) {
 			$query_args['post__in'] = array( 0 ); // No results
 		} else {

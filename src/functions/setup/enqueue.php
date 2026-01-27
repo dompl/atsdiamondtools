@@ -79,7 +79,8 @@ add_action( 'wp_enqueue_scripts', function () {
         'calculator_nonce'       => wp_create_nonce( 'avolve_calculator_nonce' ),
         'avolve_load_more_nonce' => wp_create_nonce( 'avolve_load_more_posts' ),
         'theme_dir'              => get_stylesheet_directory_uri(),
-        'is_admin'               => current_user_can( 'administrator' ) && is_user_logged_in() ? true : false
+        'is_admin'               => current_user_can( 'administrator' ) && is_user_logged_in() ? true : false,
+        'is_user_logged_in'      => is_user_logged_in(),
     ];
 
     if ( wp_get_environment_type() === 'development' ) {

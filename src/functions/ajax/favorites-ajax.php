@@ -15,8 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Register AJAX actions for favorites
  */
 add_action( 'wp_ajax_ats_toggle_favorite', 'ats_handle_toggle_favorite' );
+add_action( 'wp_ajax_nopriv_ats_toggle_favorite', 'ats_handle_toggle_favorite' );
 add_action( 'wp_ajax_ats_get_favorites', 'ats_handle_get_favorites' );
+add_action( 'wp_ajax_nopriv_ats_get_favorites', 'ats_handle_get_favorites' );
 add_action( 'wp_ajax_ats_remove_favorite', 'ats_handle_remove_favorite' );
+add_action( 'wp_ajax_nopriv_ats_remove_favorite', 'ats_handle_remove_favorite' );
 
 /**
  * Handle AJAX request to toggle product favorite status
@@ -40,8 +43,7 @@ function ats_handle_toggle_favorite() {
 			array(
 				'message' => __( 'You must be logged in to add favorites.', 'skylinewp-dev-child' ),
 				'login_required' => true,
-			),
-			401
+			)
 		);
 	}
 

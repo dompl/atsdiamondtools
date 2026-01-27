@@ -2,6 +2,7 @@
  * Favorites Functionality
  *
  * Handles adding/removing products from user favorites
+ * Works for both logged-in users (via AJAX) and guests (via localStorage)
  *
  * @package SkylineWP Dev Child
  */
@@ -11,12 +12,17 @@ import $ from 'jquery';
 (function () {
 	'use strict';
 
+	const STORAGE_KEY = 'ats_favorites';
+
 	/**
 	 * Favorites Module
 	 */
 	const Favorites = {
 		// User's favorite product IDs
 		userFavorites: [],
+
+		// Is user logged in
+		isLoggedIn: false,
 
 		// State
 		isProcessing: false,
@@ -25,13 +31,47 @@ import $ from 'jquery';
 		 * Initialize the module
 		 */
 		init: function () {
-			// Get initial favorites from localized data
-			if (typeof themeData !== 'undefined' && themeData.user_favorites) {
+			// Check if user is logged in
+			this.isLoggedIn = typeof themeData !== 'undefined' && themeData.is_user_logged_in;
+
+			// Get initial favorites
+			if (this.isLoggedIn && typeof themeData !== 'undefined' && themeData.user_favorites) {
+				// Logged in user - get from server
 				this.userFavorites = themeData.user_favorites.map((id) => parseInt(id));
+			} else {
+				// Guest - get from localStorage
+				this.userFavorites = this.getLocalFavorites();
 			}
 
 			this.bindEvents();
 			this.updateAllHeartStates();
+			this.updateFavoritesCount();
+		},
+
+		/**
+		 * Get favorites from localStorage
+		 */
+		getLocalFavorites: function () {
+			try {
+				const stored = localStorage.getItem(STORAGE_KEY);
+				if (stored) {
+					return JSON.parse(stored).map((id) => parseInt(id));
+				}
+			} catch (e) {
+				console.warn('Error reading favorites from localStorage:', e);
+			}
+			return [];
+		},
+
+		/**
+		 * Save favorites to localStorage
+		 */
+		saveLocalFavorites: function () {
+			try {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(this.userFavorites));
+			} catch (e) {
+				console.warn('Error saving favorites to localStorage:', e);
+			}
 		},
 
 		/**
@@ -98,36 +138,37 @@ import $ from 'jquery';
 		 */
 		addToCartFromFavorites: function (productId, $button) {
 			const self = this;
-			const originalText = $button.text();
 
-			$button.prop('disabled', true).text('Adding...');
+			if (self.isProcessing) {
+				return;
+			}
+
+			self.isProcessing = true;
+			$button.addClass('opacity-50 pointer-events-none');
 
 			$.ajax({
-				url: wc_add_to_cart_params?.wc_ajax_url?.toString().replace('%%endpoint%%', 'add_to_cart'),
+				url: themeData.ajax_url,
 				type: 'POST',
 				data: {
+					action: 'woocommerce_add_to_cart',
 					product_id: productId,
 					quantity: 1,
 				},
 				success: function (response) {
 					if (response.error) {
-						self.showMessage(response.error_message || 'Failed to add to cart', 'error');
-						$button.prop('disabled', false).text(originalText);
+						self.showMessage(response.error, 'error');
 					} else {
-						// Trigger WooCommerce added to cart event
-						$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button]);
-
-						self.showMessage('Product added to cart', 'success');
-						$button.text('Added!');
-
-						setTimeout(() => {
-							$button.prop('disabled', false).text(originalText);
-						}, 2000);
+						self.showMessage('Product added to cart!', 'success');
+						// Trigger WooCommerce cart update
+						$(document.body).trigger('wc_fragment_refresh');
 					}
 				},
 				error: function () {
 					self.showMessage('Failed to add to cart. Please try again.', 'error');
-					$button.prop('disabled', false).text(originalText);
+				},
+				complete: function () {
+					self.isProcessing = false;
+					$button.removeClass('opacity-50 pointer-events-none');
 				},
 			});
 		},
@@ -140,19 +181,23 @@ import $ from 'jquery';
 		toggleFavorite: function (productId, $button) {
 			const self = this;
 
-			// Check if user is logged in
-			if (typeof themeData === 'undefined' || !themeData.favorites_nonce) {
-				this.showLoginMessage();
+			if (self.isProcessing) {
 				return;
 			}
 
-			// Prevent multiple clicks
-			if (this.isProcessing) {
+			const isFavorite = self.userFavorites.includes(productId);
+
+			// For guests, handle locally
+			if (!self.isLoggedIn) {
+				self.toggleLocalFavorite(productId, isFavorite);
 				return;
 			}
 
-			this.isProcessing = true;
-			$button.addClass('ats-processing');
+			// For logged-in users, use AJAX
+			self.isProcessing = true;
+
+			// Optimistic update
+			self.updateHeartState(productId, !isFavorite);
 
 			$.ajax({
 				url: themeData.ajax_url,
@@ -164,10 +209,8 @@ import $ from 'jquery';
 				},
 				success: function (response) {
 					if (response.success) {
-						const isFavorite = response.data.is_favorite;
-
-						// Update local favorites array
-						if (isFavorite) {
+						// Update local state
+						if (response.data.is_favorite) {
 							if (!self.userFavorites.includes(productId)) {
 								self.userFavorites.push(productId);
 							}
@@ -175,54 +218,83 @@ import $ from 'jquery';
 							self.userFavorites = self.userFavorites.filter((id) => id !== productId);
 						}
 
-						// Update all heart buttons for this product
-						self.updateHeartState(productId, isFavorite);
-
-						// Show success message
-						self.showMessage(response.data.message, 'success');
+						// Update UI
+						self.updateHeartState(productId, response.data.is_favorite);
+						self.updateFavoritesCount();
 					} else {
-						if (response.data && response.data.login_required) {
-							self.showLoginMessage();
-						} else {
-							self.showMessage(response.data?.message || 'An error occurred.', 'error');
-						}
+						// Revert on error
+						self.updateHeartState(productId, isFavorite);
+						self.showMessage(response.data?.message || 'An error occurred.', 'error');
 					}
 				},
 				error: function () {
+					// Revert on error
+					self.updateHeartState(productId, isFavorite);
 					self.showMessage('Failed to update favorites. Please try again.', 'error');
 				},
 				complete: function () {
 					self.isProcessing = false;
-					$button.removeClass('ats-processing');
 				},
 			});
 		},
 
 		/**
-		 * Remove from favorites (on favorites page)
+		 * Toggle favorite locally (for guests)
+		 * @param {number} productId - Product ID
+		 * @param {boolean} isFavorite - Current favorite state
+		 */
+		toggleLocalFavorite: function (productId, isFavorite) {
+			if (isFavorite) {
+				// Remove from favorites
+				this.userFavorites = this.userFavorites.filter((id) => id !== productId);
+				this.showMessage('Removed from favorites', 'success');
+			} else {
+				// Add to favorites
+				this.userFavorites.push(productId);
+				this.showMessage('Added to favorites!', 'success');
+			}
+
+			// Save to localStorage
+			this.saveLocalFavorites();
+
+			// Update UI
+			this.updateHeartState(productId, !isFavorite);
+			this.updateFavoritesCount();
+		},
+
+		/**
+		 * Remove product from favorites
 		 * @param {number} productId - Product ID
 		 * @param {jQuery} $button - Button element
 		 */
 		removeFavorite: function (productId, $button) {
 			const self = this;
 
-			// Confirm removal
-			if (!confirm('Remove this product from your favorites?')) {
+			if (self.isProcessing) {
 				return;
 			}
 
-			// Check if user is logged in
-			if (typeof themeData === 'undefined' || !themeData.favorites_nonce) {
+			// For guests, handle locally
+			if (!self.isLoggedIn) {
+				self.userFavorites = self.userFavorites.filter((id) => id !== productId);
+				self.saveLocalFavorites();
+
+				// Remove product card from favorites page
+				const $card = $button.closest('.rfs-ref-favorite-product-card');
+				$card.fadeOut(300, function () {
+					$(this).remove();
+					self.checkEmptyFavorites();
+				});
+
+				self.updateHeartState(productId, false);
+				self.updateFavoritesCount();
+				self.showMessage('Removed from favorites', 'success');
 				return;
 			}
 
-			// Prevent multiple clicks
-			if (this.isProcessing) {
-				return;
-			}
-
-			this.isProcessing = true;
-			const $productItem = $button.closest('.rfs-ref-favorite-item');
+			// For logged-in users, use AJAX
+			self.isProcessing = true;
+			$button.addClass('opacity-50');
 
 			$.ajax({
 				url: themeData.ajax_url,
@@ -234,25 +306,20 @@ import $ from 'jquery';
 				},
 				success: function (response) {
 					if (response.success) {
-						// Update local favorites array
+						// Remove from local array
 						self.userFavorites = self.userFavorites.filter((id) => id !== productId);
 
-						// Update all heart buttons for this product
-						self.updateHeartState(productId, false);
-
-						// Remove product from grid with animation
-						$productItem.fadeOut(300, function () {
+						// Remove product card from favorites page
+						const $card = $button.closest('.rfs-ref-favorite-product-card');
+						$card.fadeOut(300, function () {
 							$(this).remove();
-
-							// Check if there are no more favorites
-							if ($('.rfs-ref-favorite-item').length === 0) {
-								// Reload page to show empty state
-								location.reload();
-							}
+							self.checkEmptyFavorites();
 						});
 
-						// Show success message
-						self.showMessage(response.data.message, 'success');
+						// Update heart button state on other pages
+						self.updateHeartState(productId, false);
+						self.updateFavoritesCount();
+						self.showMessage('Removed from favorites', 'success');
 					} else {
 						self.showMessage(response.data?.message || 'An error occurred.', 'error');
 					}
@@ -262,8 +329,30 @@ import $ from 'jquery';
 				},
 				complete: function () {
 					self.isProcessing = false;
+					$button.removeClass('opacity-50');
 				},
 			});
+		},
+
+		/**
+		 * Check if favorites list is empty and show empty state
+		 */
+		checkEmptyFavorites: function () {
+			const $container = $('.rfs-ref-favorites-grid');
+			if ($container.length && $container.children().length === 0) {
+				$container.html(`
+					<div class="col-span-full text-center py-12">
+						<svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+						</svg>
+						<h3 class="text-lg font-medium text-gray-900 mb-2">No favorites yet</h3>
+						<p class="text-gray-500 mb-4">Start adding products to your favorites!</p>
+						<a href="/shop" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+							Browse Products
+						</a>
+					</div>
+				`);
+			}
 		},
 
 		/**
@@ -317,27 +406,42 @@ import $ from 'jquery';
 		},
 
 		/**
+		 * Update favorites count in header
+		 */
+		updateFavoritesCount: function () {
+			const count = this.userFavorites.length;
+			$('.ats-favorites-count').text(count);
+
+			// Show/hide count badge
+			if (count > 0) {
+				$('.ats-favorites-count').removeClass('hidden');
+			} else {
+				$('.ats-favorites-count').addClass('hidden');
+			}
+		},
+
+		/**
 		 * Show success/error message
 		 * @param {string} message - Message text
 		 * @param {string} type - Message type (success/error)
 		 */
 		showMessage: function (message, type = 'success') {
-			// Create message element
+			const bgColor = type === 'success' ? '#f0fdf4' : '#fef2f2';
+			const borderColor = type === 'success' ? '#bbf7d0' : '#fecaca';
+			const textColor = type === 'success' ? '#166534' : '#991b1b';
+
+			// Create message element with inline styles for reliability
 			const $message = $(`
-				<div class="ats-favorite-message fixed top-20 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg ${
-					type === 'success'
-						? 'bg-green-50 border border-green-200 text-green-800'
-						: 'bg-red-50 border border-red-200 text-red-800'
-				} animate-slide-in-right">
-					<div class="flex items-start gap-3">
-						<svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+				<div class="ats-favorite-message" style="position: fixed; top: 80px; right: 16px; z-index: 9999; max-width: 320px; padding: 16px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background-color: ${bgColor}; border: 1px solid ${borderColor}; color: ${textColor}; animation: slideInRight 0.3s ease-out;">
+					<div style="display: flex; align-items: flex-start; gap: 12px;">
+						<svg style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;" fill="currentColor" viewBox="0 0 20 20">
 							${
 								type === 'success'
 									? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
 									: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
 							}
 						</svg>
-						<p class="flex-1 text-sm font-medium">${message}</p>
+						<p style="flex: 1; font-size: 14px; font-weight: 500; margin: 0;">${message}</p>
 					</div>
 				</div>
 			`);
@@ -352,37 +456,6 @@ import $ from 'jquery';
 				});
 			}, 3000);
 		},
-
-		/**
-		 * Show login required message
-		 */
-		showLoginMessage: function () {
-			const loginUrl = typeof themeData !== 'undefined' && themeData.account_url ? themeData.account_url : '/my-account';
-
-			const $message = $(`
-				<div class="ats-favorite-message fixed top-20 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg bg-blue-50 border border-blue-200 text-blue-800 animate-slide-in-right">
-					<div class="flex items-start gap-3">
-						<svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-						</svg>
-						<div class="flex-1">
-							<p class="text-sm font-medium mb-2">Please log in to add favorites.</p>
-							<a href="${loginUrl}" class="text-sm font-semibold underline hover:no-underline">Log in now</a>
-						</div>
-					</div>
-				</div>
-			`);
-
-			// Append to body
-			$('body').append($message);
-
-			// Auto-remove after 5 seconds
-			setTimeout(() => {
-				$message.fadeOut(300, function () {
-					$(this).remove();
-				});
-			}, 5000);
-		},
 	};
 
 	/**
@@ -392,6 +465,6 @@ import $ from 'jquery';
 		Favorites.init();
 	});
 
-	// Expose to window for external access if needed
+	// Expose to window for external access
 	window.Favorites = Favorites;
 })();

@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Current filter state
 	let currentFilters = {
 		category: initialCategory,
+		application: 0,
 		min_price: priceSliderMin ? parseInt(priceSliderMin.min) : 0,
 		max_price: priceSliderMax ? parseInt(priceSliderMax.max) : 1000,
 		orderby: 'default',
@@ -91,15 +92,52 @@ document.addEventListener('DOMContentLoaded', function() {
 				// Get all direct children (product cards)
 				const products = Array.from(tempDiv.children);
 
-				// Append each product card to the grid
-				products.forEach(function(product) {
+				// Append each product card with staggered animation
+				products.forEach(function(product, index) {
 					// Only append actual product cards (not error messages)
 					if (product.hasAttribute('data-product-id') || product.classList.contains('rfs-ref-product-card')) {
+						// Add initial hidden state
+						product.style.opacity = '0';
+						product.style.transform = 'translateY(20px)';
+						product.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+
 						productsContainer.appendChild(product);
+
+						// Animate in with stagger
+						setTimeout(function() {
+							product.style.opacity = '1';
+							product.style.transform = 'translateY(0)';
+						}, index * 50);
 					}
 				});
 			} else {
-				productsContainer.innerHTML = html;
+				// Fade out existing products first
+				const existingProducts = productsContainer.children;
+				const fadeOutDuration = 200;
+
+				// Quick fade out
+				Array.from(existingProducts).forEach(function(product) {
+					product.style.transition = 'opacity 0.2s ease-out';
+					product.style.opacity = '0';
+				});
+
+				// After fade out, replace and animate in
+				setTimeout(function() {
+					productsContainer.innerHTML = html;
+
+					// Animate new products in with stagger
+					const newProducts = productsContainer.children;
+					Array.from(newProducts).forEach(function(product, index) {
+						product.style.opacity = '0';
+						product.style.transform = 'translateY(20px)';
+						product.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+
+						setTimeout(function() {
+							product.style.opacity = '1';
+							product.style.transform = 'translateY(0)';
+						}, index * 30);
+					});
+				}, fadeOutDuration);
 			}
 
 			// Re-initialize product quick view for new products
@@ -235,11 +273,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		formData.append('action', 'ats_filter_products');
 		formData.append('nonce', themeData.shop_filter_nonce);
 		formData.append('category', currentFilters.category);
+		formData.append('application', currentFilters.application);
 		formData.append('min_price', currentFilters.min_price);
 		formData.append('max_price', currentFilters.max_price);
 		formData.append('orderby', currentFilters.orderby);
 		formData.append('paged', currentFilters.paged);
 		formData.append('favourites_only', currentFilters.favourites_only ? '1' : '0');
+
+		// For non-logged-in users, send localStorage favorites
+		if (currentFilters.favourites_only && !themeData.is_user_logged_in) {
+			try {
+				const localFavorites = JSON.parse(localStorage.getItem('ats_favorites') || '[]');
+				if (localFavorites.length > 0) {
+					formData.append('favorite_ids', localFavorites.join(','));
+				}
+			} catch (e) {
+				console.warn('Error reading favorites from localStorage:', e);
+			}
+		}
+
 		// Load 12 initially, then 8 at a time for infinite scroll
 		formData.append('per_page', loadMore ? 8 : 12);
 
@@ -307,6 +359,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				// Filter by category
 				filterProducts({ category: categoryId });
+			});
+		});
+	}
+
+	/**
+	 * Application button click handler
+	 */
+	const applicationButtons = document.querySelectorAll('.rfs-ref-application-link');
+	if (applicationButtons.length) {
+		applicationButtons.forEach(function(button) {
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+				const applicationId = parseInt(this.dataset.applicationId) || 0;
+
+				// Update active state - use primary brand color (same as categories)
+				applicationButtons.forEach(function(btn) {
+					btn.classList.remove('bg-primary-600', 'text-white', 'font-bold');
+					btn.classList.add('text-gray-700');
+					// Also update count text color
+					const count = btn.querySelector('.rfs-ref-application-count');
+					if (count) {
+						count.classList.remove('text-white', 'opacity-80');
+						count.classList.add('text-gray-500');
+					}
+				});
+				this.classList.remove('text-gray-700');
+				this.classList.add('bg-primary-600', 'text-white', 'font-bold');
+				// Update count text color for active button
+				const activeCount = this.querySelector('.rfs-ref-application-count');
+				if (activeCount) {
+					activeCount.classList.remove('text-gray-500');
+					activeCount.classList.add('text-white', 'opacity-80');
+				}
+
+				// Filter by application
+				filterProducts({ application: applicationId });
 			});
 		});
 	}

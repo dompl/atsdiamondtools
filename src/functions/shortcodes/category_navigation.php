@@ -57,7 +57,7 @@ function shortcode_category_navigation( $atts ) {
 	$product_categories = get_terms( $args );
 
 	?>
-	<div class="rfs-ref-banner-container rfs-ref-banner-sidebar w-full lg:<?php echo esc_attr( $args['width'] ); ?> flex-shrink-0 bg-ats-brand text-white rounded-md overflow-hidden flex flex-col relative z-20 h-fit mb-10">
+	<div class="rfs-ref-banner-container rfs-ref-banner-sidebar w-full lg:<?php echo esc_attr( $args['width'] ); ?> flex-shrink-0 bg-ats-brand text-white rounded-md overflow-hidden flex flex-col relative z-20 mb-10">
 
 		<!-- Toggle Button -->
 		<button

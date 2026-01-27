@@ -35,6 +35,7 @@ function ats_handle_filter_products() {
 
 	// Get filter parameters.
 	$category        = isset( $_POST['category'] ) ? absint( $_POST['category'] ) : 0;
+	$application     = isset( $_POST['application'] ) ? absint( $_POST['application'] ) : 0;
 	$min_price       = isset( $_POST['min_price'] ) ? floatval( $_POST['min_price'] ) : 0;
 	$max_price       = isset( $_POST['max_price'] ) ? floatval( $_POST['max_price'] ) : 0;
 	$orderby         = isset( $_POST['orderby'] ) ? sanitize_text_field( wp_unslash( $_POST['orderby'] ) ) : 'default';
@@ -60,6 +61,11 @@ function ats_handle_filter_products() {
 		$query_args['category'] = $category;
 	}
 
+	// Add application filter.
+	if ( $application > 0 ) {
+		$query_args['application'] = $application;
+	}
+
 	// Add price filter.
 	if ( $min_price > 0 || $max_price > 0 ) {
 		$query_args['min_price'] = $min_price;
@@ -74,17 +80,93 @@ function ats_handle_filter_products() {
 	// Add favourites filter.
 	if ( $favourites_only ) {
 		$query_args['favourites_only'] = true;
+
+		// For guests, pass favorite IDs from localStorage
+		if ( ! is_user_logged_in() && isset( $_POST['favorite_ids'] ) && ! empty( $_POST['favorite_ids'] ) ) {
+			$favorite_ids_string      = sanitize_text_field( wp_unslash( $_POST['favorite_ids'] ) );
+			$query_args['favorite_ids'] = array_map( 'absint', explode( ',', $favorite_ids_string ) );
+		}
 	}
 
 	// Render products HTML.
 	$products_html = ats_render_product_grid( $query_args );
 
-	// Get total product count for this query (without pagination).
-	$count_args              = $query_args;
-	$count_args['paged']     = 1;
-	$count_args['nopaging']  = false;
-	$count_args['fields']    = 'ids';
-	unset( $count_args['posts_per_page'] );
+	// Build count query args with proper WP_Query format
+	$count_args = array(
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+	);
+
+	// Build tax_query for count
+	$tax_query = array();
+	
+	if ( $category > 0 ) {
+		$tax_query[] = array(
+			'taxonomy' => 'product_cat',
+			'field'    => 'term_id',
+			'terms'    => $category,
+		);
+	}
+	
+	if ( $application > 0 ) {
+		$tax_query[] = array(
+			'taxonomy' => 'product_application',
+			'field'    => 'term_id',
+			'terms'    => $application,
+		);
+	}
+	
+	if ( ! empty( $tax_query ) ) {
+		$count_args['tax_query'] = $tax_query;
+	}
+	
+	// Build meta_query for price filter
+	if ( $min_price > 0 || $max_price > 0 ) {
+		$meta_query = array( 'relation' => 'AND' );
+		
+		if ( $min_price > 0 ) {
+			$meta_query[] = array(
+				'key'     => '_price',
+				'value'   => $min_price,
+				'compare' => '>=',
+				'type'    => 'NUMERIC',
+			);
+		}
+		
+		if ( $max_price > 0 ) {
+			$meta_query[] = array(
+				'key'     => '_price',
+				'value'   => $max_price,
+				'compare' => '<=',
+				'type'    => 'NUMERIC',
+			);
+		}
+		
+		$count_args['meta_query'] = $meta_query;
+	}
+	
+	// Handle favourites filtering for count
+	if ( $favourites_only ) {
+		$favorites = array();
+
+		if ( is_user_logged_in() ) {
+			// Logged-in user: get from user meta
+			$user_id   = get_current_user_id();
+			$favorites = get_user_meta( $user_id, 'ats_favorite_products', true );
+		} elseif ( isset( $_POST['favorite_ids'] ) && ! empty( $_POST['favorite_ids'] ) ) {
+			// Guest: get from POST data (sent from localStorage)
+			$favorite_ids_string = sanitize_text_field( wp_unslash( $_POST['favorite_ids'] ) );
+			$favorites           = array_map( 'absint', explode( ',', $favorite_ids_string ) );
+		}
+
+		if ( empty( $favorites ) || ! is_array( $favorites ) ) {
+			$count_args['post__in'] = array( 0 ); // Return no results
+		} else {
+			$count_args['post__in'] = array_map( 'absint', $favorites );
+		}
+	}
 
 	$count_query  = new WP_Query( $count_args );
 	$total_count  = $count_query->found_posts;
