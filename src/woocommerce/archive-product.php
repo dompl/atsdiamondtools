@@ -120,13 +120,23 @@ $products_per_page = 12;
 				<div class="rfs-ref-sidebar-sticky lg:sticky lg:top-4 space-y-6">
 
 					<!-- Categories Section -->
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories bg-white border border-gray-200 rounded-lg p-6">
-						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
-							<?php esc_html_e( 'Categories', 'skylinewp-dev-child' ); ?>
-						</h3>
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden">
+						<!-- Accordion Header (Mobile) -->
+						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-4 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
+							<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark">
+								<?php esc_html_e( 'Categories', 'skylinewp-dev-child' ); ?>
+							</h3>
+							<svg class="rfs-ref-accordion-chevron lg:hidden h-5 w-5 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
 
-						<?php if ( ! empty( $categories ) ) : ?>
-							<ul class="rfs-ref-category-list space-y-2">
+						<!-- Accordion Content -->
+						<div class="rfs-ref-accordion-content grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
+							<div class="overflow-hidden">
+								<div class="p-4 lg:p-6 lg:pt-4">
+									<?php if ( ! empty( $categories ) ) : ?>
+										<ul class="rfs-ref-category-list space-y-2">
 								<!-- All Products -->
 								<li class="rfs-ref-category-item">
 									<button type="button"
@@ -161,8 +171,11 @@ $products_per_page = 12;
 										<?php endif; ?>
 									</li>
 								<?php endforeach; ?>
-							</ul>
-						<?php endif; ?>
+										</ul>
+									<?php endif; ?>
+								</div>
+							</div>
+						</div>
 					</div>
 
 					<!-- Applications Filter Section -->
@@ -215,11 +228,22 @@ $products_per_page = 12;
 					?>
 
 					<?php if ( $show_application_filter && ! empty( $applications ) && ! is_wp_error( $applications ) ) : ?>
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications bg-white border border-gray-200 rounded-lg p-6">
-						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
-							<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
-						</h3>
-							<ul class="rfs-ref-application-list space-y-2">
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden">
+						<!-- Accordion Header (Mobile) -->
+						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-4 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
+							<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark">
+								<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
+							</h3>
+							<svg class="rfs-ref-accordion-chevron lg:hidden h-5 w-5 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
+
+						<!-- Accordion Content -->
+						<div class="rfs-ref-accordion-content grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
+							<div class="overflow-hidden">
+								<div class="p-4 lg:p-6 lg:pt-4">
+									<ul class="rfs-ref-application-list space-y-2">
 								<!-- All Applications -->
 								<li class="rfs-ref-application-item">
 									<button type="button"
@@ -239,17 +263,30 @@ $products_per_page = 12;
 										</button>
 									</li>
 								<?php endforeach; ?>
-							</ul>
+									</ul>
+								</div>
+							</div>
+						</div>
 					</div>
 					<?php endif; ?>
 
 					<!-- Price Filter Section -->
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter bg-white border border-gray-200 rounded-lg p-6">
-						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
-							<?php esc_html_e( 'Price Range', 'skylinewp-dev-child' ); ?>
-						</h3>
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden">
+						<!-- Accordion Header (Mobile) -->
+						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-4 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
+							<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark">
+								<?php esc_html_e( 'Price Range', 'skylinewp-dev-child' ); ?>
+							</h3>
+							<svg class="rfs-ref-accordion-chevron lg:hidden h-5 w-5 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
 
-						<div class="rfs-ref-price-slider-container">
+						<!-- Accordion Content -->
+						<div class="rfs-ref-accordion-content grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
+							<div class="overflow-hidden">
+								<div class="p-4 lg:p-6 lg:pt-4">
+									<div class="rfs-ref-price-slider-container">
 							<!-- Dual Range Slider -->
 							<div class="rfs-ref-price-slider-wrapper relative h-2 bg-gray-200 rounded-full mb-8">
 								<div class="rfs-ref-price-slider-track absolute h-full bg-primary-600 rounded-full"></div>
@@ -277,12 +314,10 @@ $products_per_page = 12;
 									<span class="rfs-ref-price-max-value font-bold text-ats-dark">£<?php echo esc_html( $price_range['max'] ); ?></span>
 								</div>
 							</div>
+									</div>
+								</div>
+							</div>
 						</div>
-					</div>
-
-					<!-- Newsletter Widget -->
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-newsletter">
-						<?php echo ats_render_newsletter_widget(); ?>
 					</div>
 
 				</div>
@@ -311,7 +346,7 @@ $products_per_page = 12;
 					</div>
 
 					<!-- Favourites + Sort Dropdown Container (right side) -->
-					<div class="rfs-ref-toolbar-right flex items-center gap-3">
+					<div class="rfs-ref-toolbar-right flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 						<!-- Show Favourite Products Button -->
 						<div class="rfs-ref-favourites-filter">
 							<button type="button"
@@ -359,7 +394,7 @@ $products_per_page = 12;
 				<div class="rfs-ref-products-container relative" data-current-category="<?php echo esc_attr( $current_category ); ?>">
 
 					<!-- Products Grid: 4 columns on desktop, 2 on tablet, 1 on mobile, centered -->
-					<div class="rfs-ref-products-grid grid grid-cols-1 sm:grid-cols-2 sm:justify-items-center lg:grid-cols-2 xl:grid-cols-4 xl:justify-items-start gap-3">
+					<div class="rfs-ref-products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 justify-items-center gap-3">
 						<?php
 						if ( woocommerce_product_loop() ) {
 							while ( have_posts() ) {

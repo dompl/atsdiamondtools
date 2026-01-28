@@ -2,8 +2,9 @@
 /**
  * ACF Flex Field: Bestseller Section
  *
- * Displays 2 featured products on the left (vertical stack) and 4 compact products in a 2x2 grid on the right
- * Compact products have image on LEFT, text on RIGHT (horizontal layout)
+ * Responsive product display:
+ * - Mobile/Tablet (< LG): 8 horizontal compact cards stacked vertically
+ * - Desktop (>= LG): 8 vertical cards in 2-4 column grid
  *
  * @package ATS Diamond Tools
  */
@@ -29,7 +30,7 @@ function bestseller_fields() {
         Tab::make( 'Products', wp_unique_id() )->placement( 'left' ),
 
         Select::make( 'Products Source', 'products_source' )
-            ->helperText( 'Choose how to populate the 8 products (2 vertical left + 6 horizontal right)' )
+            ->helperText( 'Choose how to populate the 8 products. Mobile: horizontal cards | Desktop: vertical cards in grid' )
             ->choices( [
                 'best_selling' => 'Best Selling Products',
                 'selected'     => 'Manually Selected Products'
@@ -39,7 +40,7 @@ function bestseller_fields() {
             ->required(),
 
         PostObject::make( 'Selected Products', 'selected_products' )
-            ->helperText( 'Select exactly 8 products. First 2 will be vertical cards (left), last 6 will be horizontal cards (right)' )
+            ->helperText( 'Select exactly 8 products. They will display as horizontal cards on mobile and vertical cards on desktop.' )
             ->postTypes( ['product'] )
             ->format( 'object' )
             ->multiple()
@@ -119,10 +120,6 @@ function component_bestseller_html( string $output, string $layout ): string {
         return ''; // Don't display if we don't have 8 products
     }
 
-    // Split products: first 2 for vertical cards (LEFT), last 6 for horizontal cards (RIGHT)
-    $vertical_product_ids   = array_slice( $product_ids, 0, 2 );
-    $horizontal_product_ids = array_slice( $product_ids, 2, 6 );
-
     // Background class
     $bg_class = 'bg-' . $bg_color;
 
@@ -138,26 +135,24 @@ function component_bestseller_html( string $output, string $layout ): string {
                 <div class="rfs-ref-bestseller-divider flex-grow h-[1px] bg-neutral-300"></div>
             </div>
 
-            <!-- Two Section Layout: Left = 2 vertical products in 1 row, Right = 6 horizontal products in 2x3 grid -->
-            <div class="rfs-ref-bestseller-layout flex flex-col lg:flex-row gap-6 w-full">
+            <!-- MOBILE/TABLET VIEW (< LG): All 8 products as horizontal compact cards -->
+            <div class="rfs-ref-bestseller-mobile block lg:hidden">
+                <div class="grid grid-cols-1 gap-4">
+                    <?php foreach ( $product_ids as $product_id ) :
+                        echo do_shortcode( '[ats_product id="' . $product_id . '" display="3"]' );
+                    endforeach; ?>
+                </div>
+            </div>
 
-                <!-- LEFT: 2 Vertical Products in ONE ROW (side by side) - 40% width -->
-                <div class="rfs-ref-bestseller-left w-full lg:w-[40%] grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <?php foreach ( $vertical_product_ids as $product_id ) :
+            <!-- DESKTOP VIEW (>= LG): All 8 products as vertical cards in grid -->
+            <div class="rfs-ref-bestseller-desktop hidden lg:block">
+                <div class="grid grid-cols-2 xl:grid-cols-4 gap-6">
+                    <?php foreach ( $product_ids as $product_id ) :
                         echo do_shortcode( '[ats_product id="' . $product_id . '" display="1"]' );
                     endforeach; ?>
                 </div>
-
-                <!-- RIGHT: 6 Horizontal Products in 2x3 Grid (2 columns, 3 rows) - 60% width -->
-                <div class="rfs-ref-bestseller-right w-full lg:w-[60%]">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <?php foreach ( $horizontal_product_ids as $product_id ) :
-                            echo do_shortcode( '[ats_product id="' . $product_id . '" display="3"]' );
-                        endforeach; ?>
-                    </div>
-                </div>
-
             </div>
+
         </div>
     </section>
     <?php

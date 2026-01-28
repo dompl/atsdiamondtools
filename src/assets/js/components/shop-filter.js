@@ -585,4 +585,69 @@ document.addEventListener('DOMContentLoaded', function() {
 			filterProducts({ favourites_only: newState });
 		});
 	}
+
+	/**
+	 * Sidebar Accordion Functionality (Mobile Only)
+	 * Collapses Categories, Applications, and Price Range sections on mobile
+	 */
+	const accordionToggles = document.querySelectorAll('.rfs-ref-accordion-toggle');
+
+	// Check if mobile (window width < 1024px for lg breakpoint)
+	function isMobile() {
+		return window.innerWidth < 1024;
+	}
+
+	if (accordionToggles.length) {
+		accordionToggles.forEach(function(toggle) {
+			const accordionSection = toggle.closest('.rfs-ref-sidebar-accordion');
+			const accordionContent = accordionSection ? accordionSection.querySelector('.rfs-ref-accordion-content') : null;
+			const accordionChevron = toggle.querySelector('.rfs-ref-accordion-chevron');
+
+			if (!accordionContent) return;
+
+			// Close accordion on mobile by default
+			function closeAccordionOnMobile() {
+				if (isMobile() && accordionContent && accordionChevron) {
+					accordionContent.classList.remove('grid-rows-1');
+					accordionContent.classList.add('grid-rows-0');
+					accordionChevron.classList.remove('rotate-180');
+				}
+			}
+
+			// Initialize: close on mobile, open on desktop
+			closeAccordionOnMobile();
+
+			// Click handler
+			toggle.addEventListener('click', function(e) {
+				// Only allow toggle on mobile
+				if (!isMobile()) {
+					return;
+				}
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				const isOpen = accordionContent.classList.contains('grid-rows-1');
+
+				if (isOpen) {
+					accordionContent.classList.remove('grid-rows-1');
+					accordionContent.classList.add('grid-rows-0');
+					accordionChevron.classList.remove('rotate-180');
+				} else {
+					accordionContent.classList.remove('grid-rows-0');
+					accordionContent.classList.add('grid-rows-1');
+					accordionChevron.classList.add('rotate-180');
+				}
+			});
+
+			// Resize handler
+			let resizeTimer;
+			window.addEventListener('resize', function() {
+				clearTimeout(resizeTimer);
+				resizeTimer = setTimeout(function() {
+					closeAccordionOnMobile();
+				}, 250);
+			});
+		});
+	}
 });
