@@ -72,6 +72,8 @@ if ( !function_exists( 'ats_product_shortcode' ) ) {
         // Render based on display type
         if ( $display_type === '2' ) {
             $html = ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
+        } elseif ( $display_type === '3' ) {
+            $html = ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
         } else {
             $html = ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
         }
@@ -277,6 +279,72 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 			</div>
 		</div>
 	</article>
+	<?php
+return ob_get_clean();
+    }
+}
+
+/**
+ * Render product compact card (Display 3 - For Bestseller section 2x2 grid)
+ *
+ * @param WC_Product $product Product object
+ * @param int $image_id Image attachment ID
+ * @param string $category_text Category names
+ * @param string $product_title Product title
+ * @param string $rating_html Rating HTML
+ * @param string $price_html Price HTML
+ * @param string $button_text Button text
+ * @param string $product_url Product URL
+ * @return string HTML output
+ */
+if ( !function_exists( 'ats_render_product_compact' ) ) {
+    function ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
+        // Get image URL - smaller size for compact layout
+        $image_url = $image_id ? wpimage( $image_id, [140, 140], false, true, true ) : wc_placeholder_img_src( 'medium' );
+
+        ob_start();
+        ?>
+	<div class="rfs-ref-product-compact ats-product-compact flex gap-3 p-3 bg-white border border-neutral-200 hover:border-accent-yellow rounded-lg transition-colors" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-display-type="3">
+		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-compact-image-link flex-shrink-0">
+			<img
+				src="<?php echo esc_url( $image_url ); ?>"
+				alt="<?php echo esc_attr( $product_title ); ?>"
+				class="rfs-ref-product-compact-image w-24 h-24 object-contain"
+				loading="lazy"
+			/>
+		</a>
+
+		<div class="rfs-ref-product-compact-content flex flex-col justify-between flex-grow min-w-0">
+			<div>
+				<div class="rfs-ref-product-compact-category flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+					<svg class="w-3 h-3 text-zinc-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+					</svg>
+					<span class="truncate"><?php echo esc_html( $category_text ); ?></span>
+				</div>
+
+				<h3 class="rfs-ref-product-compact-title text-sm font-bold text-primary-700 leading-tight mb-1 line-clamp-2">
+					<a href="<?php echo esc_url( $product_url ); ?>" class="hover:text-primary-800">
+						<?php echo esc_html( $product_title ); ?>
+					</a>
+				</h3>
+
+				<div class="rfs-ref-product-compact-rating mb-2 scale-90 origin-left">
+					<?php echo $rating_html; ?>
+				</div>
+			</div>
+
+			<div class="rfs-ref-product-compact-footer flex justify-between items-center gap-2">
+				<span class="rfs-ref-product-compact-price text-xs font-bold text-black whitespace-nowrap"><?php echo wp_kses_post( $price_html ); ?></span>
+				<a
+					href="<?php echo esc_url( $product_url ); ?>"
+					class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap"
+				>
+					<?php echo esc_html( $button_text ); ?>
+				</a>
+			</div>
+		</div>
+	</div>
 	<?php
 return ob_get_clean();
     }

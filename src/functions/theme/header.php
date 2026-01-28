@@ -53,12 +53,14 @@ function heading_data( $selected = false, $mobile = false ) {
         }
 
         if ( $logo_id ) {
+            // Logo links to shop page instead of home
+            $logo_link                = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
             $img_1x                   = wpimage( image: $logo_id, size: 90, retina: false );
             $img_2x                   = wpimage( image: $logo_id, size: 90, retina: true );
             $img_small_1x             = wpimage( image: $logo_id, size: 65, retina: false );
             $img_small_2x             = wpimage( image: $logo_id, size: 65, retina: true );
-            $data['logo_image']       = '<a href="' . esc_url( home_url( '/' ) ) . '" class="block"><img src="' . esc_url( $img_1x ) . '" srcset="' . esc_url( $img_1x ) . ' 1x, ' . esc_url( $img_2x ) . ' 2x" alt="' . esc_attr( $alt ) . '" class="rfs-ref-header-logo rounded-sm"></a>';
-            $data['logo_image_small'] = '<a href="' . esc_url( home_url( '/' ) ) . '" class="block"><img src="' . esc_url( $img_small_1x ) . '" srcset="' . esc_url( $img_small_1x ) . ' 1x, ' . esc_url( $img_small_2x ) . ' 2x" alt="' . esc_attr( $alt ) . '" class="rfs-ref-header-logo rounded-sm"></a>';
+            $data['logo_image']       = '<a href="' . esc_url( $logo_link ) . '" class="block"><img src="' . esc_url( $img_1x ) . '" srcset="' . esc_url( $img_1x ) . ' 1x, ' . esc_url( $img_2x ) . ' 2x" alt="' . esc_attr( $alt ) . '" class="rfs-ref-header-logo rounded-sm"></a>';
+            $data['logo_image_small'] = '<a href="' . esc_url( $logo_link ) . '" class="block"><img src="' . esc_url( $img_small_1x ) . '" srcset="' . esc_url( $img_small_1x ) . ' 1x, ' . esc_url( $img_small_2x ) . ' 2x" alt="' . esc_attr( $alt ) . '" class="rfs-ref-header-logo rounded-sm"></a>';
         }
     }
 
@@ -73,9 +75,11 @@ function heading_data( $selected = false, $mobile = false ) {
         }
 
         if ( $sublogo_id ) {
+            // Secondary logo also links to shop page
+            $logo_link              = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
             $img_1x                 = wpimage( image: $sublogo_id, size: 200, retina: false );
             $img_2x                 = wpimage( image: $sublogo_id, size: 200, retina: true );
-            $data['secondary_logo'] = '<a href="' . esc_url( home_url( '/' ) ) . '" class="block hidden xl:inline"><img src="' . esc_url( $img_1x ) . '" srcset="' . esc_url( $img_1x ) . ' 1x, ' . esc_url( $img_2x ) . ' 2x" alt="' . esc_attr( $alt ) . '" class="rfs-ref-header-logo rounded-sm"></a>';
+            $data['secondary_logo'] = '<a href="' . esc_url( $logo_link ) . '" class="block hidden xl:inline"><img src="' . esc_url( $img_1x ) . '" srcset="' . esc_url( $img_1x ) . ' 1x, ' . esc_url( $img_2x ) . ' 2x" alt="' . esc_attr( $alt ) . '" class="rfs-ref-header-logo rounded-sm"></a>';
         }
     }
 
