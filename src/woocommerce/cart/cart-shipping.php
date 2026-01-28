@@ -25,10 +25,12 @@ $show_shipping_calculator = ! empty( $show_shipping_calculator );
 $calculator_text          = '';
 ?>
 <tr class="woocommerce-shipping-totals shipping">
-	<th><?php echo wp_kses_post( $package_name ); ?></th>
-	<td data-title="<?php echo esc_attr( $package_name ); ?>">
+	<th colspan="2" class="px-6 pt-3 pb-4 text-base font-bold text-ats-dark text-left"><?php echo wp_kses_post( $package_name ); ?></th>
+</tr>
+<tr class="woocommerce-shipping-totals shipping">
+	<td colspan="2" class="px-6 pb-3">
 		<?php if ( ! empty( $available_methods ) && is_array( $available_methods ) ) : ?>
-			<ul id="shipping_method" class="rfs-ref-shipping-methods space-y-3">
+			<ul id="shipping_method" class="rfs-ref-shipping-methods space-y-2 text-left">
 				<?php foreach ( $available_methods as $method ) : ?>
 					<li class="rfs-ref-shipping-method-item">
 						<?php

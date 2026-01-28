@@ -11,16 +11,18 @@
  */
 
 export function initCheckout() {
-	console.log('Checkout: Init function called');
-	console.log('Checkout: Body classes:', document.body.className);
+	console.log('=== Custom Checkout JS Init ===');
+	console.log('Body classes:', document.body.className);
+	console.log('wc_checkout_params available?', typeof wc_checkout_params !== 'undefined');
+	console.log('WooCommerce object available?', typeof woocommerce_params !== 'undefined');
 
 	// Only run on checkout page
 	if (!document.body.classList.contains('woocommerce-checkout')) {
-		console.log('Checkout: Not on checkout page, exiting');
+		console.log('Not on checkout page, exiting');
 		return;
 	}
 
-	console.log('Checkout: On checkout page, initializing...');
+	console.log('On checkout page, initializing custom checkout features...');
 
 	const checkout = {
 		// DOM Elements
@@ -207,24 +209,32 @@ export function initCheckout() {
 
 		/**
 		 * Initialize shipping method visual states
+		 * Note: WooCommerce handles the AJAX update natively, we only update visuals
 		 */
 		initShippingMethods() {
 			const self = this;
 
-			// Find all shipping method radio inputs
-			const shippingInputs = document.querySelectorAll('#shipping_method input[type="radio"]');
-
-			shippingInputs.forEach(function(input) {
-				// Set initial state
-				self.updateShippingMethodVisual(input);
-
-				// Listen for changes
-				input.addEventListener('change', function() {
-					// Update all shipping methods
-					shippingInputs.forEach(function(otherInput) {
-						self.updateShippingMethodVisual(otherInput);
-					});
+			// Set initial visual state for all shipping methods
+			const updateAllShippingVisuals = function() {
+				const shippingInputs = document.querySelectorAll('.shipping_method[type="radio"]');
+				shippingInputs.forEach(function(input) {
+					self.updateShippingMethodVisual(input);
 				});
+			};
+
+			// Initial state
+			updateAllShippingVisuals();
+
+			// Update visuals when shipping method changes (do NOT trigger update_checkout - WooCommerce does that)
+			jQuery(document.body).on('change', 'input[name^="shipping_method"]', function() {
+				console.log('Checkout: Shipping method changed, updating visuals only');
+				updateAllShippingVisuals();
+			});
+
+			// Update visuals after WooCommerce completes its AJAX update
+			jQuery(document.body).on('updated_checkout', function() {
+				console.log('Checkout: Checkout updated by WooCommerce, refreshing visuals');
+				updateAllShippingVisuals();
 			});
 		},
 

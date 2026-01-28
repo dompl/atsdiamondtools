@@ -122,25 +122,27 @@ $product_id = $product->get_id();
 
                             <!-- Application Types as Buttons (Wood/Metal/Stone) -->
                             <?php
-                            // Get all application types
-                            $all_applications = array(
-                                array( 'name' => 'Metal', 'slug' => 'metal' ),
-                                array( 'name' => 'Stone', 'slug' => 'stone' ),
-                                array( 'name' => 'Wood', 'slug' => 'wood' ),
-                            );
-                            
                             // Get selected applications for this product
                             $selected_apps = get_the_terms( $product_id, 'product_application' );
                             $selected_slugs = array();
                             if ( $selected_apps && ! is_wp_error( $selected_apps ) ) {
                                 $selected_slugs = wp_list_pluck( $selected_apps, 'slug' );
                             }
+
+                            // Only show application badges if product has applications assigned
+                            if ( ! empty( $selected_slugs ) ) :
+                                // Get all application types
+                                $all_applications = array(
+                                    array( 'name' => 'Metal', 'slug' => 'metal' ),
+                                    array( 'name' => 'Stone', 'slug' => 'stone' ),
+                                    array( 'name' => 'Wood', 'slug' => 'wood' ),
+                                );
                             ?>
                             <div class="flex gap-2 mb-6">
-                                <?php foreach ( $all_applications as $app ) : 
+                                <?php foreach ( $all_applications as $app ) :
                                     $is_selected = in_array( $app['slug'], $selected_slugs );
-                                    $badge_classes = $is_selected 
-                                        ? 'bg-green-600 text-white' 
+                                    $badge_classes = $is_selected
+                                        ? 'bg-green-600 text-white'
                                         : 'bg-gray-200 text-gray-400';
                                 ?>
                                     <span class="inline-flex items-center px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wide <?php echo esc_attr( $badge_classes ); ?>">
@@ -148,6 +150,7 @@ $product_id = $product->get_id();
                                     </span>
                                 <?php endforeach; ?>
                             </div>
+                            <?php endif; ?>
 
                             <!-- Price -->
                             <div class="py-4" >

@@ -166,20 +166,59 @@ $products_per_page = 12;
 					</div>
 
 					<!-- Applications Filter Section -->
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications bg-white border border-gray-200 rounded-lg p-6">
-						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
-							<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
-						</h3>
+					<?php
+					// Check if there are any products with applications in the current view
+					$show_application_filter = false;
+					$applications = array();
 
-						<?php
-						// Get all application terms
+					// If on a category page, check if any products in this category have applications
+					if ( is_product_category() ) {
+						$current_term = get_queried_object();
+						if ( $current_term ) {
+							// Query products in this category that have applications
+							$products_with_apps = new WP_Query( array(
+								'post_type'      => 'product',
+								'posts_per_page' => 1,
+								'fields'         => 'ids',
+								'tax_query'      => array(
+									'relation' => 'AND',
+									array(
+										'taxonomy' => 'product_cat',
+										'field'    => 'term_id',
+										'terms'    => $current_term->term_id,
+									),
+									array(
+										'taxonomy' => 'product_application',
+										'operator' => 'EXISTS',
+									),
+								),
+							) );
+
+							if ( $products_with_apps->have_posts() ) {
+								$show_application_filter = true;
+								// Get application terms used in this category
+								$applications = get_terms( array(
+									'taxonomy'   => 'product_application',
+									'hide_empty' => true,
+								) );
+							}
+							wp_reset_postdata();
+						}
+					} else {
+						// On shop page or other archives, show if any applications exist
 						$applications = get_terms( array(
 							'taxonomy'   => 'product_application',
 							'hide_empty' => true,
 						) );
-						?>
+						$show_application_filter = ! empty( $applications ) && ! is_wp_error( $applications );
+					}
+					?>
 
-						<?php if ( ! empty( $applications ) && ! is_wp_error( $applications ) ) : ?>
+					<?php if ( $show_application_filter && ! empty( $applications ) && ! is_wp_error( $applications ) ) : ?>
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications bg-white border border-gray-200 rounded-lg p-6">
+						<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark mb-4 pb-3 border-b border-gray-200">
+							<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
+						</h3>
 							<ul class="rfs-ref-application-list space-y-2">
 								<!-- All Applications -->
 								<li class="rfs-ref-application-item">
@@ -201,8 +240,8 @@ $products_per_page = 12;
 									</li>
 								<?php endforeach; ?>
 							</ul>
-						<?php endif; ?>
 					</div>
+					<?php endif; ?>
 
 					<!-- Price Filter Section -->
 					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter bg-white border border-gray-200 rounded-lg p-6">

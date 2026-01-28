@@ -72,6 +72,35 @@
 }
 
 // ============================================
+// Order Review Table
+// ============================================
+
+/*
+ * IMPORTANT: WooCommerce AJAX requires proper table structure
+ */
+.woocommerce-checkout-review-order-table {
+	width: 100% !important;
+	border-collapse: collapse !important;
+
+	tr {
+		border-bottom: 1px solid theme('colors.gray.100');
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		&.order-total {
+			border-top: 2px solid theme('colors.gray.200');
+		}
+	}
+
+	th,
+	td {
+		vertical-align: top;
+	}
+}
+
+// ============================================
 // Shipping Methods Styling
 // ============================================
 
@@ -107,38 +136,41 @@
 		}
 	}
 
-	// Shipping row in totals
-	.rfs-ref-review-shipping {
-		@apply text-sm;
+	// Shipping methods in checkout review
+	.woocommerce-shipping-totals {
+		#shipping_method {
+			li {
+				@apply list-none m-0 p-0;
 
-		table {
-			@apply w-full;
+				// Radio button wrapper (div)
+				.rfs-ref-shipping-radio-wrapper {
+					@apply flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer;
+					@apply transition-all duration-200;
+					@apply hover:border-gray-300;
 
-			// Shipping label row
-			tr {
-				@apply flex justify-between items-start;
-
-				th {
-					@apply text-ats-text font-normal p-0 mb-3 w-full;
-				}
-
-				td {
-					@apply p-0 w-full;
+					input[type="radio"] {
+						@apply w-4 h-4 text-ats-yellow bg-white border-gray-300;
+						@apply focus:ring-ats-yellow focus:ring-2;
+						@apply cursor-pointer flex-shrink-0;
+					}
 
 					label {
-						@apply mb-0;
+						@apply mb-0 cursor-pointer flex-grow text-sm;
+
+						.woocommerce-Price-amount {
+							@apply font-semibold text-ats-dark;
+						}
+					}
+
+					// Selected state
+					&:has(input:checked) {
+						@apply bg-ats-yellow bg-opacity-10 border-ats-yellow #{!important};
 					}
 				}
-			}
-		}
 
-		// Override for shipping methods in review
-		#shipping_method {
-			@apply mt-3 space-y-2;
-
-			li {
-				label {
-					@apply p-3 text-sm;
+				// Single method (hidden input + label)
+				.rfs-ref-shipping-single {
+					@apply p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm;
 				}
 			}
 		}

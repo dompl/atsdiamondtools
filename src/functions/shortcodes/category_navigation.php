@@ -57,7 +57,7 @@ function shortcode_category_navigation( $atts ) {
 	$product_categories = get_terms( $args );
 
 	?>
-	<div class="rfs-ref-banner-container rfs-ref-banner-sidebar w-full lg:<?php echo esc_attr( $args['width'] ); ?> flex-shrink-0 bg-ats-brand text-white rounded-md overflow-hidden flex flex-col relative z-20 mb-10">
+	<div class="rfs-ref-banner-container rfs-ref-banner-sidebar w-full lg:<?php echo esc_attr( $args['width'] ); ?> flex-shrink-0 bg-ats-brand text-white rounded-md overflow-hidden flex flex-col relative z-20 mb-10 lg:mb-0">
 
 		<!-- Toggle Button -->
 		<button
@@ -77,7 +77,7 @@ function shortcode_category_navigation( $atts ) {
 		</button>
 
 		<!-- List Container -->
-		<div class="rfs-ref-category-list grid transition-[grid-template-rows] duration-500 ease-out <?php echo esc_attr( $grid_state_class ); ?>">
+		<div class="rfs-ref-category-list flex-1 grid transition-[grid-template-rows] duration-500 ease-out <?php echo esc_attr( $grid_state_class ); ?>">
 			<div class="overflow-hidden">
 				<div class="flex flex-col py-2">
 					<?php if ( ! empty( $product_categories ) && ! is_wp_error( $product_categories ) ) : ?>

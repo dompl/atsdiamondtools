@@ -46,6 +46,39 @@ function initBanner(bannerContainer) {
 	// Initialize: close on mobile
 	closeCategoryOnMobile();
 
+	// --- Match Sidebar Height to Banner Carousel ---
+	function matchSidebarHeight() {
+		// Only match height on desktop (lg breakpoint and up)
+		if (!isMobile()) {
+			// Find the carousel within the same banner wrapper
+			const bannerWrapper = bannerContainer.closest('.rfs-ref-banner-wrapper');
+			if (bannerWrapper) {
+				const carousel = bannerWrapper.querySelector('.rfs-ref-banner-carousel');
+				if (carousel && bannerContainer) {
+					const carouselHeight = carousel.offsetHeight;
+					if (carouselHeight > 0) {
+						bannerContainer.style.height = carouselHeight + 'px';
+					}
+				}
+			}
+		} else {
+			// Remove fixed height on mobile
+			bannerContainer.style.height = '';
+		}
+	}
+
+	// Initial height match
+	matchSidebarHeight();
+
+	// Rematch on window resize
+	let resizeMatchTimer;
+	window.addEventListener('resize', function () {
+		clearTimeout(resizeMatchTimer);
+		resizeMatchTimer = setTimeout(function () {
+			matchSidebarHeight();
+		}, 250);
+	});
+
 	// --- Category Toggle Logic ---
 	if (categoryBtn && categoryList && categoryChevron) {
 		categoryBtn.addEventListener('click', function () {

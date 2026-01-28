@@ -219,3 +219,9 @@ add_action( 'wp_enqueue_scripts', function () {
         ]
     );
 }, 100 );
+
+/**
+ * Note: WooCommerce's wc-checkout script is kept on checkout pages (see line 108-111 above).
+ * WooCommerce handles the script enqueue and localization automatically.
+ * Our custom checkout.js only handles visual updates, not AJAX functionality.
+ */
