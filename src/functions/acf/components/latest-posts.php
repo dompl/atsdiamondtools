@@ -62,7 +62,7 @@ function latest_posts_fields() {
                 '3' => '3 Items',
                 '4' => '4 Items'
             ] )
-            ->default( '3' )
+            ->default( '2' )
             ->format( 'value' )
             ->required(),
 
@@ -92,7 +92,7 @@ function component_latest_posts_html( string $output, string $layout ): string {
     $content_source = get_sub_field( 'content_source' ) ?: 'posts';
     $selected       = get_sub_field( 'selected_content' );
     $selected_pages = get_sub_field( 'selected_pages' );
-    $items_count    = get_sub_field( 'items_count' ) ?: '3';
+    $items_count    = get_sub_field( 'items_count' ) ?: '2';
     $button_text    = get_sub_field( 'button_text' ) ?: 'Read More';
     $bg_color       = get_sub_field( 'bg_color' ) ?: 'white';
 
@@ -123,18 +123,18 @@ function component_latest_posts_html( string $output, string $layout ): string {
 
     ob_start();
     ?>
-    <section class="ats-latest-posts-section py-8 lg:py-12 <?php echo esc_attr( $bg_class ); ?>">
-        <div class="container mx-auto px-4">
+    <section class="rfs-ref-latest-posts-section ats-latest-posts-section py-8 lg:py-12 <?php echo esc_attr( $bg_class ); ?>">
+        <div class="rfs-ref-latest-posts-container container mx-auto px-4">
             <!-- Section Title -->
-            <div class="flex items-center w-full gap-5 mb-6">
-                <h2 class="text-lg xl:text-xl font-bold text-primary-600 whitespace-nowrap tracking-tight">
+            <div class="rfs-ref-latest-posts-header flex items-center w-full gap-5 mb-6">
+                <h2 class="rfs-ref-latest-posts-title text-lg xl:text-xl font-bold text-primary-600 whitespace-nowrap tracking-tight">
                     <?php echo esc_html( $title ); ?>
                 </h2>
-                <div class="flex-grow h-[1px] bg-neutral-300"></div>
+                <div class="rfs-ref-latest-posts-divider flex-grow h-[1px] bg-neutral-300"></div>
             </div>
 
             <!-- Posts Grid - Horizontal cards with image LEFT, text RIGHT -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-<?php echo min( intval( $items_count ), 3 ); ?> gap-6">
+            <div class="rfs-ref-latest-posts-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-<?php echo min( intval( $items_count ), 3 ); ?> gap-6">
                 <?php foreach ( $items as $item ) :
                     $post_obj = is_object( $item ) ? $item : get_post( $item );
                     if ( !$post_obj ) continue;
@@ -146,50 +146,53 @@ function component_latest_posts_html( string $output, string $layout ): string {
                     // Use raw excerpt to avoid infinite loop with the_content filter
                     $post_excerpt  = !empty( $post_obj->post_excerpt ) ? $post_obj->post_excerpt : wp_trim_words( strip_shortcodes( $post_obj->post_content ), 55 );
                     $thumbnail_id  = get_post_thumbnail_id( $post_id );
-                    $thumbnail_url = $thumbnail_id ? wpimage( $thumbnail_id, [200, 200], false, true, true ) : '';
+                    $thumbnail_url = $thumbnail_id ? wpimage( $thumbnail_id, [600, 400], false, true, true ) : '';
                 ?>
-                    <article class="ats-latest-card bg-white border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow" style="display: flex; flex-direction: row;">
-                        <!-- Image on LEFT -->
+                    <article class="rfs-ref-latest-post-card ats-latest-card bg-white border border-neutral-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+                        <!-- Image on TOP - Large featured image -->
                         <?php if ( $thumbnail_url ) : ?>
-                            <a href="<?php echo esc_url( $post_url ); ?>" style="flex-shrink: 0; width: 140px; min-width: 140px;">
+                            <a href="<?php echo esc_url( $post_url ); ?>" class="rfs-ref-latest-post-image-link block">
                                 <img
                                     src="<?php echo esc_url( $thumbnail_url ); ?>"
                                     alt="<?php echo esc_attr( $post_title ); ?>"
-                                    style="width: 140px; height: 100%; object-fit: cover;"
+                                    class="rfs-ref-latest-post-image w-full h-64 object-cover"
                                     loading="lazy"
                                 />
                             </a>
                         <?php else : ?>
-                            <a href="<?php echo esc_url( $post_url ); ?>" style="flex-shrink: 0; width: 140px; min-width: 140px; background: #f3f4f6; display: flex; align-items: center; justify-content: center;">
-                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="<?php echo esc_url( $post_url ); ?>" class="rfs-ref-latest-post-placeholder block bg-gray-100 flex items-center justify-center h-64">
+                                <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                 </svg>
                             </a>
                         <?php endif; ?>
 
-                        <!-- Content on RIGHT -->
-                        <div style="display: flex; flex-direction: column; justify-content: space-between; padding: 1rem; padding-left: 1rem; flex-grow: 1; min-width: 0;">
-                            <div>
-                                <span class="text-xs text-gray-400 mb-1 block">
+                        <!-- Content BELOW image -->
+                        <div class="rfs-ref-latest-post-content p-6 flex flex-col flex-grow">
+                            <div class="rfs-ref-latest-post-meta flex items-center gap-2 text-xs text-gray-400 mb-3">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="rfs-ref-latest-post-date">
                                     <?php echo esc_html( $post_date ); ?>
                                 </span>
-
-                                <h3 class="text-base font-bold text-primary-700 mb-2 line-clamp-2">
-                                    <a href="<?php echo esc_url( $post_url ); ?>" class="hover:text-primary-800">
-                                        <?php echo esc_html( $post_title ); ?>
-                                    </a>
-                                </h3>
-
-                                <?php if ( $post_excerpt ) : ?>
-                                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                                        <?php echo esc_html( wp_trim_words( $post_excerpt, 15 ) ); ?>
-                                    </p>
-                                <?php endif; ?>
                             </div>
+
+                            <h3 class="rfs-ref-latest-post-title text-xl font-bold text-neutral-700 mb-3 line-clamp-2">
+                                <a href="<?php echo esc_url( $post_url ); ?>" class="rfs-ref-latest-post-title-link hover:text-black">
+                                    <?php echo esc_html( $post_title ); ?>
+                                </a>
+                            </h3>
+
+                            <?php if ( $post_excerpt ) : ?>
+                                <p class="rfs-ref-latest-post-excerpt text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3 flex-grow">
+                                    <?php echo esc_html( wp_trim_words( $post_excerpt, 20 ) ); ?>
+                                </p>
+                            <?php endif; ?>
 
                             <a
                                 href="<?php echo esc_url( $post_url ); ?>"
-                                class="ats-btn ats-btn-sm ats-btn-yellow self-start"
+                                class="rfs-ref-latest-post-cta-btn inline-flex justify-center items-center px-6 py-2 bg-primary-300 hover:bg-primary-400 text-black text-sm font-medium uppercase rounded transition-colors self-start"
                             >
                                 <?php echo esc_html( $button_text ); ?>
                             </a>
