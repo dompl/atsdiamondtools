@@ -6,19 +6,111 @@
 
 // Initialize banner functionality for each banner instance on the page
 document.addEventListener('DOMContentLoaded', function () {
-	// Find all banner instances (supports multiple banners on one page)
-	const bannerContainers = document.querySelectorAll('.rfs-ref-banner-container');
+	console.log('Banner: DOMContentLoaded fired');
 
-	bannerContainers.forEach(function (bannerContainer) {
+	// Find all banner carousel containers (not sidebar)
+	const bannerContainers = document.querySelectorAll('.rfs-ref-banner-container:not(.rfs-ref-banner-sidebar)');
+	console.log('Banner: Found', bannerContainers.length, 'carousel containers');
+
+	bannerContainers.forEach(function (bannerContainer, index) {
+		console.log('Banner', index, ': Initializing');
 		initBanner(bannerContainer);
+	});
+
+	// Separately initialize category navigation sidebars
+	const categoryNavs = document.querySelectorAll('.rfs-ref-banner-sidebar');
+	console.log('Banner: Found', categoryNavs.length, 'category navigation sidebars');
+
+	categoryNavs.forEach(function (sidebar, index) {
+		console.log('Category Nav', index, ': Initializing');
+		initCategoryNav(sidebar);
 	});
 });
 
+// Initialize category navigation separately
+function initCategoryNav(sidebar) {
+	console.log('Category Nav: Initializing sidebar');
+
+	const categoryBtn = sidebar.querySelector('.rfs-ref-category-btn');
+	const categoryList = sidebar.querySelector('.rfs-ref-category-list');
+	const categoryChevron = sidebar.querySelector('.rfs-ref-category-chevron');
+
+	console.log('Category Nav: Elements found?', {
+		btn: !!categoryBtn,
+		list: !!categoryList,
+		chevron: !!categoryChevron
+	});
+
+	// Check if mobile (window width < 1024px for lg breakpoint)
+	function isMobile() {
+		return window.innerWidth < 1024;
+	}
+
+	// Close category accordion on mobile by default
+	function closeCategoryOnMobile() {
+		if (isMobile() && categoryList && categoryChevron) {
+			categoryList.classList.remove('grid-rows-1');
+			categoryList.classList.add('grid-rows-0');
+			categoryChevron.classList.remove('rotate-180');
+			console.log('Category Nav: Closed on mobile');
+		}
+	}
+
+	// Initialize: close on mobile
+	closeCategoryOnMobile();
+
+	// Category Toggle Logic
+	if (categoryBtn && categoryList && categoryChevron) {
+		categoryBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			console.log('Category Nav: Button clicked');
+			console.log('Category Nav: Is mobile?', isMobile());
+
+			// Check if desktop toggle is allowed via data attribute
+			const allowDesktopToggle = categoryBtn.getAttribute('data-allow-desktop-toggle') === 'true';
+			console.log('Category Nav: Allow desktop toggle?', allowDesktopToggle);
+
+			// Only allow toggle if mobile OR explicit desktop toggle allowed
+			if (!isMobile() && !allowDesktopToggle) {
+				console.log('Category Nav: Toggle blocked - not mobile and desktop toggle not allowed');
+				return;
+			}
+
+			const isOpen = categoryList.classList.contains('grid-rows-1');
+			console.log('Category Nav: Is currently open?', isOpen);
+
+			if (isOpen) {
+				categoryList.classList.remove('grid-rows-1');
+				categoryList.classList.add('grid-rows-0');
+				categoryChevron.classList.remove('rotate-180');
+				console.log('Category Nav: Closing');
+			} else {
+				categoryList.classList.remove('grid-rows-0');
+				categoryList.classList.add('grid-rows-1');
+				categoryChevron.classList.add('rotate-180');
+				console.log('Category Nav: Opening');
+			}
+		});
+	} else {
+		console.error('Category Nav: Elements not found!');
+	}
+
+	// Resize handler
+	let resizeTimer;
+	window.addEventListener('resize', function () {
+		clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(function () {
+			closeCategoryOnMobile();
+		}, 250);
+	});
+}
+
 function initBanner(bannerContainer) {
+	console.log('Banner: Initializing carousel');
+
 	// Get elements scoped to this banner instance
-	const categoryBtn = bannerContainer.querySelector('.rfs-ref-category-btn');
-	const categoryList = bannerContainer.querySelector('.rfs-ref-category-list');
-	const categoryChevron = bannerContainer.querySelector('.rfs-ref-category-chevron');
 	const prevBtn = bannerContainer.querySelector('.rfs-ref-prev-btn');
 	const nextBtn = bannerContainer.querySelector('.rfs-ref-next-btn');
 	const dotsContainer = bannerContainer.querySelector('.rfs-ref-carousel-dots');
@@ -34,72 +126,6 @@ function initBanner(bannerContainer) {
 		return window.innerWidth < 1024;
 	}
 
-	// Close category accordion on mobile by default
-	function closeCategoryOnMobile() {
-		if (isMobile() && categoryList && categoryChevron) {
-			categoryList.classList.remove('grid-rows-1');
-			categoryList.classList.add('grid-rows-0');
-			categoryChevron.classList.remove('rotate-180');
-		}
-	}
-
-	// Initialize: close on mobile
-	closeCategoryOnMobile();
-
-	// --- Match Sidebar Height to Banner Carousel ---
-	function matchSidebarHeight() {
-		// Only match height on desktop (lg breakpoint and up)
-		if (!isMobile()) {
-			// Find the carousel within the same banner wrapper
-			const bannerWrapper = bannerContainer.closest('.rfs-ref-banner-wrapper');
-			if (bannerWrapper) {
-				const carousel = bannerWrapper.querySelector('.rfs-ref-banner-carousel');
-				if (carousel && bannerContainer) {
-					const carouselHeight = carousel.offsetHeight;
-					if (carouselHeight > 0) {
-						bannerContainer.style.height = carouselHeight + 'px';
-					}
-				}
-			}
-		} else {
-			// Remove fixed height on mobile
-			bannerContainer.style.height = '';
-		}
-	}
-
-	// Initial height match
-	matchSidebarHeight();
-
-	// Rematch on window resize
-	let resizeMatchTimer;
-	window.addEventListener('resize', function () {
-		clearTimeout(resizeMatchTimer);
-		resizeMatchTimer = setTimeout(function () {
-			matchSidebarHeight();
-		}, 250);
-	});
-
-	// --- Category Toggle Logic ---
-	if (categoryBtn && categoryList && categoryChevron) {
-		categoryBtn.addEventListener('click', function () {
-			// Check if desktop toggle is allowed via data attribute
-			const allowDesktopToggle = categoryBtn.getAttribute('data-allow-desktop-toggle') === 'true';
-
-			// Only allow toggle if mobile OR explicit desktop toggle allowed
-			if (!isMobile() && !allowDesktopToggle) return;
-
-			const isOpen = categoryList.classList.contains('grid-rows-1');
-			if (isOpen) {
-				categoryList.classList.remove('grid-rows-1');
-				categoryList.classList.add('grid-rows-0');
-				categoryChevron.classList.remove('rotate-180');
-			} else {
-				categoryList.classList.remove('grid-rows-0');
-				categoryList.classList.add('grid-rows-1');
-				categoryChevron.classList.add('rotate-180');
-			}
-		});
-	}
 
 	// Return if no slides found (stop Carousel logic)
 	if (!slideItems.length) return;
@@ -184,14 +210,4 @@ function initBanner(bannerContainer) {
 			});
 		}
 	}
-
-	// --- Resize Handler ---
-	// Close category accordion when switching to mobile
-	let resizeTimer;
-	window.addEventListener('resize', function () {
-		clearTimeout(resizeTimer);
-		resizeTimer = setTimeout(function () {
-			closeCategoryOnMobile();
-		}, 250);
-	});
 }

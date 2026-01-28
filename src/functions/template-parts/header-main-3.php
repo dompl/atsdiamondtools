@@ -38,7 +38,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="flex flex-col lg:flex-row justify-between items-center pt-6 gap-4 lg:gap-0">
+			<div class="flex flex-col md:flex-row justify-between items-center pt-6 gap-4 lg:gap-0">
 				<?php echo heading_data( 'secondary_logo' ); ?>
 				<?php echo do_shortcode( '[ats_search]' ); ?>
 				<?php echo do_shortcode( '[ats_add_to_cart]' ); ?>

@@ -139,17 +139,17 @@ function component_bestseller_html( string $output, string $layout ): string {
             </div>
 
             <!-- Two Section Layout: Left = 2 vertical products in 1 row, Right = 6 horizontal products in 2x3 grid -->
-            <div class="rfs-ref-bestseller-layout flex flex-col lg:flex-row gap-6">
+            <div class="rfs-ref-bestseller-layout flex flex-col lg:flex-row gap-6 w-full">
 
                 <!-- LEFT: 2 Vertical Products in ONE ROW (side by side) - 40% width -->
-                <div class="rfs-ref-bestseller-left lg:w-[40%] grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="rfs-ref-bestseller-left w-full lg:w-[40%] grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <?php foreach ( $vertical_product_ids as $product_id ) :
                         echo do_shortcode( '[ats_product id="' . $product_id . '" display="1"]' );
                     endforeach; ?>
                 </div>
 
                 <!-- RIGHT: 6 Horizontal Products in 2x3 Grid (2 columns, 3 rows) - 60% width -->
-                <div class="rfs-ref-bestseller-right lg:w-[60%]">
+                <div class="rfs-ref-bestseller-right w-full lg:w-[60%]">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <?php foreach ( $horizontal_product_ids as $product_id ) :
                             echo do_shortcode( '[ats_product id="' . $product_id . '" display="3"]' );

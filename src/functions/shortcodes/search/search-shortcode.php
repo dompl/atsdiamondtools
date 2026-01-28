@@ -95,7 +95,7 @@ function ats_render_search_shortcode( $atts = array() ) {
 			<div class="w-px h-full bg-neutral-200" style="width: 1.5px;"></div>
 
 			<!-- Search Input -->
-			<div class="flex-1 flex items-center px-3">
+			<div class="flex-1 flex items-center px-3 min-w-56">
 				<input
 					type="text"
 					class="js-search-input w-full border-0 focus:ring-0 text-ats-text text-xs font-light font-['Inter'] placeholder:text-ats-text placeholder:opacity-70 bg-transparent"

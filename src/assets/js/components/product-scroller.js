@@ -95,9 +95,10 @@ document.addEventListener('DOMContentLoaded', function () {
 						},
 					},
 					padding: {
-						left: '1rem',
-						right: '1rem',
+						left: 0,
+						right: 0,
 					},
+					gap: '1.5rem', // Gap between slides
 				},
 			},
 		});
