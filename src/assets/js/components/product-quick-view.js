@@ -245,6 +245,12 @@ import $ from 'jquery';
 						});
 
 						console.log('[VARIATION DEBUG] ✓ All forms initialized');
+
+						// Initialize custom dropdowns AFTER WooCommerce forms are ready
+						setTimeout(() => {
+							console.log('[VARIATION DEBUG] Initializing Flowbite dropdowns...');
+							self.initializeVariationDropdowns();
+						}, 100);
 					} else {
 						console.log('[VARIATION DEBUG] ✗ wc_variation_form function NOT loaded - script missing!');
 					}
@@ -252,11 +258,6 @@ import $ from 'jquery';
 					console.log('[VARIATION DEBUG] No variation forms found in modal content');
 				}
 			}, 250);
-
-			// Initialize custom dropdowns for variations
-			setTimeout(() => {
-				this.initializeVariationDropdowns();
-			}, 300);
 
 			// Trigger custom event for other scripts
 			$(document).trigger('ats_quick_view_loaded', [this.currentProductId]);
@@ -311,8 +312,13 @@ import $ from 'jquery';
 		 * Initialize variation dropdowns with Flowbite
 		 */
 		initializeVariationDropdowns: function () {
+			console.log('[DROPDOWN DEBUG] initializeVariationDropdowns called');
 			const $form = $(this.elements.modalContent).find('.variations_form');
+			console.log('[DROPDOWN DEBUG] Form found:', $form.length);
 			const dropdownInstances = new Map();
+
+			const dropdownWrappers = $('.flowbite-dropdown-wrapper', this.elements.modalContent);
+			console.log('[DROPDOWN DEBUG] Dropdown wrappers found:', dropdownWrappers.length);
 
 			// Helper to refresh options from select
 			const refreshDropdown = ($wrapper) => {
