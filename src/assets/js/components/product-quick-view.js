@@ -444,13 +444,19 @@ import $ from 'jquery';
 		initializeVariationPriceAndImage: function ($form) {
 			const $priceHtml = $(this.elements.modalContent).find('.rfs-ref-quick-view-price p');
 
+			// Debug: Check what elements exist
+			console.log('Price element found:', $priceHtml.length);
+			console.log('Single variation wrap:', $form.find('.single_variation_wrap').length);
+			console.log('Single variation:', $form.find('.single_variation').length);
+
 			// Store original data
 			if ($priceHtml.length) {
 				$priceHtml.data('original-html', $priceHtml.html());
 			}
 
-			$form.on('found_variation', (event, variation) => {
-				console.log('Variation found:', variation);
+			// Listen for show_variation event (this is what WooCommerce uses)
+			$form.on('show_variation', (event, variation) => {
+				console.log('show_variation event - Variation found:', variation);
 
 				// Update price
 				if (variation.price_html && $priceHtml.length) {
@@ -499,7 +505,31 @@ import $ from 'jquery';
 				}
 			});
 
+			// Also listen for hide_variation
+			$form.on('hide_variation', () => {
+				console.log('hide_variation event');
+				// Reset price
+				if ($priceHtml.length && $priceHtml.data('original-html')) {
+					$priceHtml.html($priceHtml.data('original-html'));
+				}
+
+				// Reset image
+				const $mainImg = $(this.elements.modalContent).find('#product-main-splide .splide__slide').first().find('img');
+				const $mainLink = $mainImg.closest('a');
+
+				if ($mainImg.length && $mainImg.data('original-src')) {
+					$mainImg.attr('src', $mainImg.data('original-src'));
+					$mainImg.attr('srcset', $mainImg.data('original-srcset') || '');
+					$mainImg.attr('alt', $mainImg.data('original-alt') || '');
+
+					if ($mainLink.length && $mainImg.data('original-href')) {
+						$mainLink.attr('href', $mainImg.data('original-href'));
+					}
+				}
+			});
+
 			$form.on('reset_data', () => {
+				console.log('reset_data event');
 				// Reset price
 				if ($priceHtml.length && $priceHtml.data('original-html')) {
 					$priceHtml.html($priceHtml.data('original-html'));
