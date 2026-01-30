@@ -100,19 +100,76 @@ $products_per_page = 12;
 
 	<?php else : ?>
 
-		<!-- Shop Page Header (for main shop page) -->
-		<div class="rfs-ref-shop-container container mx-auto px-4 pt-8">
-			<div class="rfs-ref-shop-header mb-8">
-				<h1 class="rfs-ref-shop-title text-3xl md:text-4xl font-bold text-ats-dark mb-2">
-					<?php woocommerce_page_title(); ?>
-				</h1>
-				<?php if ( category_description() ) : ?>
-					<div class="rfs-ref-shop-description text-gray-600 leading-relaxed">
-						<?php echo wp_kses_post( category_description() ); ?>
+		<!-- Shop Page Banner (for main shop page) -->
+		<?php
+		// Get shop page ID and custom fields
+		$shop_page_id = wc_get_page_id( 'shop' );
+		$shop_banner_image = get_field( 'shop_banner_image', $shop_page_id );
+		$shop_banner_description = get_field( 'shop_banner_description', $shop_page_id );
+
+		// Get shop page title
+		$shop_title = get_the_title( $shop_page_id );
+
+		if ( $shop_banner_image ) :
+			// Use wpimage() to get the image URL with retina support
+			$shop_banner_url = wpimage( $shop_banner_image, [1920, 400], false, true, true, true, 85 );
+			?>
+
+			<div class="rfs-ref-shop-container container mx-auto px-4 pt-4 mb-6">
+				<div class="rfs-ref-shop-banner relative h-[200px] md:h-[250px] overflow-hidden rounded-lg">
+					<!-- Background Image -->
+					<div class="absolute inset-0">
+						<img src="<?php echo esc_url( $shop_banner_url ); ?>"
+						     alt="<?php echo esc_attr( $shop_title ); ?>"
+						     class="w-full h-full object-cover" />
+						<!-- Overlay Gradient -->
+						<div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
 					</div>
-				<?php endif; ?>
+
+					<!-- Decorative Brand Elements -->
+					<div class="rfs-ref-banner-decorations absolute inset-0 pointer-events-none opacity-20">
+						<!-- Large Circle - Top Right -->
+						<div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-600 blur-3xl"></div>
+						<!-- Medium Circle - Bottom Left -->
+						<div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-ats-yellow blur-2xl"></div>
+						<!-- Small Accent - Middle -->
+						<div class="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-primary-300 blur-xl"></div>
+					</div>
+
+					<!-- Content -->
+					<div class="rfs-ref-shop-banner-content relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
+						<div class="max-w-3xl">
+							<h1 class="rfs-ref-banner-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+								<?php echo esc_html( $shop_title ); ?>
+							</h1>
+
+							<?php if ( ! empty( $shop_banner_description ) ) : ?>
+								<div class="rfs-ref-banner-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
+									<?php echo esc_html( $shop_banner_description ); ?>
+								</div>
+							<?php endif; ?>
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>
+
+		<?php else : ?>
+
+			<!-- Simple Header (fallback if no banner image) -->
+			<div class="rfs-ref-shop-container container mx-auto px-4 pt-8">
+				<div class="rfs-ref-shop-header mb-8">
+					<h1 class="rfs-ref-shop-title text-3xl md:text-4xl font-bold text-ats-dark mb-2">
+						<?php echo esc_html( $shop_title ); ?>
+					</h1>
+					<?php if ( ! empty( $shop_banner_description ) ) : ?>
+						<div class="rfs-ref-shop-description text-gray-600 leading-relaxed">
+							<?php echo esc_html( $shop_banner_description ); ?>
+						</div>
+					<?php endif; ?>
+				</div>
+			</div>
+
+		<?php endif; ?>
 
 	<?php endif; ?>
 
@@ -435,8 +492,8 @@ $products_per_page = 12;
 						?>
 					</div>
 
-					<!-- Loading Overlay -->
-					<div class="rfs-ref-loading-overlay hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+					<!-- Loading Spinner (below products) -->
+					<div class="rfs-ref-loading-spinner-container hidden flex justify-center py-8">
 						<div role="status" class="rfs-ref-loading-spinner">
 							<svg aria-hidden="true" class="w-12 h-12 text-gray-200 animate-spin fill-ats-yellow" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>

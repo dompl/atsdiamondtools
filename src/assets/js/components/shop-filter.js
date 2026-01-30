@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	// Elements
-	const loadingOverlay = document.querySelector('.rfs-ref-loading-overlay');
+	const loadingSpinner = document.querySelector('.rfs-ref-loading-spinner-container');
 	const categoryButtons = document.querySelectorAll('.rfs-ref-category-link');
 	const sortOptions = document.querySelectorAll('.rfs-ref-sort-option');
 	const currentSortLabel = document.querySelector('.rfs-ref-current-sort');
@@ -59,8 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * @param {boolean} scrollToTop - Whether to scroll to products container
 	 */
 	function showLoading(scrollToTop = true) {
-		if (loadingOverlay) {
-			loadingOverlay.classList.remove('hidden');
+		if (loadingSpinner) {
+			loadingSpinner.classList.remove('hidden');
 		}
 		// Only scroll to top when filtering (not when loading more via infinite scroll)
 		if (scrollToTop) {
@@ -76,8 +76,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * Hide loading state
 	 */
 	function hideLoading() {
-		if (loadingOverlay) {
-			loadingOverlay.classList.add('hidden');
+		if (loadingSpinner) {
+			loadingSpinner.classList.add('hidden');
 		}
 	}
 
@@ -355,6 +355,14 @@ document.addEventListener('DOMContentLoaded', function() {
 			button.addEventListener('click', function(e) {
 				e.preventDefault();
 				const categoryId = parseInt(this.dataset.categoryId) || 0;
+
+				// If "All Products" (categoryId = 0) is clicked from a category page, redirect to shop page
+				if (categoryId === 0 && initialCategory !== 0) {
+					// Redirect to shop page
+					const shopUrl = window.themeData?.shop_url || '/shop/';
+					window.location.href = shopUrl;
+					return;
+				}
 
 				// Update active state - use primary brand color
 				categoryButtons.forEach(function(btn) {
