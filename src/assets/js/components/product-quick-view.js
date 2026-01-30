@@ -202,60 +202,17 @@ import $ from 'jquery';
 			// Wait for DOM to settle before initializing variation forms
 			const self = this;
 			setTimeout(function() {
-				console.log('[VARIATION DEBUG] Starting variation form initialization...');
-
-				// Reinitialize WooCommerce variation forms
 				const $forms = $(self.elements.modalContent).find('.variations_form');
-				console.log('[VARIATION DEBUG] Forms found:', $forms.length);
 
-				if ($forms.length > 0) {
-					// Check if variation form function exists
-					console.log('[VARIATION DEBUG] $.fn.wc_variation_form exists:', typeof $.fn.wc_variation_form !== 'undefined');
-					console.log('[VARIATION DEBUG] wc_add_to_cart_variation_params exists:', typeof wc_add_to_cart_variation_params !== 'undefined');
+				if ($forms.length > 0 && typeof $.fn.wc_variation_form !== 'undefined') {
+					$forms.each(function () {
+						$(this).wc_variation_form();
+					});
 
-					if (typeof wc_add_to_cart_variation_params !== 'undefined') {
-						console.log('[VARIATION DEBUG] Variation params:', wc_add_to_cart_variation_params);
-					}
-
-					if (typeof $.fn.wc_variation_form !== 'undefined') {
-						console.log('[VARIATION DEBUG] Initializing each form...');
-
-						$forms.each(function (index) {
-							const $form = $(this);
-							console.log('[VARIATION DEBUG] Form', index, '- HTML:', $form.html().substring(0, 200));
-							console.log('[VARIATION DEBUG] Form', index, '- Has select elements:', $form.find('select').length);
-
-							// Initialize the variation form
-							$form.wc_variation_form();
-
-							console.log('[VARIATION DEBUG] Form', index, '- Initialized');
-
-							// Check if form has data bound
-							const formData = $form.data('wc_variation_form');
-							console.log('[VARIATION DEBUG] Form', index, '- Data bound:', !!formData);
-
-							// Log select elements
-							$form.find('select').each(function(i) {
-								console.log('[VARIATION DEBUG] Form', index, '- Select', i, ':', {
-									name: $(this).attr('name'),
-									options: $(this).find('option').length,
-									value: $(this).val()
-								});
-							});
-						});
-
-						console.log('[VARIATION DEBUG] ✓ All forms initialized');
-
-						// Initialize custom dropdowns AFTER WooCommerce forms are ready
-						setTimeout(() => {
-							console.log('[VARIATION DEBUG] Initializing Flowbite dropdowns...');
-							self.initializeVariationDropdowns();
-						}, 100);
-					} else {
-						console.log('[VARIATION DEBUG] ✗ wc_variation_form function NOT loaded - script missing!');
-					}
-				} else {
-					console.log('[VARIATION DEBUG] No variation forms found in modal content');
+					// Initialize custom dropdowns AFTER WooCommerce forms are ready
+					setTimeout(() => {
+						self.initializeVariationDropdowns();
+					}, 100);
 				}
 			}, 250);
 
@@ -312,27 +269,53 @@ import $ from 'jquery';
 		 * Initialize variation dropdowns with Flowbite
 		 */
 		initializeVariationDropdowns: function () {
-			console.log('[DROPDOWN DEBUG] initializeVariationDropdowns called');
 			const $form = $(this.elements.modalContent).find('.variations_form');
-			console.log('[DROPDOWN DEBUG] Form found:', $form.length);
 			const dropdownInstances = new Map();
 
-			const dropdownWrappers = $('.flowbite-dropdown-wrapper', this.elements.modalContent);
-			console.log('[DROPDOWN DEBUG] Dropdown wrappers found:', dropdownWrappers.length);
+			// Helper to get price for a specific option
+			const getPriceForOption = (selectName, val, $form) => {
+				const variationsData = $form.data('product_variations') || [];
+				if (!variationsData.length) return null;
+
+				// Get other selections
+				const currentSelections = {};
+				$form.find('select').each(function () {
+					const name = $(this).data('attribute_name') || $(this).attr('name');
+					if (name && name !== selectName) {
+						currentSelections[name] = $(this).val();
+					}
+				});
+
+				// Find matching variation
+				const match = variationsData.find((v) => {
+					const attrVal = v.attributes[selectName];
+					if (attrVal && attrVal !== val) return false;
+
+					for (const key in currentSelections) {
+						const otherVal = currentSelections[key];
+						if (otherVal && v.attributes[key] && v.attributes[key] !== otherVal) {
+							return false;
+						}
+					}
+					return true;
+				});
+
+				if (match && match.price_html) {
+					let tmp = document.createElement('DIV');
+					tmp.innerHTML = match.price_html;
+					let priceText = tmp.textContent || tmp.innerText || '';
+					return priceText.trim();
+				}
+
+				return null;
+			};
 
 			// Helper to refresh options from select
 			const refreshDropdown = ($wrapper) => {
-				console.log('[DROPDOWN DEBUG] refreshDropdown called for wrapper:', $wrapper);
 				const $select = $wrapper.find('select');
-				console.log('[DROPDOWN DEBUG] Select found:', $select.length);
 				const $list = $wrapper.find('.dropdown-options-list');
-				console.log('[DROPDOWN DEBUG] Options list found:', $list.length);
 				const $btnText = $wrapper.find('.dropdown-selected-text');
-				console.log('[DROPDOWN DEBUG] Button text element found:', $btnText.length);
 				const selectName = $select.data('attribute_name') || $select.attr('name');
-				console.log('[DROPDOWN DEBUG] Select name:', selectName);
-				const variationsData = $form.data('product_variations') || [];
-				console.log('[DROPDOWN DEBUG] Variations data:', variationsData.length);
 
 				$list.empty();
 
@@ -347,30 +330,29 @@ import $ from 'jquery';
 					$btnText.text('Choose an option');
 				}
 
-				// Rebuild list
-				let optionCount = 0;
+				// Rebuild list with prices
 				$select.find('option').each(function () {
 					const $opt = $(this);
 					const value = $opt.val();
-					const text = $opt.text();
+					let text = $opt.text();
 
-					if (!value) {
-						console.log('[DROPDOWN DEBUG] Skipping empty option');
-						return; // Skip placeholder
+					if (!value) return; // Skip placeholder
+
+					// Append Price
+					const price = getPriceForOption(selectName, value, $form);
+					if (price) {
+						text += ` (${price})`;
 					}
-
-					optionCount++;
-					console.log('[DROPDOWN DEBUG] Building option', optionCount, '- Value:', value, 'Text:', text);
 
 					const li = $('<li>');
 					const btn = $('<button type="button">')
-						.addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-1 hover:bg-brand-dark transition-colors duration-150')
+						.addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-1 hover:bg-primary-700 transition-colors duration-150')
 						.data('value', value)
 						.text(text);
 
 					// Active state
 					if (currentVal === value) {
-						btn.addClass('bg-gray-100 text-primary-600 font-bold');
+						btn.addClass('bg-primary-700 text-white font-semibold');
 					} else {
 						btn.addClass('text-white');
 					}
@@ -378,41 +360,24 @@ import $ from 'jquery';
 					li.append(btn);
 					$list.append(li);
 				});
-				console.log('[DROPDOWN DEBUG] Total options built:', optionCount);
 			};
 
 			// Initial Population
-			console.log('[DROPDOWN DEBUG] Starting initial population...');
-			$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function (index) {
-				console.log('[DROPDOWN DEBUG] Refreshing dropdown', index);
+			$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function () {
 				refreshDropdown($(this));
 			});
-			console.log('[DROPDOWN DEBUG] Initial population complete');
 
 			// Initialize Flowbite dropdowns
 			setTimeout(() => {
-				console.log('[DROPDOWN DEBUG] Starting Flowbite initialization...');
-				console.log('[DROPDOWN DEBUG] Dropdown class available:', typeof Dropdown !== 'undefined');
-
-				$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function (index) {
-					console.log('[DROPDOWN DEBUG] Processing dropdown wrapper', index);
+				$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function () {
 					const $wrapper = $(this);
 					const $button = $wrapper.find('[data-dropdown-toggle]');
 					const dropdownId = $button.attr('data-dropdown-toggle');
 					const $menu = $wrapper.find('#' + dropdownId);
 
-					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Button found:', $button.length);
-					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Dropdown ID:', dropdownId);
-					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Menu found:', $menu.length);
-
 					if ($button.length && $menu.length) {
 						const triggerEl = $button[0];
 						const targetEl = $menu[0];
-
-						console.log('[DROPDOWN DEBUG] Wrapper', index, '- triggerEl:', triggerEl);
-						console.log('[DROPDOWN DEBUG] Wrapper', index, '- targetEl:', targetEl);
-
-						console.log('[DROPDOWN DEBUG] Wrapper', index, '- Elements ready, initializing Flowbite...');
 
 						try {
 							const dropdown = new Dropdown(targetEl, triggerEl, {
@@ -420,22 +385,13 @@ import $ from 'jquery';
 								triggerType: 'click',
 								offsetSkidding: 0,
 								offsetDistance: 10,
-								onShow: () => {
-									console.log('[DROPDOWN DEBUG] Dropdown showing');
-								},
-								onHide: () => {
-									console.log('[DROPDOWN DEBUG] Dropdown hiding');
-								}
 							});
 							dropdownInstances.set(triggerEl, dropdown);
-							console.log('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite dropdown initialized successfully');
-							console.log('[DROPDOWN DEBUG] Wrapper', index, '- Dropdown instance:', dropdown);
 						} catch (error) {
-							console.error('[DROPDOWN DEBUG] Wrapper', index, '- Error initializing Flowbite:', error);
+							console.error('Error initializing dropdown:', error);
 						}
 					}
 				});
-				console.log('[DROPDOWN DEBUG] Flowbite initialization complete');
 			}, 100);
 
 			// Handle Option Click
@@ -469,6 +425,90 @@ import $ from 'jquery';
 			$('.flowbite-dropdown-wrapper select', this.elements.modalContent).on('change', function () {
 				const $wrapper = $(this).closest('.flowbite-dropdown-wrapper');
 				refreshDropdown($wrapper);
+			});
+
+			// Initialize price and image update handlers
+			this.initializeVariationPriceAndImage($form);
+		},
+
+		/**
+		 * Initialize price and image updates for variations
+		 */
+		initializeVariationPriceAndImage: function ($form) {
+			const $priceHtml = $(this.elements.modalContent).find('.rfs-ref-quick-view-price');
+			const mainSplide = $(this.elements.modalContent).find('#product-main-splide').data('splide');
+
+			// Store original data
+			if ($priceHtml.length) {
+				$priceHtml.data('original-html', $priceHtml.html());
+			}
+
+			$form.on('found_variation', (event, variation) => {
+				// Update price
+				if (variation.price_html && $priceHtml.length) {
+					let priceHtml = variation.price_html;
+					if (priceHtml && !priceHtml.includes('VAT') && !priceHtml.includes('tax_label')) {
+						priceHtml += ' <span class="tax_label">+VAT</span>';
+					}
+					$priceHtml.html(priceHtml);
+				}
+
+				// Update image if available
+				if (variation.image && variation.image.src && variation.image.src.length > 1) {
+					const $mainImg = $(this.elements.modalContent).find('#product-main-splide .splide__slide').first().find('img');
+					const $mainLink = $mainImg.closest('a');
+
+					if ($mainImg.length) {
+						// Store original if not stored
+						if (!$mainImg.data('original-src')) {
+							$mainImg.data('original-src', $mainImg.attr('src'));
+							$mainImg.data('original-srcset', $mainImg.attr('srcset'));
+							$mainImg.data('original-alt', $mainImg.attr('alt'));
+							if ($mainLink.length) {
+								$mainImg.data('original-href', $mainLink.attr('href'));
+							}
+						}
+
+						// Update image
+						$mainImg.attr('src', variation.image.src);
+						if (variation.image.srcset) {
+							$mainImg.attr('srcset', variation.image.srcset);
+						} else {
+							$mainImg.removeAttr('srcset');
+						}
+						if (variation.image.alt) $mainImg.attr('alt', variation.image.alt);
+
+						// Update lightbox link
+						if ($mainLink.length) {
+							if (variation.image.full_src) {
+								$mainLink.attr('href', variation.image.full_src);
+							} else {
+								$mainLink.attr('href', variation.image.src);
+							}
+						}
+					}
+				}
+			});
+
+			$form.on('reset_data', () => {
+				// Reset price
+				if ($priceHtml.length && $priceHtml.data('original-html')) {
+					$priceHtml.html($priceHtml.data('original-html'));
+				}
+
+				// Reset image
+				const $mainImg = $(this.elements.modalContent).find('#product-main-splide .splide__slide').first().find('img');
+				const $mainLink = $mainImg.closest('a');
+
+				if ($mainImg.length && $mainImg.data('original-src')) {
+					$mainImg.attr('src', $mainImg.data('original-src'));
+					$mainImg.attr('srcset', $mainImg.data('original-srcset') || '');
+					$mainImg.attr('alt', $mainImg.data('original-alt') || '');
+
+					if ($mainLink.length && $mainImg.data('original-href')) {
+						$mainLink.attr('href', $mainImg.data('original-href'));
+					}
+				}
 			});
 		},
 
