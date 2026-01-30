@@ -11,4 +11,5 @@ It will be processed by PostCSS to generate the final tailwind.css file.
 /* ATS Button Components */
 @layer components {
 	@import "tailwind/index";
+	@import "styles/checkout";
 }
