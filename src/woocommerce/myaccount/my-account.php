@@ -1,13 +1,21 @@
 <?php
 /**
- * My Account Page
+ * My Account page
  *
- * @package skylinewp-dev-child
+ * This template can be overridden by copying it to yourtheme/woocommerce/myaccount/my-account.php.
+ *
+ * HOWEVER, on occasion WooCommerce will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
+ * @see     https://woocommerce.com/document/template-structure/
+ * @package WooCommerce\Templates
+ * @version 3.5.0
  */
 
-if ( !defined( 'ABSPATH' ) ) {
-    exit;
-}
+defined( 'ABSPATH' ) || exit;
 ?>
 
 <div class="rfs-ref-my-account-wrapper w-full max-w-6xl mx-auto px-4 py-8">
@@ -16,7 +24,14 @@ if ( !defined( 'ABSPATH' ) ) {
     <div class="flex flex-col lg:flex-row gap-6">
 
         <!-- Sidebar Navigation -->
-        <?php wc_get_template( 'myaccount/navigation.php' ); ?>
+        <?php
+        /**
+         * My Account navigation.
+         *
+         * @since 2.6.0
+         */
+        do_action( 'woocommerce_account_navigation' );
+        ?>
 
         <!-- Main Content Area -->
         <div class="rfs-ref-account-content flex-grow">
@@ -24,6 +39,8 @@ if ( !defined( 'ABSPATH' ) ) {
                 <?php
                     /**
                      * My Account content.
+                     *
+                     * @since 2.6.0
                      */
                     do_action( 'woocommerce_account_content' );
                 ?>

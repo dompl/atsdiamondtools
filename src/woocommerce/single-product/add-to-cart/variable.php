@@ -4,9 +4,15 @@
  *
  * This template can be overridden by copying it to yourtheme/woocommerce/single-product/add-to-cart/variable.php.
  *
+ * HOWEVER, on occasion WooCommerce will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
  * @see https://woocommerce.com/document/template-structure/
  * @package WooCommerce\Templates
- * @version 6.1.0
+ * @version 9.6.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -35,19 +41,27 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 					<!-- Label Removed as requested -->
 					<div class="value relative">
 						<?php
-							wc_dropdown_variation_attribute_options( array(
-								'options'   => $options,
-								'attribute' => $attribute_name,
-								'product'   => $product,
-                                'class'     => 'hidden-original-select opacity-0 absolute w-0 h-0 pointer-events-none' // Hide but keep accessible? Or display:none via class.
-							) );
-                            // Also output the clear link hiddenly or standard way?
-                            // Standard WC usually puts it after the select.
+							wc_dropdown_variation_attribute_options(
+								array(
+									'options'   => $options,
+									'attribute' => $attribute_name,
+									'product'   => $product,
+									'class'     => 'hidden-original-select opacity-0 absolute w-0 h-0 pointer-events-none',
+								)
+							);
+							/**
+							 * Filters the reset variation button.
+							 *
+							 * @since 2.5.0
+							 *
+							 * @param string  $button The reset variation button HTML.
+							 */
+							// Note: Reset link is output below after all variations
 						?>
 
                         <!-- Flowbite Dropdown Trigger -->
-                        <button id="<?php echo esc_attr($dropdown_id); ?>_button"
-                                data-dropdown-toggle="<?php echo esc_attr($dropdown_id); ?>"
+                        <button id="<?php echo esc_attr( $dropdown_id ); ?>_button"
+                                data-dropdown-toggle="<?php echo esc_attr( $dropdown_id ); ?>"
                                 class="ats-dropdown-trigger text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center justify-between w-full"
                                 type="button">
                             <span class="dropdown-selected-text"><?php esc_html_e( 'Choose an option', 'woocommerce' ); ?></span>
@@ -57,8 +71,8 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
                         </button>
 
                         <!-- Flowbite Dropdown Menu -->
-                        <div id="<?php echo esc_attr($dropdown_id); ?>" class="z-20 hidden bg-ats-brand divide-y divide-gray-100 rounded-lg shadow w-full">
-                            <ul class="py-2 text-sm text-white dropdown-options-list" aria-labelledby="<?php echo esc_attr($dropdown_id); ?>_button">
+                        <div id="<?php echo esc_attr( $dropdown_id ); ?>" class="z-20 hidden bg-ats-brand divide-y divide-gray-100 rounded-lg shadow w-full">
+                            <ul class="py-2 text-sm text-white dropdown-options-list" aria-labelledby="<?php echo esc_attr( $dropdown_id ); ?>_button">
                                 <!-- Options will be populated by JS from the select -->
                             </ul>
                         </div>
@@ -67,25 +81,27 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 			<?php endforeach; ?>
 
             <div class="variation-reset-link hidden mt-2">
-                <?php echo wp_kses_post( apply_filters( 'woocommerce_reset_variations_link', '<a class="reset_variations text-xs text-red-600 underline" href="#">' . esc_html__( 'Clear selection', 'woocommerce' ) . '</a>' ) ); ?>
+                <?php echo wp_kses_post( apply_filters( 'woocommerce_reset_variations_link', '<a class="reset_variations text-xs text-red-600 underline" href="#" aria-label="' . esc_attr__( 'Clear options', 'woocommerce' ) . '">' . esc_html__( 'Clear selection', 'woocommerce' ) . '</a>' ) ); ?>
             </div>
 
 		</div>
+		<div class="reset_variations_alert screen-reader-text" role="alert" aria-live="polite" aria-relevant="all"></div>
+		<?php do_action( 'woocommerce_after_variations_table' ); ?>
+
 
 		<div class="single_variation_wrap">
 			<?php
 				/**
 				 * Hook: woocommerce_before_single_variation.
 				 */
-				   do_action( 'woocommerce_before_single_variation' );
+				do_action( 'woocommerce_before_single_variation' );
 
-                // Add flex wrapper logic via CSS or wrapper here.
-                // Since woocommerce_single_variation outputs the button, we can wrap it or style the button form if we can target it.
-                // The hook outputs `woocommerce_single_variation_add_to_cart_button`.
 				/**
 				 * Hook: woocommerce_single_variation. Used to output the cart button and placeholder for variation data.
+				 *
 				 * @since 2.4.0
-				 * @hooked woocommerce_single_variation - 10
+				 * @hooked woocommerce_single_variation - 10 Empty div for variation data.
+				 * @hooked woocommerce_single_variation_add_to_cart_button - 20 Qty and cart button.
 				 */
 				do_action( 'woocommerce_single_variation' );
 
