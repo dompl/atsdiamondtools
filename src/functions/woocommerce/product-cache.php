@@ -107,6 +107,13 @@ function ats_clear_product_cache($product_id) {
         )
     );
 
+    // Also clear shop query caches (product lists)
+    $wpdb->query(
+        "DELETE FROM {$wpdb->options}
+        WHERE option_name LIKE '_transient_ats_%'
+        AND option_name NOT LIKE '_transient_ats_product_%'"
+    );
+
     // Clear object cache if enabled
     if (function_exists('wp_cache_delete_multiple')) {
         wp_cache_flush();

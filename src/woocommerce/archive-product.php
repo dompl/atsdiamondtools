@@ -38,8 +38,8 @@ $price_range = ats_get_price_range_for_products( $current_category );
 $sorting_options    = ats_get_sorting_options();
 $current_sort_label = ats_get_current_sorting_label( $current_orderby );
 
-// Get products per page - will load 12 initially, then 8 at a time on scroll.
-$products_per_page = 12;
+// Get products per page - will load 8 initially, then 4 at a time on scroll.
+$products_per_page = 8;
 ?>
 
 <div class="rfs-ref-shop-page bg-white min-h-screen">

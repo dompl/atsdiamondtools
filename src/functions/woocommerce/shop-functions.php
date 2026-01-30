@@ -145,12 +145,15 @@ function ats_get_price_range_for_products( $category_id = 0 ) {
  */
 function ats_render_product_grid( $args = array() ) {
 	$defaults = array(
-		'post_type'      => 'product',
-		'post_status'    => 'publish',
-		'posts_per_page' => 12,
-		'paged'          => 1,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
+		'post_type'              => 'product',
+		'post_status'            => 'publish',
+		'posts_per_page'         => 12,
+		'paged'                  => 1,
+		'orderby'                => 'date',
+		'order'                  => 'DESC',
+		'no_found_rows'          => true,  // Skip total count query for speed
+		'update_post_meta_cache' => true,  // We need meta data (prices, etc.)
+		'update_post_term_cache' => true,  // We need taxonomy data (categories)
 	);
 
 	$query_args = wp_parse_args( $args, $defaults );

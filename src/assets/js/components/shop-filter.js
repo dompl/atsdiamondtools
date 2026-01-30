@@ -301,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 
-		// Load 12 initially, then 8 at a time for infinite scroll
-		formData.append('per_page', loadMore ? 8 : 12);
+		// Load 8 initially, then 4 at a time for infinite scroll (faster perceived performance)
+		formData.append('per_page', loadMore ? 4 : 8);
 
 		try {
 			const response = await fetch(themeData.ajax_url, {
