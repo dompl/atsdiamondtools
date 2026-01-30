@@ -2737,6 +2737,23 @@ input:checked + .toggle-bg{
   --tw-text-opacity: 1;
   color: rgb(153 27 27 / var(--tw-text-opacity, 1));
 }
+.woocommerce-checkout .crafty_billing,
+  .woocommerce-checkout .crafty_shipping{
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+.woocommerce-checkout .crafty_billing.form-row-first, .woocommerce-checkout .crafty_billing.form-row-last,
+  .woocommerce-checkout .crafty_shipping.form-row-first,
+  .woocommerce-checkout .crafty_shipping.form-row-last{
+  width: auto;
+  flex: 1 1 0%;
+}
+.woocommerce-checkout .crafty_billing label,
+  .woocommerce-checkout .crafty_shipping label{
+  font-weight: 700;
+}
 .woocommerce-checkout .crafty_billing input.input-text,
   .woocommerce-checkout .crafty_shipping input.input-text{
   width: 100%;
@@ -2771,15 +2788,14 @@ input:checked + .toggle-bg{
 }
 .woocommerce-checkout #billing_cp_button,
   .woocommerce-checkout #shipping_cp_button{
-  width: 100%;
   --tw-bg-opacity: 1;
-  background-color: rgb(255 217 2 / var(--tw-bg-opacity, 1));
+  background-color: rgb(55 55 55 / var(--tw-bg-opacity, 1));
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   --tw-text-opacity: 1;
-  color: rgb(55 55 55 / var(--tw-text-opacity, 1));
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
   border-radius: 0.5rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -2787,21 +2803,27 @@ input:checked + .toggle-bg{
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
+  cursor: pointer;
+  border-width: 0px;
 }
 .woocommerce-checkout #billing_cp_button:hover,
   .woocommerce-checkout #shipping_cp_button:hover{
-  --tw-bg-opacity: 0.9;
+  --tw-bg-opacity: 1;
+  background-color: rgb(87 67 78 / var(--tw-bg-opacity, 1));
 }
 .woocommerce-checkout #billing_cp_button,
-  .woocommerce-checkout #shipping_cp_button{
-  cursor: pointer;
-  border-width: 0px;
+  .woocommerce-checkout #shipping_cp_button {
     min-height: 48px !important;
-    background-color: #FFD902 !important;
-    color: #373737 !important;
+    white-space: nowrap !important;
+    background-color: #373737 !important;
+    color: white !important;
     border: 0 !important;
     border-radius: 0.5rem !important;
-}
+  }
+.woocommerce-checkout #billing_cp_button:hover,
+  .woocommerce-checkout #shipping_cp_button:hover {
+    background-color: #57434E !important;
+  }
 .woocommerce-checkout .crafty_billing select,
   .woocommerce-checkout .crafty_shipping select{
   width: 100%;
@@ -3648,6 +3670,9 @@ input:checked + .toggle-bg{
 }
 .w-\[85\%\]{
   width: 85%;
+}
+.w-auto{
+  width: auto;
 }
 .w-fit{
   width: -moz-fit-content;
@@ -5436,9 +5461,6 @@ input:checked + .toggle-bg{
 .hover\:bg-yellow-500:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(234 179 8 / var(--tw-bg-opacity, 1));
-}
-.hover\:bg-opacity-90:hover{
-  --tw-bg-opacity: 0.9;
 }
 .hover\:text-\[\#222222\]:hover{
   --tw-text-opacity: 1;
