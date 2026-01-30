@@ -12,15 +12,3 @@
 
 defined( 'ABSPATH' ) || exit;
 
-?>
-/*
-<script type="text/template" id="tmpl-variation-template">
-	<div class="woocommerce-variation-description hidden">{{{ data.variation.variation_description }}}</div>
-	<div class="woocommerce-variation-price hidden">{{{ data.variation.price_html }}}</div>
-	<div class="woocommerce-variation-availability hidden">{{{ data.variation.availability_html }}}</div>
-</script>
-<script type="text/template" id="tmpl-unavailable-variation-template">
-	<p role="alert"><?php esc_html_e( 'Sorry, this product is unavailable. Please choose a different combination.', 'woocommerce' ); ?></p>
-</script>
-*/
-

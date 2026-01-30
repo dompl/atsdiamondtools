@@ -11,7 +11,59 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Ensure attribute taxonomies are registered early
+ *
+ * This hook registers all product attribute taxonomies early in the WordPress
+ * init process, before they're checked by the filter below.
+ */
+add_action( 'init', function() {
+	global $wpdb;
+
+	// Get all attributes from database
+	$attributes = $wpdb->get_results(
+		"SELECT * FROM {$wpdb->prefix}woocommerce_attribute_taxonomies ORDER BY attribute_name ASC"
+	);
+
+	if ( empty( $attributes ) ) {
+		return;
+	}
+
+	// Register each attribute taxonomy
+	foreach ( $attributes as $attribute ) {
+		$taxonomy_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
+
+		// Only register if not already registered
+		if ( ! taxonomy_exists( $taxonomy_name ) ) {
+			register_taxonomy(
+				$taxonomy_name,
+				apply_filters( 'woocommerce_taxonomy_objects_' . $taxonomy_name, array( 'product' ) ),
+				apply_filters( 'woocommerce_taxonomy_args_' . $taxonomy_name, array(
+					'labels'       => array(
+						'name' => $attribute->attribute_label,
+					),
+					'hierarchical' => false,
+					'show_ui'      => false,
+					'query_var'    => true,
+					'rewrite'      => false,
+					'public'       => (bool) $attribute->attribute_public,
+					'show_in_nav_menus' => (bool) $attribute->attribute_public,
+					'capabilities' => array(
+						'manage_terms' => 'manage_product_terms',
+						'edit_terms'   => 'edit_product_terms',
+						'delete_terms' => 'delete_product_terms',
+						'assign_terms' => 'edit_products',
+					),
+				))
+			);
+		}
+	}
+}, 5 ); // Priority 5 to run early
+
+/**
  * Fix WP_Error in ProductFilterAttribute block
+ *
+ * TEMPORARILY DISABLED - This filter was blocking all attributes
+ * because taxonomies weren't registered at the time the filter ran.
  *
  * This prevents the error "Object of class WP_Error could not be converted to int"
  * that occurs in ProductFilterAttribute.php when a product attribute taxonomy
@@ -20,6 +72,7 @@ if ( !defined( 'ABSPATH' ) ) {
  * The error happens because wp_count_terms() can return WP_Error, but the code
  * tries to convert it to int without checking.
  */
+/*
 add_filter( 'woocommerce_attribute_taxonomies', function( $taxonomies ) {
 	if ( empty( $taxonomies ) || !is_array( $taxonomies ) ) {
 		return $taxonomies;
@@ -38,14 +91,12 @@ add_filter( 'woocommerce_attribute_taxonomies', function( $taxonomies ) {
 		// Check if the taxonomy actually exists in WordPress
 		if ( !taxonomy_exists( $taxonomy_name ) ) {
 			// Log suppressed to avoid flooding debug.log with "pa_variants-XXX" issues from migration
-			/*
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( sprintf(
 					'[WooCommerce] Invalid product attribute taxonomy "%s" removed from attributes list. The taxonomy may need to be re-registered.',
 					$taxonomy_name
 				) );
 			}
-			*/
 			return false;
 		}
 
@@ -54,6 +105,7 @@ add_filter( 'woocommerce_attribute_taxonomies', function( $taxonomies ) {
 
 	return array_values( $validated_taxonomies );
 }, 10, 1 );
+*/
 
 /**
  * Additional safety: Validate taxonomies before term counting
