@@ -262,7 +262,7 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 					<span><?php echo esc_html( $category_text ); ?></span>
 				</div>
 
-				<h3 class="rfs-ref-product-list-title text-sm lg:text-lg font-bold text-neutral-700 leading-tight lg:leading-6 mb-2 lg:mb-3 line-clamp-2">
+				<h3 class="rfs-ref-product-list-title text-sm lg:text-base font-bold text-neutral-700 leading-tight lg:leading-6 mb-2 lg:mb-2 line-clamp-2">
 					<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-title-link hover:text-black">
 						<?php echo esc_html( $product_title ); ?>
 					</a>

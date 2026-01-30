@@ -495,6 +495,15 @@ function initCategoryToggle() {
 function initCustomDropdowns() {
 	const $form = $('form.variations_form');
 
+	// Import Flowbite Dropdown for manual initialization
+	let Dropdown;
+	if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
+		Dropdown = window.Flowbite.Dropdown;
+	}
+
+	// Store dropdown instances
+	const dropdownInstances = new Map();
+
 	// Helper to refresh options from select
 	const refreshDropdown = ($wrapper) => {
 		const $select = $wrapper.find('select');
@@ -593,6 +602,31 @@ function initCustomDropdowns() {
 		refreshDropdown($(this));
 	});
 
+	// Initialize Flowbite dropdowns manually
+	setTimeout(() => {
+		$('.flowbite-dropdown-wrapper').each(function () {
+			const $wrapper = $(this);
+			const $button = $wrapper.find('[data-dropdown-toggle]');
+			const $menu = $wrapper.find('[id^="dropdown_"]');
+
+			if ($button.length && $menu.length) {
+				const triggerEl = $button[0];
+				const targetEl = $menu[0];
+
+				// Initialize Flowbite Dropdown
+				if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
+					const dropdown = new window.Flowbite.Dropdown(targetEl, triggerEl, {
+						placement: 'bottom',
+						triggerType: 'click',
+						offsetSkidding: 0,
+						offsetDistance: 10,
+					});
+					dropdownInstances.set(triggerEl, dropdown);
+				}
+			}
+		});
+	}, 100);
+
 	// Listen for WC updates
 	$form.on('woocommerce_update_variation_values', function () {
 		$('.flowbite-dropdown-wrapper').each(function () {
@@ -609,8 +643,12 @@ function initCustomDropdowns() {
 		const $select = $wrapper.find('select');
 		const $btn = $wrapper.find('.ats-dropdown-trigger');
 
-		// Logic to close dropdown (simulate click on trigger if using Flowbite toggle)
-		$btn.click();
+		// Close dropdown using Flowbite instance
+		const triggerEl = $btn[0];
+		if (dropdownInstances.has(triggerEl)) {
+			const dropdown = dropdownInstances.get(triggerEl);
+			dropdown.hide();
+		}
 
 		// Update Select
 		$select.val(value).trigger('change');
