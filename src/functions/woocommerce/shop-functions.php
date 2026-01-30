@@ -231,12 +231,18 @@ function ats_render_product_grid( $args = array() ) {
 
 	$products_query = new WP_Query( $query_args );
 
+	// Determine display type based on view mode
+	$display_type = '1'; // Default: grid view (vertical cards)
+	if ( ! empty( $args['view_mode'] ) && $args['view_mode'] === 'list' ) {
+		$display_type = '2'; // List view (horizontal cards)
+	}
+
 	ob_start();
 
 	if ( $products_query->have_posts() ) {
 		while ( $products_query->have_posts() ) {
 			$products_query->the_post();
-			echo do_shortcode( '[ats_product id="' . get_the_ID() . '" display="1"]' );
+			echo do_shortcode( '[ats_product id="' . get_the_ID() . '" display="' . $display_type . '"]' );
 		}
 		wp_reset_postdata();
 	} else {

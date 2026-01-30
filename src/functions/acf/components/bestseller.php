@@ -120,6 +120,10 @@ function component_bestseller_html( string $output, string $layout ): string {
         return ''; // Don't display if we don't have 8 products
     }
 
+    // Split products: first 2 for vertical cards (LEFT), last 6 for horizontal cards (RIGHT)
+    $vertical_product_ids   = array_slice( $product_ids, 0, 2 );
+    $horizontal_product_ids = array_slice( $product_ids, 2, 6 );
+
     // Background class
     $bg_class = 'bg-' . $bg_color;
 
@@ -144,12 +148,22 @@ function component_bestseller_html( string $output, string $layout ): string {
                 </div>
             </div>
 
-            <!-- DESKTOP VIEW (>= LG): All 8 products as vertical cards in grid -->
-            <div class="rfs-ref-bestseller-desktop hidden lg:block">
-                <div class="grid grid-cols-2 xl:grid-cols-4 gap-6">
-                    <?php foreach ( $product_ids as $product_id ) :
+            <!-- DESKTOP VIEW (>= LG): Original layout - 2 vertical left + 6 horizontal right -->
+            <div class="rfs-ref-bestseller-desktop hidden lg:flex lg:flex-row gap-6 w-full">
+                <!-- LEFT: 2 Vertical Products in ONE ROW (side by side) - 40% width -->
+                <div class="rfs-ref-bestseller-left w-full lg:w-[40%] grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <?php foreach ( $vertical_product_ids as $product_id ) :
                         echo do_shortcode( '[ats_product id="' . $product_id . '" display="1"]' );
                     endforeach; ?>
+                </div>
+
+                <!-- RIGHT: 6 Horizontal Products in 2x3 Grid (2 columns, 3 rows) - 60% width -->
+                <div class="rfs-ref-bestseller-right w-full lg:w-[60%]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <?php foreach ( $horizontal_product_ids as $product_id ) :
+                            echo do_shortcode( '[ats_product id="' . $product_id . '" display="3"]' );
+                        endforeach; ?>
+                    </div>
                 </div>
             </div>
 

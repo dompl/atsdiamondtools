@@ -42,6 +42,7 @@ function ats_handle_filter_products() {
 	$paged           = isset( $_POST['paged'] ) ? absint( $_POST['paged'] ) : 1;
 	$per_page        = isset( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 12;
 	$favourites_only = isset( $_POST['favourites_only'] ) && $_POST['favourites_only'] === '1';
+	$view_mode       = isset( $_POST['view_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['view_mode'] ) ) : 'grid';
 
 	// Validate per_page to prevent abuse.
 	if ( $per_page < 1 || $per_page > 48 ) {
@@ -86,6 +87,11 @@ function ats_handle_filter_products() {
 			$favorite_ids_string      = sanitize_text_field( wp_unslash( $_POST['favorite_ids'] ) );
 			$query_args['favorite_ids'] = array_map( 'absint', explode( ',', $favorite_ids_string ) );
 		}
+	}
+
+	// Add view mode.
+	if ( ! empty( $view_mode ) ) {
+		$query_args['view_mode'] = $view_mode;
 	}
 
 	// Render products HTML.

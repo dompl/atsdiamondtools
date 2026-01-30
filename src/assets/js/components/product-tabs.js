@@ -17,7 +17,6 @@ export function initProductTabs() {
 	const tabsContent = document.getElementById('product-tabs-content');
 
 	if (!tabsList || !tabsContent) {
-		console.log('Product tabs: Elements not found');
 		return;
 	}
 
@@ -25,7 +24,6 @@ export function initProductTabs() {
 	const tabButtons = tabsList.querySelectorAll('[data-tabs-target]');
 
 	if (tabButtons.length === 0) {
-		console.log('Product tabs: No tab buttons found');
 		return;
 	}
 
@@ -50,11 +48,9 @@ export function initProductTabs() {
 		activeClasses: 'text-ats-yellow border-ats-yellow',
 		inactiveClasses: 'text-gray-500 hover:text-ats-brand hover:border-ats-brand border-transparent',
 		onShow: (tab) => {
-			console.log('Product tabs: Tab shown', tab?.id || tab?.targetEl?.id || 'unknown');
 		},
 	};
 
 	const tabs = new Tabs(tabsList, tabsArray, options);
 
-	console.log('Product tabs: Initialized', tabsArray.length, 'tabs');
 }

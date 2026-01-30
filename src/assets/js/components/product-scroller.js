@@ -10,29 +10,24 @@ import { Grid } from '@splidejs/splide-extension-grid';
 document.addEventListener('DOMContentLoaded', function () {
 	const productWrappers = document.querySelectorAll('.rfs-ref-product-scroller-wrapper');
 
-	console.log('Product Scroller: Found', productWrappers.length, 'wrappers');
 
 	if (productWrappers.length === 0) {
-		console.log('Product Scroller: No wrappers found');
 		return;
 	}
 
 	productWrappers.forEach((wrapper, index) => {
 		const carouselElement = wrapper.querySelector('.rfs-ref-product-carousel');
-		console.log('Product Scroller', index, ':', carouselElement ? 'Found carousel' : 'No carousel');
 
 		if (!carouselElement) return;
 
 		const wrapperId = wrapper.getAttribute('id');
 		if (!wrapperId) {
-			console.log('Product Scroller', index, ': No wrapper ID');
 			return;
 		}
 
 		// Get the number of rows from the wrapper data attribute or default to 2
 		const rowsCount = wrapper.dataset.rows ? parseInt(wrapper.dataset.rows) : 2;
 
-		console.log('Product Scroller', index, ': Initializing with', rowsCount, 'rows');
 
 		const carousel = new Splide(carouselElement, {
 			type: 'slide',
@@ -103,16 +98,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			},
 		});
 
-		console.log('Product Scroller', index, ': Initializing with config:', {
-			rows: rowsCount,
-			cols: 5,
-			slidesCount: carouselElement.querySelectorAll('.splide__slide').length,
-		});
-
 		// Mount with Grid extension
 		try {
 			carousel.mount({ Grid });
-			console.log('Product Scroller', index, ': Successfully mounted');
 
 			// Connect custom navigation buttons
 			// const prevButton = wrapper.querySelector('.rfs-ref-prev-arrow');
@@ -134,9 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			}
 
-			console.log('Product Scroller', index, ': Navigation buttons connected');
 		} catch (error) {
-			console.error('Product Scroller', index, ': Failed to mount', error);
 		}
 	});
 });

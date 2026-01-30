@@ -6,40 +6,29 @@
 
 // Initialize banner functionality for each banner instance on the page
 document.addEventListener('DOMContentLoaded', function () {
-	console.log('Banner: DOMContentLoaded fired');
 
 	// Find all banner carousel containers (not sidebar)
 	const bannerContainers = document.querySelectorAll('.rfs-ref-banner-container:not(.rfs-ref-banner-sidebar)');
-	console.log('Banner: Found', bannerContainers.length, 'carousel containers');
 
 	bannerContainers.forEach(function (bannerContainer, index) {
-		console.log('Banner', index, ': Initializing');
 		initBanner(bannerContainer);
 	});
 
 	// Separately initialize category navigation sidebars
 	const categoryNavs = document.querySelectorAll('.rfs-ref-banner-sidebar');
-	console.log('Banner: Found', categoryNavs.length, 'category navigation sidebars');
 
 	categoryNavs.forEach(function (sidebar, index) {
-		console.log('Category Nav', index, ': Initializing');
 		initCategoryNav(sidebar);
 	});
 });
 
 // Initialize category navigation separately
 function initCategoryNav(sidebar) {
-	console.log('Category Nav: Initializing sidebar');
 
 	const categoryBtn = sidebar.querySelector('.rfs-ref-category-btn');
 	const categoryList = sidebar.querySelector('.rfs-ref-category-list');
 	const categoryChevron = sidebar.querySelector('.rfs-ref-category-chevron');
 
-	console.log('Category Nav: Elements found?', {
-		btn: !!categoryBtn,
-		list: !!categoryList,
-		chevron: !!categoryChevron
-	});
 
 	// Check if mobile (window width < 1024px for lg breakpoint)
 	function isMobile() {
@@ -52,7 +41,6 @@ function initCategoryNav(sidebar) {
 			categoryList.classList.remove('grid-rows-1');
 			categoryList.classList.add('grid-rows-0');
 			categoryChevron.classList.remove('rotate-180');
-			console.log('Category Nav: Closed on mobile');
 		}
 	}
 
@@ -65,36 +53,28 @@ function initCategoryNav(sidebar) {
 			e.preventDefault();
 			e.stopPropagation();
 
-			console.log('Category Nav: Button clicked');
-			console.log('Category Nav: Is mobile?', isMobile());
 
 			// Check if desktop toggle is allowed via data attribute
 			const allowDesktopToggle = categoryBtn.getAttribute('data-allow-desktop-toggle') === 'true';
-			console.log('Category Nav: Allow desktop toggle?', allowDesktopToggle);
 
 			// Only allow toggle if mobile OR explicit desktop toggle allowed
 			if (!isMobile() && !allowDesktopToggle) {
-				console.log('Category Nav: Toggle blocked - not mobile and desktop toggle not allowed');
 				return;
 			}
 
 			const isOpen = categoryList.classList.contains('grid-rows-1');
-			console.log('Category Nav: Is currently open?', isOpen);
 
 			if (isOpen) {
 				categoryList.classList.remove('grid-rows-1');
 				categoryList.classList.add('grid-rows-0');
 				categoryChevron.classList.remove('rotate-180');
-				console.log('Category Nav: Closing');
 			} else {
 				categoryList.classList.remove('grid-rows-0');
 				categoryList.classList.add('grid-rows-1');
 				categoryChevron.classList.add('rotate-180');
-				console.log('Category Nav: Opening');
 			}
 		});
 	} else {
-		console.error('Category Nav: Elements not found!');
 	}
 
 	// Resize handler
@@ -108,7 +88,6 @@ function initCategoryNav(sidebar) {
 }
 
 function initBanner(bannerContainer) {
-	console.log('Banner: Initializing carousel');
 
 	// Get elements scoped to this banner instance
 	const prevBtn = bannerContainer.querySelector('.rfs-ref-prev-btn');

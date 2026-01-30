@@ -428,12 +428,10 @@
 		init: function () {
 			// Check if themeData is available
 			if (typeof themeData === 'undefined') {
-				console.error('Mini Cart: themeData not found');
 				return;
 			}
 
 			if (!themeData.mini_cart_nonce) {
-				console.error('Mini Cart: mini_cart_nonce not found in themeData');
 				return;
 			}
 
@@ -511,12 +509,10 @@
 						self.updateAllInstances(response.data);
 						MiniCartModal.updateContent(response.data);
 					} else {
-						console.error('Mini cart error:', response.data);
 						self.showAllEmpty();
 					}
 				},
 				error: function (xhr, status, error) {
-					console.error('Mini cart AJAX error:', error);
 					self.showAllEmpty();
 				},
 				complete: function () {
@@ -595,11 +591,9 @@
 						// Update all mini cart instances
 						self.updateAllInstances(response.data);
 					} else {
-						console.error('Update quantity error:', response.data);
 					}
 				},
 				error: function (xhr, status, error) {
-					console.error('Update quantity AJAX error:', error);
 				},
 				complete: function () {
 					itemEl.classList.remove('opacity-50', 'pointer-events-none');
@@ -653,7 +647,6 @@
 							}
 						}, 300);
 					} else {
-						console.error('Remove item error:', response.data);
 						// Restore item visibility
 						itemEl.style.opacity = '1';
 						itemEl.style.transform = 'translateX(0)';
@@ -661,7 +654,6 @@
 					}
 				},
 				error: function (xhr, status, error) {
-					console.error('Remove item AJAX error:', error);
 					// Restore item visibility
 					itemEl.style.opacity = '1';
 					itemEl.style.transform = 'translateX(0)';

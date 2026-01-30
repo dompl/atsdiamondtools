@@ -58,7 +58,6 @@ import $ from 'jquery';
 					return JSON.parse(stored).map((id) => parseInt(id));
 				}
 			} catch (e) {
-				console.warn('Error reading favorites from localStorage:', e);
 			}
 			return [];
 		},
@@ -70,7 +69,6 @@ import $ from 'jquery';
 			try {
 				localStorage.setItem(STORAGE_KEY, JSON.stringify(this.userFavorites));
 			} catch (e) {
-				console.warn('Error saving favorites to localStorage:', e);
 			}
 		},
 
@@ -432,7 +430,7 @@ import $ from 'jquery';
 
 			// Create message element with inline styles for reliability
 			const $message = $(`
-				<div class="ats-favorite-message" style="position: fixed; top: 80px; right: 16px; z-index: 9999; max-width: 320px; padding: 16px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background-color: ${bgColor}; border: 1px solid ${borderColor}; color: ${textColor}; animation: slideInRight 0.3s ease-out;">
+				<div class="ats-favorite-message" style="position: fixed; top: 20px; right: 16px; z-index: 9999; max-width: 320px; padding: 16px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background-color: ${bgColor}; border: 1px solid ${borderColor}; color: ${textColor}; animation: slideInRight 0.3s ease-out;">
 					<div style="display: flex; align-items: flex-start; gap: 12px;">
 						<svg style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;" fill="currentColor" viewBox="0 0 20 20">
 							${

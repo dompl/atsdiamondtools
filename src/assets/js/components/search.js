@@ -37,16 +37,13 @@ function initSearchInstance(container) {
 
 	// Check if atsSearch is localized
 	if (typeof atsSearch === 'undefined') {
-		console.error(`ATS Search (${context}): Missing localized data (atsSearch)`);
 		return;
 	}
 
 	if (!atsSearch.rest_url) {
-		console.error(`ATS Search (${context}): rest_url not found in atsSearch`);
 		return;
 	}
 
-	console.log(`ATS Search (${context}): Initialized with REST URL:`, atsSearch.rest_url);
 
 	// State management for this instance
 	const state = {
@@ -71,7 +68,6 @@ function initSearchInstance(container) {
 
 	// Validate required elements
 	if (!searchInput) {
-		console.error(`ATS Search (${context}): Search input not found`);
 		return;
 	}
 
@@ -241,11 +237,9 @@ function initSearchInstance(container) {
 				if (!append) {
 					showNoResults();
 				}
-				console.error('Search error:', result.message || 'Unknown error');
 			}
 		} catch (error) {
 			hideLoading();
-			console.error('Search request failed:', error);
 			if (!append) {
 				showNoResults();
 			}
@@ -390,11 +384,9 @@ export function initATSSearch() {
 	const searchContainers = document.querySelectorAll('[data-ats-search]');
 
 	if (searchContainers.length === 0) {
-		console.log('ATS Search: No search containers found on page');
 		return;
 	}
 
-	console.log(`ATS Search: Found ${searchContainers.length} search container(s)`);
 
 	// Initialize each search container
 	searchContainers.forEach((container) => {
@@ -414,9 +406,6 @@ export function initATSSearch() {
 		if (!isHidden) {
 			initSearchInstance(container);
 		} else {
-			console.log(
-				`ATS Search: Skipping hidden container (${container.dataset.searchContext || 'unknown'})`
-			);
 		}
 	});
 }

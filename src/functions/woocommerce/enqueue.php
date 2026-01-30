@@ -95,7 +95,8 @@ add_action( 'wp_enqueue_scripts', function () {
 
     // Remove WooCommerce frontend scripts (we'll implement custom ones as needed).
     wp_dequeue_script( 'wc-add-to-cart' );
-    // wp_dequeue_script( 'wc-add-to-cart-variation' ); // Needed for variable products
+    // Keep variation script for product quick view on all pages
+    // wp_dequeue_script( 'wc-add-to-cart-variation' ); // Needed for variable products and quick view
     wp_dequeue_script( 'wc-cart' );
     wp_dequeue_script( 'wc-cart-fragments' );
 
@@ -219,6 +220,23 @@ add_action( 'wp_enqueue_scripts', function () {
         ]
     );
 }, 100 );
+
+/**
+ * Enqueue variation script globally for quick view modal
+ * This ensures dropdowns work in the quick view popup on all pages
+ */
+add_action( 'wp_enqueue_scripts', function() {
+    if ( !class_exists( 'WooCommerce' ) ) {
+        return;
+    }
+
+    // Ensure wp-util is loaded (required dependency for variation forms)
+    wp_enqueue_script( 'wp-util' );
+
+    // Enqueue globally for quick view functionality (works on any page)
+    // WooCommerce will automatically handle localization when the script is enqueued
+    wp_enqueue_script( 'wc-add-to-cart-variation' );
+}, 10 );
 
 /**
  * Note: WooCommerce's wc-checkout script is kept on checkout pages (see line 108-111 above).

@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageContainer = newsletterForm.querySelector('.rfs-ref-newsletter-message');
 
     if (!emailInput || !submitButton) {
-        console.error('Newsletter form elements not found');
         return;
     }
 
@@ -107,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const nonce = newsletterForm.dataset.nonce;
 
         if (!nonce) {
-            console.error('Newsletter form nonce is missing');
             showMessage('Security check failed. Please refresh the page.', 'error');
             return;
         }
@@ -135,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage(data.data.message || 'An error occurred. Please try again.', 'error');
             }
         } catch (error) {
-            console.error('Newsletter subscription error:', error);
             showMessage('Connection error. Please check your internet and try again.', 'error');
         } finally {
             setLoading(false);

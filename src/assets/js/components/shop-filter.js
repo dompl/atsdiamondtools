@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	const productsContainerEl = document.querySelector('.rfs-ref-products-container');
 	const initialCategory = productsContainerEl ? parseInt(productsContainerEl.dataset.currentCategory) || 0 : 0;
 
+	// Get saved view mode from localStorage or default to grid
+	const savedViewMode = localStorage.getItem('ats_product_view_mode') || 'grid';
+
 	// Current filter state
 	let currentFilters = {
 		category: initialCategory,
@@ -47,7 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		max_price: priceSliderMax ? parseInt(priceSliderMax.max) : 1000,
 		orderby: 'default',
 		paged: 1,
-		favourites_only: false
+		favourites_only: false,
+		view_mode: savedViewMode
 	};
 
 	/**
@@ -110,6 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
 						}, index * 50);
 					}
 				});
+
+				// Re-initialize product quick view for newly appended products
+				reinitializeQuickView();
 			} else {
 				// Fade out existing products first
 				const existingProducts = productsContainer.children;
@@ -137,11 +144,13 @@ document.addEventListener('DOMContentLoaded', function() {
 							product.style.transform = 'translateY(0)';
 						}, index * 30);
 					});
+
+					// Re-initialize product quick view after products are replaced
+					reinitializeQuickView();
 				}, fadeOutDuration);
 			}
 
-			// Re-initialize product quick view for new products
-			reinitializeQuickView();
+			// Reinitialize moved inside conditional blocks to ensure DOM is updated
 		}
 	}
 
@@ -279,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		formData.append('orderby', currentFilters.orderby);
 		formData.append('paged', currentFilters.paged);
 		formData.append('favourites_only', currentFilters.favourites_only ? '1' : '0');
+		formData.append('view_mode', currentFilters.view_mode);
 
 		// For non-logged-in users, send localStorage favorites
 		if (currentFilters.favourites_only && !themeData.is_user_logged_in) {
@@ -288,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
 					formData.append('favorite_ids', localFavorites.join(','));
 				}
 			} catch (e) {
-				console.warn('Error reading favorites from localStorage:', e);
 			}
 		}
 
@@ -330,10 +339,8 @@ document.addEventListener('DOMContentLoaded', function() {
 					}
 				}
 			} else {
-				console.error('Filter error:', data.data ? data.data.message : 'Unknown error');
 			}
 		} catch (error) {
-			console.error('Filter AJAX error:', error);
 		} finally {
 			hideLoading();
 			isLoadingMore = false;
@@ -583,6 +590,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			// Filter products
 			filterProducts({ favourites_only: newState });
+		});
+	}
+
+	/**
+	 * View Toggle Functionality (Grid/List View)
+	 */
+	const viewToggleBtn = document.querySelector('.rfs-ref-toggle-view-btn');
+	const productsGrid = document.querySelector('.rfs-ref-products-grid');
+	const gridIcon = document.querySelector('.rfs-ref-grid-icon');
+	const listIcon = document.querySelector('.rfs-ref-list-icon');
+	const viewLabel = document.querySelector('.rfs-ref-view-label');
+
+	if (viewToggleBtn && productsGrid && gridIcon && listIcon && viewLabel) {
+		// Get saved view mode from localStorage or default to grid
+		let currentViewMode = localStorage.getItem('ats_product_view_mode') || 'grid';
+
+		// Apply saved view mode on page load
+		function applyViewMode(mode) {
+			if (mode === 'list') {
+				// List view: 1 column on mobile, 2 columns on desktop
+				productsGrid.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-2', 'xl:grid-cols-4', 'justify-items-center');
+				productsGrid.classList.add('grid-cols-1', 'lg:grid-cols-2', 'gap-6');
+				gridIcon.classList.add('hidden');
+				listIcon.classList.remove('hidden');
+				viewLabel.textContent = 'Grid View';
+				viewToggleBtn.dataset.viewMode = 'list';
+
+				// Replace all product cards with list view (display="2")
+				const productCards = productsGrid.querySelectorAll('[data-product-id]');
+				productCards.forEach(function(card) {
+					const productId = card.dataset.productId;
+					// We'll need to reload products in list view via AJAX
+					card.dataset.needsReload = 'true';
+				});
+
+				// Trigger a filter to reload products in list view
+				filterProducts({ view_mode: 'list' });
+			} else {
+				// Grid view: responsive grid, use display="1" (vertical cards)
+				productsGrid.classList.remove('grid-cols-1', 'lg:grid-cols-2', 'gap-6');
+				productsGrid.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-2', 'xl:grid-cols-4', 'justify-items-center', 'gap-3');
+				gridIcon.classList.remove('hidden');
+				listIcon.classList.add('hidden');
+				viewLabel.textContent = 'List View';
+				viewToggleBtn.dataset.viewMode = 'grid';
+
+				// Trigger a filter to reload products in grid view
+				if (currentViewMode === 'list') {
+					filterProducts({ view_mode: 'grid' });
+				}
+			}
+			currentViewMode = mode;
+			localStorage.setItem('ats_product_view_mode', mode);
+		}
+
+		// Initialize with saved view mode
+		applyViewMode(currentViewMode);
+
+		// Toggle view on button click
+		viewToggleBtn.addEventListener('click', function() {
+			const newMode = currentViewMode === 'grid' ? 'list' : 'grid';
+			applyViewMode(newMode);
 		});
 	}
 

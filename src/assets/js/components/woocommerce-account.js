@@ -88,21 +88,18 @@ function initSocialLogins() {
 
 	if (googleBtn) {
 		googleBtn.addEventListener('click', function () {
-			console.log('Google login clicked - integrate with WordPress social login plugin');
 			// This will be handled by the social login plugin
 		});
 	}
 
 	if (facebookBtn) {
 		facebookBtn.addEventListener('click', function () {
-			console.log('Facebook login clicked - integrate with WordPress social login plugin');
 			// This will be handled by the social login plugin
 		});
 	}
 
 	if (appleBtn) {
 		appleBtn.addEventListener('click', function () {
-			console.log('Apple login clicked - integrate with WordPress social login plugin');
 			// This will be handled by the social login plugin
 		});
 	}
@@ -139,15 +136,8 @@ function initOrderFilters() {
 	const orderRows = document.querySelectorAll('.rfs-ref-order-row');
 
 	// Debug logging
-	console.log('Order filters initialized');
-	console.log('Found order rows:', orderRows.length);
-	console.log('Status filter:', statusFilter);
-	console.log('Start date filter:', startDateFilter);
-	console.log('End date filter:', endDateFilter);
-	console.log('Clear button:', clearFiltersBtn);
 
 	if (!orderRows.length) {
-		console.log('No order rows found');
 		return;
 	}
 
@@ -191,7 +181,6 @@ function initOrderFilters() {
 
 			return isNaN(parsedDate.getTime()) ? null : parsedDate;
 		} catch (e) {
-			console.error('Date parsing error:', e);
 			return null;
 		}
 	}
@@ -201,7 +190,6 @@ function initOrderFilters() {
 		const startDate = startDateFilter && startDateFilter.value ? new Date(startDateFilter.value) : null;
 		const endDate = endDateFilter && endDateFilter.value ? new Date(endDateFilter.value) : null;
 
-		console.log('Applying filters:', { statusValue, startDate, endDate });
 
 		let visibleCount = 0;
 
@@ -239,7 +227,6 @@ function initOrderFilters() {
 			if (show) visibleCount++;
 		});
 
-		console.log('Visible orders:', visibleCount);
 
 		// Show "no orders" message if all filtered out
 		const noOrdersMsg = document.querySelector('.rfs-ref-no-orders');
@@ -251,26 +238,22 @@ function initOrderFilters() {
 	// Add event listeners
 	if (statusFilter) {
 		statusFilter.addEventListener('change', function () {
-			console.log('Status changed to:', this.value);
 			applyFilters();
 		});
 	}
 	if (startDateFilter) {
 		startDateFilter.addEventListener('change', function () {
-			console.log('Start date changed to:', this.value);
 			applyFilters();
 		});
 	}
 	if (endDateFilter) {
 		endDateFilter.addEventListener('change', function () {
-			console.log('End date changed to:', this.value);
 			applyFilters();
 		});
 	}
 	if (clearFiltersBtn) {
 		clearFiltersBtn.addEventListener('click', function (e) {
 			e.preventDefault();
-			console.log('Clearing filters');
 			if (statusFilter) statusFilter.value = 'all';
 			if (startDateFilter) startDateFilter.value = '';
 			if (endDateFilter) endDateFilter.value = '';
@@ -337,7 +320,6 @@ function initProfilePictureUpload() {
 						}
 					})
 					.catch((error) => {
-						console.error('Upload error:', error);
 						alert('Upload error. Please try again.');
 					});
 			}

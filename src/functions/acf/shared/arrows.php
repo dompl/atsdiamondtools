@@ -1,6 +1,6 @@
 <?php
 
-function avolve_slider_arrows() {
+function ats_slider_arrows() {
 
     $previous_inner = '<span class="inline-flex items-center justify-center w-6 h-6 lg:w-10 lg:h-10 rounded-full bg-white/30 group-hover:bg-white/50 group-focus:ring-4 group-focus:ring-white group-focus:outline-none">';
     $previous_inner .= '<svg class="w-3 h-3 lg:w-4 lg:h-4 text-white rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/></svg>';
@@ -32,6 +32,6 @@ function avolve_slider_arrows() {
 }
 
 add_filter( 'skyline_child_localizes', function ( $localizes ) {
-    $localizes['arrows'] = avolve_slider_arrows();
+    $localizes['arrows'] = ats_slider_arrows();
     return $localizes;
 } );

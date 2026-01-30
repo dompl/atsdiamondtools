@@ -182,13 +182,11 @@ function initAjaxAddToCart() {
 		e.preventDefault();
 		e.stopImmediatePropagation(); // Stop WooCommerce handler from running
 
-		console.log('Add to cart button clicked - AJAX handler triggered');
 
 		const $btn = $(this);
 		const $thisForm = $btn.closest('form.cart');
 
 		if ($btn.hasClass('disabled') || $btn.hasClass('loading')) {
-			console.log('Button disabled or loading, preventing duplicate submission');
 			return false;
 		}
 
@@ -197,13 +195,11 @@ function initAjaxAddToCart() {
 		const isVariableProduct = $thisForm.hasClass('variations_form');
 
 		if (isVariableProduct && !variationId) {
-			console.log('Variable product but no variation selected');
 			// Let WooCommerce show its error message
 			alert('Please select product options before adding to cart.');
 			return false;
 		}
 
-		console.log('Proceeding with AJAX add to cart...');
 
 		// Add loading state to button
 		$btn.addClass('loading').prop('disabled', true);
@@ -245,18 +241,15 @@ function initAjaxAddToCart() {
 			});
 		}
 
-		console.log('AJAX data:', ajaxData);
 
 		$.ajax({
 			url: window.location.origin + '/wp-admin/admin-ajax.php',
 			type: 'POST',
 			data: ajaxData,
 			success: function (response) {
-				console.log('AJAX response:', response);
 
 				// Check if response has error
 				if (response && response.error) {
-					console.error('Add to cart error:', response);
 					removeLoadingOverlay();
 					$btn.removeClass('loading').prop('disabled', false);
 					alert(response.error || 'Failed to add product to cart.');
@@ -273,21 +266,18 @@ function initAjaxAddToCart() {
 
 					// Reload mini cart data
 					if (window.ATSMiniCart && typeof window.ATSMiniCart.loadCart === 'function') {
-						console.log('Reloading mini cart...');
 						window.ATSMiniCart.loadCart();
 					}
 
 					// Open MiniCart Modal after cart is updated
 					setTimeout(() => {
 						if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
-							console.log('Opening mini cart modal...');
 							window.ATSMiniCartModal.open();
 						}
 					}, 200);
 				}, 300);
 			},
 			error: function (xhr, status, error) {
-				console.error('AJAX Add to cart error:', error, xhr);
 				removeLoadingOverlay();
 				$btn.removeClass('loading').prop('disabled', false);
 				alert('Failed to add product to cart. Please try again.');
@@ -301,7 +291,6 @@ function initAjaxAddToCart() {
 	$form.on('submit', function (e) {
 		e.preventDefault();
 		e.stopImmediatePropagation();
-		console.log('Form submit prevented - button handler should have already executed');
 		return false;
 	});
 }

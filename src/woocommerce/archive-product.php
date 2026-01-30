@@ -120,13 +120,13 @@ $products_per_page = 12;
 				<div class="rfs-ref-sidebar-sticky lg:sticky lg:top-4 space-y-6">
 
 					<!-- Categories Section -->
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden">
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden lg:shadow-sm">
 						<!-- Accordion Header (Mobile) -->
-						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-4 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
-							<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark">
+						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-3 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
+							<h3 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
 								<?php esc_html_e( 'Categories', 'skylinewp-dev-child' ); ?>
 							</h3>
-							<svg class="rfs-ref-accordion-chevron lg:hidden h-5 w-5 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<svg class="rfs-ref-accordion-chevron lg:hidden h-4 w-4 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
 						</button>
@@ -134,13 +134,13 @@ $products_per_page = 12;
 						<!-- Accordion Content -->
 						<div class="rfs-ref-accordion-content grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
 							<div class="overflow-hidden">
-								<div class="p-4 lg:p-6 lg:pt-4">
+								<div class="p-3 lg:p-6 lg:pt-4">
 									<?php if ( ! empty( $categories ) ) : ?>
 										<ul class="rfs-ref-category-list space-y-2">
 								<!-- All Products -->
 								<li class="rfs-ref-category-item">
 									<button type="button"
-									   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $current_category === 0 ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
+									   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $current_category === 0 ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
 									   data-category-id="0">
 										<span class="rfs-ref-category-name"><?php esc_html_e( 'All Products', 'skylinewp-dev-child' ); ?></span>
 									</button>
@@ -149,21 +149,21 @@ $products_per_page = 12;
 								<?php foreach ( $categories as $category ) : ?>
 									<li class="rfs-ref-category-item">
 										<button type="button"
-										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $category['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
+										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $category['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
 										   data-category-id="<?php echo esc_attr( $category['id'] ); ?>">
 											<span class="rfs-ref-category-name"><?php echo esc_html( $category['name'] ); ?></span>
-											<span class="rfs-ref-category-count text-xs <?php echo $category['is_current'] ? 'text-white opacity-80' : 'text-gray-500'; ?>">(<?php echo esc_html( $category['count'] ); ?>)</span>
+											<span class="rfs-ref-category-count text-[10px] lg:text-xs <?php echo $category['is_current'] ? 'text-white opacity-80' : 'text-gray-500'; ?>">(<?php echo esc_html( $category['count'] ); ?>)</span>
 										</button>
 
 										<?php if ( ! empty( $category['children'] ) ) : ?>
-											<ul class="rfs-ref-category-children ml-4 mt-2 space-y-1">
+											<ul class="rfs-ref-category-children ml-3 lg:ml-4 mt-1 lg:mt-2 space-y-1">
 												<?php foreach ( $category['children'] as $child ) : ?>
 													<li class="rfs-ref-category-child-item">
 														<button type="button"
-														   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $child['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-600'; ?>"
+														   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1 lg:py-1.5 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $child['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-600'; ?>"
 														   data-category-id="<?php echo esc_attr( $child['id'] ); ?>">
 															<span class="rfs-ref-category-name"><?php echo esc_html( $child['name'] ); ?></span>
-															<span class="rfs-ref-category-count text-xs <?php echo $child['is_current'] ? 'text-white opacity-80' : 'text-gray-400'; ?>">(<?php echo esc_html( $child['count'] ); ?>)</span>
+															<span class="rfs-ref-category-count text-[10px] lg:text-xs <?php echo $child['is_current'] ? 'text-white opacity-80' : 'text-gray-400'; ?>">(<?php echo esc_html( $child['count'] ); ?>)</span>
 														</button>
 													</li>
 												<?php endforeach; ?>
@@ -228,13 +228,13 @@ $products_per_page = 12;
 					?>
 
 					<?php if ( $show_application_filter && ! empty( $applications ) && ! is_wp_error( $applications ) ) : ?>
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden">
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden lg:shadow-sm">
 						<!-- Accordion Header (Mobile) -->
-						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-4 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
-							<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark">
+						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-3 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
+							<h3 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
 								<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
 							</h3>
-							<svg class="rfs-ref-accordion-chevron lg:hidden h-5 w-5 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<svg class="rfs-ref-accordion-chevron lg:hidden h-4 w-4 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
 						</button>
@@ -242,12 +242,12 @@ $products_per_page = 12;
 						<!-- Accordion Content -->
 						<div class="rfs-ref-accordion-content grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
 							<div class="overflow-hidden">
-								<div class="p-4 lg:p-6 lg:pt-4">
-									<ul class="rfs-ref-application-list space-y-2">
+								<div class="p-3 lg:p-6 lg:pt-4">
+									<ul class="rfs-ref-application-list space-y-1.5 lg:space-y-2">
 								<!-- All Applications -->
 								<li class="rfs-ref-application-item">
 									<button type="button"
-									   class="rfs-ref-application-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white bg-primary-600 text-white font-bold"
+									   class="rfs-ref-application-link w-full text-left flex items-center justify-between py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white bg-primary-600 text-white font-bold"
 									   data-application-id="0">
 										<span class="rfs-ref-application-name"><?php esc_html_e( 'All Applications', 'skylinewp-dev-child' ); ?></span>
 									</button>
@@ -256,10 +256,10 @@ $products_per_page = 12;
 								<?php foreach ( $applications as $app ) : ?>
 									<li class="rfs-ref-application-item">
 										<button type="button"
-										   class="rfs-ref-application-link w-full text-left flex items-center justify-between py-2 px-3 rounded-lg text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white text-gray-700"
+										   class="rfs-ref-application-link w-full text-left flex items-center justify-between py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white text-gray-700"
 										   data-application-id="<?php echo esc_attr( $app->term_id ); ?>">
 											<span class="rfs-ref-application-name"><?php echo esc_html( $app->name ); ?></span>
-											<span class="rfs-ref-application-count text-xs text-gray-500">(<?php echo esc_html( $app->count ); ?>)</span>
+											<span class="rfs-ref-application-count text-[10px] lg:text-xs text-gray-500">(<?php echo esc_html( $app->count ); ?>)</span>
 										</button>
 									</li>
 								<?php endforeach; ?>
@@ -271,13 +271,13 @@ $products_per_page = 12;
 					<?php endif; ?>
 
 					<!-- Price Filter Section -->
-					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden">
+					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden lg:shadow-sm">
 						<!-- Accordion Header (Mobile) -->
-						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-4 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
-							<h3 class="rfs-ref-sidebar-title text-lg font-bold text-ats-dark">
+						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-3 lg:p-6 lg:pb-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
+							<h3 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
 								<?php esc_html_e( 'Price Range', 'skylinewp-dev-child' ); ?>
 							</h3>
-							<svg class="rfs-ref-accordion-chevron lg:hidden h-5 w-5 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<svg class="rfs-ref-accordion-chevron lg:hidden h-4 w-4 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
 						</button>
@@ -285,7 +285,7 @@ $products_per_page = 12;
 						<!-- Accordion Content -->
 						<div class="rfs-ref-accordion-content grid transition-[grid-template-rows] duration-500 ease-out grid-rows-0 lg:grid-rows-1">
 							<div class="overflow-hidden">
-								<div class="p-4 lg:p-6 lg:pt-4">
+								<div class="p-3 lg:p-6 lg:pt-4">
 									<div class="rfs-ref-price-slider-container">
 							<!-- Dual Range Slider -->
 							<div class="rfs-ref-price-slider-wrapper relative h-2 bg-gray-200 rounded-full mb-8">
@@ -345,12 +345,12 @@ $products_per_page = 12;
 						</span>
 					</div>
 
-					<!-- Favourites + Sort Dropdown Container (right side) -->
+					<!-- Favourites + View Toggle + Sort Dropdown Container (right side) -->
 					<div class="rfs-ref-toolbar-right flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 						<!-- Show Favourite Products Button -->
 						<div class="rfs-ref-favourites-filter">
 							<button type="button"
-							        class="rfs-ref-show-favourites-btn text-ats-dark bg-white border border-gray-300 hover:bg-ats-brand hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors duration-200"
+							        class="rfs-ref-show-favourites-btn text-ats-dark bg-white border border-gray-300 hover:bg-ats-brand hover:text-white focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center justify-center gap-2 transition-colors duration-200 w-full sm:w-auto"
 							        data-filter-favourites="false">
 								<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
 									<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -359,11 +359,28 @@ $products_per_page = 12;
 							</button>
 						</div>
 
+						<!-- View Toggle Button (Grid/List) -->
+						<div class="rfs-ref-view-toggle">
+							<button type="button"
+							        class="rfs-ref-toggle-view-btn text-ats-dark bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center justify-center gap-2 transition-colors duration-200 w-full sm:w-auto"
+							        data-view-mode="grid">
+								<!-- Grid Icon (default) -->
+								<svg class="rfs-ref-grid-icon w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+								</svg>
+								<!-- List Icon (hidden by default) -->
+								<svg class="rfs-ref-list-icon w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+								</svg>
+								<span class="rfs-ref-view-label"><?php esc_html_e( 'List View', 'skylinewp-dev-child' ); ?></span>
+							</button>
+						</div>
+
 						<!-- Sort Dropdown (Flowbite) -->
-					<div class="rfs-ref-sort-dropdown-container">
+					<div class="rfs-ref-sort-dropdown-container w-full sm:w-auto">
 						<button id="dropdownSortButton"
 						        data-dropdown-toggle="dropdownSort"
-						        class="rfs-ref-sort-dropdown-button text-ats-dark bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center transition-colors duration-200"
+						        class="rfs-ref-sort-dropdown-button text-ats-dark bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center transition-colors duration-200 w-full sm:w-auto"
 						        type="button">
 							<span class="rfs-ref-sort-label"><?php esc_html_e( 'Order by:', 'skylinewp-dev-child' ); ?></span>
 							<span class="rfs-ref-current-sort ml-2 font-bold"><?php echo esc_html( $current_sort_label ); ?></span>

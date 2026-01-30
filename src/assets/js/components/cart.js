@@ -13,16 +13,12 @@
 import $ from 'jquery';
 
 export function initCart() {
-	console.log('Cart: Init function called');
-	console.log('Cart: Body classes:', document.body.className);
 
 	// Only run on cart page
 	if (!document.body.classList.contains('woocommerce-cart')) {
-		console.log('Cart: Not on cart page, exiting');
 		return;
 	}
 
-	console.log('Cart: On cart page, initializing...');
 
 	const cart = {
 		// DOM Elements
@@ -65,7 +61,6 @@ export function initCart() {
 		bindEvents() {
 			const self = this;
 
-			console.log('Cart: Binding events', this.elements);
 
 			// Quantity decrease button
 			if (this.elements.itemsList) {
@@ -73,11 +68,9 @@ export function initCart() {
 					const decreaseBtn = e.target.closest('.ats-qty-decrease');
 					if (decreaseBtn) {
 						e.preventDefault();
-						console.log('Cart: Decrease clicked', decreaseBtn);
 						const cartKey = decreaseBtn.dataset.cartKey;
 						const input = decreaseBtn.parentElement.querySelector('.ats-qty-input');
 						const currentQty = parseInt(input.value);
-						console.log('Cart: Current qty', currentQty, 'Cart key', cartKey);
 						if (currentQty > 1) {
 							self.updateQuantity(cartKey, currentQty - 1);
 						}
@@ -87,18 +80,14 @@ export function initCart() {
 					const increaseBtn = e.target.closest('.ats-qty-increase');
 					if (increaseBtn) {
 						e.preventDefault();
-						console.log('Cart: Increase clicked', increaseBtn);
 						const cartKey = increaseBtn.dataset.cartKey;
 						const input = increaseBtn.parentElement.querySelector('.ats-qty-input');
 						const currentQty = parseInt(input.value);
 						const maxQty = parseInt(input.getAttribute('max'));
-						console.log('Cart: Current qty', currentQty, 'Max qty', maxQty, 'Cart key', cartKey);
 						// Allow increase if no max (-1 or 0 means unlimited) or current is below max
 						if (maxQty <= 0 || currentQty < maxQty) {
-							console.log('Cart: Calling updateQuantity to', currentQty + 1);
 							self.updateQuantity(cartKey, currentQty + 1);
 						} else {
-							console.log('Cart: Cannot increase - at max quantity');
 						}
 					}
 
@@ -163,22 +152,17 @@ export function initCart() {
 		updateQuantity(cartKey, quantity) {
 			const self = this;
 
-			console.log('Cart: updateQuantity called with', cartKey, quantity);
 
 			if (this.isUpdating) {
-				console.log('Cart: Already updating, skipping');
 				return;
 			}
 			this.isUpdating = true;
 
 			const item = document.querySelector(`[data-cart-item-key="${cartKey}"]`);
 			if (!item) {
-				console.log('Cart: Item not found in DOM');
 				return;
 			}
 
-			console.log('Cart: Making AJAX request to', window.themeData?.ajax_url);
-			console.log('Cart: Nonce:', window.themeData?.cart_nonce);
 
 			// Show loading state
 			item.style.opacity = '0.5';
@@ -194,7 +178,6 @@ export function initCart() {
 					quantity: quantity,
 				},
 				success(response) {
-					console.log('Cart: AJAX success', response);
 					if (response.success) {
 						// Update the item subtotal
 						const subtotal = item.querySelector('.rfs-ref-cart-item-subtotal div:last-child');
@@ -230,7 +213,6 @@ export function initCart() {
 					}
 				},
 				error(xhr, status, error) {
-					console.log('Cart: AJAX error', xhr, status, error);
 					self.showError('Failed to update cart. Please try again.');
 				},
 				complete() {
@@ -517,7 +499,6 @@ export function initCart() {
 		 */
 		showError(message) {
 			// You can implement a global error notification here
-			console.error(message);
 			alert(message);
 		},
 	};

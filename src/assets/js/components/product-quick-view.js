@@ -56,7 +56,6 @@ import $ from 'jquery';
 		 */
 		initFlowbiteModal: function () {
 			if (!this.elements.modal) {
-				console.error('Modal element not found');
 				return;
 			}
 
@@ -135,7 +134,6 @@ import $ from 'jquery';
 
 			// Check if modal instance is ready
 			if (!this.modalInstance) {
-				console.error('Modal instance not initialized');
 				// Try to initialize it now
 				this.initFlowbiteModal();
 				// Wait a bit and try again
@@ -162,7 +160,6 @@ import $ from 'jquery';
 
 			// Check if themeData exists
 			if (typeof themeData === 'undefined' || !themeData.ajax_url) {
-				console.error('themeData not found');
 				this.showError('Configuration error. Please refresh the page.');
 				return;
 			}
@@ -183,7 +180,6 @@ import $ from 'jquery';
 					}
 				},
 				error: function (xhr, status, error) {
-					console.error('AJAX Error:', error);
 					self.showError('Failed to load product. Please try again.');
 				},
 				complete: function () {
@@ -203,12 +199,59 @@ import $ from 'jquery';
 
 			this.elements.modalContent.innerHTML = html;
 
-			// Reinitialize WooCommerce variation forms if needed
-			if (typeof $.fn.wc_variation_form !== 'undefined') {
-				$(this.elements.modalContent).find('.variations_form').each(function () {
-					$(this).wc_variation_form();
-				});
-			}
+			// Wait for DOM to settle before initializing variation forms
+			const self = this;
+			setTimeout(function() {
+				console.log('[VARIATION DEBUG] Starting variation form initialization...');
+
+				// Reinitialize WooCommerce variation forms
+				const $forms = $(self.elements.modalContent).find('.variations_form');
+				console.log('[VARIATION DEBUG] Forms found:', $forms.length);
+
+				if ($forms.length > 0) {
+					// Check if variation form function exists
+					console.log('[VARIATION DEBUG] $.fn.wc_variation_form exists:', typeof $.fn.wc_variation_form !== 'undefined');
+					console.log('[VARIATION DEBUG] wc_add_to_cart_variation_params exists:', typeof wc_add_to_cart_variation_params !== 'undefined');
+
+					if (typeof wc_add_to_cart_variation_params !== 'undefined') {
+						console.log('[VARIATION DEBUG] Variation params:', wc_add_to_cart_variation_params);
+					}
+
+					if (typeof $.fn.wc_variation_form !== 'undefined') {
+						console.log('[VARIATION DEBUG] Initializing each form...');
+
+						$forms.each(function (index) {
+							const $form = $(this);
+							console.log('[VARIATION DEBUG] Form', index, '- HTML:', $form.html().substring(0, 200));
+							console.log('[VARIATION DEBUG] Form', index, '- Has select elements:', $form.find('select').length);
+
+							// Initialize the variation form
+							$form.wc_variation_form();
+
+							console.log('[VARIATION DEBUG] Form', index, '- Initialized');
+
+							// Check if form has data bound
+							const formData = $form.data('wc_variation_form');
+							console.log('[VARIATION DEBUG] Form', index, '- Data bound:', !!formData);
+
+							// Log select elements
+							$form.find('select').each(function(i) {
+								console.log('[VARIATION DEBUG] Form', index, '- Select', i, ':', {
+									name: $(this).attr('name'),
+									options: $(this).find('option').length,
+									value: $(this).val()
+								});
+							});
+						});
+
+						console.log('[VARIATION DEBUG] ✓ All forms initialized');
+					} else {
+						console.log('[VARIATION DEBUG] ✗ wc_variation_form function NOT loaded - script missing!');
+					}
+				} else {
+					console.log('[VARIATION DEBUG] No variation forms found in modal content');
+				}
+			}, 250);
 
 			// Trigger custom event for other scripts
 			$(document).trigger('ats_quick_view_loaded', [this.currentProductId]);

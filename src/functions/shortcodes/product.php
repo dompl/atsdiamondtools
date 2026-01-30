@@ -230,12 +230,14 @@ return ob_get_clean();
 if ( !function_exists( 'ats_render_product_list' ) ) {
     function ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
         // Get image URL using wpimage() - 160x160 for list layout with retina support
-        $image_url = $image_id ? wpimage( $image_id, [160, 160], false, true, true ) : wc_placeholder_img_src( 'medium' );
+		  $image_size = 120;
+        $image_url = $image_id ? wpimage( $image_id, [ $image_size,  $image_size], false, true, true ) : wc_placeholder_img_src( 'medium' );
+        $image_url_x2 = $image_id ? wpimage( $image_id, [ $image_size,  $image_size], true, true, true ) : wc_placeholder_img_src( 'medium' );
 
         ob_start();
         ?>
-	<article class="rfs-ref-product-list ats-product-list inline-flex w-[580px] border border-neutral-200 hover:border-neutral-200 rounded p-4 gap-6 bg-white relative" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-display-type="2">
-		<button class="rfs-ref-product-list-expand-btn absolute top-2 right-2 z-10 p-0 hover:opacity-70 transition-opacity" aria-label="Expand product">
+	<article class="rfs-ref-product-list ats-product-list flex w-full max-w-full lg:max-w-[580px] border border-neutral-200 hover:border-neutral-200 rounded p-4 gap-4 lg:gap-2 bg-white relative" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-display-type="2">
+		<button class="rfs-ref-product-list-expand-btn ats-expand-product absolute top-2 right-2 z-10 p-0 hover:opacity-70 transition-opacity" aria-label="Expand product">
 			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#DEDEDE"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>
 		</button>
 		<div class="rfs-ref-product-list-favorite-heart absolute top-2 left-2 z-10">
@@ -244,35 +246,38 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-image-link flex-shrink-0 flex items-center">
 			<img
 				src="<?php echo esc_url( $image_url ); ?>"
+				srcset="<?php echo esc_url( $image_url ); ?> 1x, <?php echo esc_url( $image_url ); ?> 2x"
 				alt="<?php echo esc_attr( $product_title ); ?>"
-				class="rfs-ref-product-list-image w-40 h-40 object-contain"
+				class="rfs-ref-product-list-image w-24 h-24 lg:w-[<?php echo $image_size ?>px] lg:h-[<?php echo $image_size ?>px] object-contain"
 				loading="lazy"
 			/>
 		</a>
 
-		<div class="rfs-ref-product-list-content flex flex-col justify-center flex-grow">
-			<div class="rfs-ref-product-list-category flex items-center gap-1.5 text-xs text-black font-light mb-2">
-				<svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
-				</svg>
-				<span><?php echo esc_html( $category_text ); ?></span>
+		<div class="rfs-ref-product-list-content flex flex-col justify-between h-full flex-grow min-w-0">
+			<div class="rfs-ref-product-list-top-content">
+				<div class="rfs-ref-product-list-category flex items-center gap-1.5 text-[10px] lg:text-xs text-black font-light mb-1 lg:mb-2">
+					<svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+					</svg>
+					<span><?php echo esc_html( $category_text ); ?></span>
+				</div>
+
+				<h3 class="rfs-ref-product-list-title text-sm lg:text-lg font-bold text-neutral-700 leading-tight lg:leading-6 mb-2 lg:mb-3 line-clamp-2">
+					<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-title-link hover:text-black">
+						<?php echo esc_html( $product_title ); ?>
+					</a>
+				</h3>
+
+				<div class="rfs-ref-product-list-rating mb-2 lg:mb-4 scale-90 lg:scale-100 origin-left">
+					<?php echo $rating_html; ?>
+				</div>
 			</div>
 
-			<h3 class="rfs-ref-product-list-title text-lg font-bold text-neutral-700 leading-6 mb-3">
-				<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-title-link hover:text-black">
-					<?php echo esc_html( $product_title ); ?>
-				</a>
-			</h3>
-
-			<div class="rfs-ref-product-list-rating mb-4">
-				<?php echo $rating_html; ?>
-			</div>
-
-			<div class="rfs-ref-product-list-footer flex justify-between items-center">
-				<span class="rfs-ref-product-list-price text-sm font-bold text-black"><?php echo wp_kses_post( $price_html ); ?></span>
+			<div class="rfs-ref-product-list-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+				<span class="rfs-ref-product-list-price text-xs lg:text-sm font-bold text-black"><?php echo wp_kses_post( $price_html ); ?></span>
 				<a
 					href="<?php echo esc_url( $product_url ); ?>"
-					class="rfs-ref-product-list-cta-btn inline-flex justify-center items-center px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-xs font-bold uppercase rounded transition-colors"
+					class="rfs-ref-product-list-cta-btn inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap"
 				>
 					<?php echo esc_html( $button_text ); ?>
 				</a>
@@ -304,41 +309,44 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
 
         ob_start();
         ?>
-	<div class="rfs-ref-product-compact ats-product-compact flex gap-3 p-3 bg-white border border-neutral-200 hover:border-accent-yellow rounded-lg transition-colors" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-display-type="3">
+	<div class="rfs-ref-product-compact ats-product-compact flex gap-2 lg:gap-3 p-2 lg:p-3 bg-white border border-neutral-200 hover:border-accent-yellow rounded-lg transition-colors relative" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-display-type="3">
+		<div class="rfs-ref-product-compact-favorite-heart absolute top-1.5 left-1.5 lg:top-2 lg:left-2 z-10">
+			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
+		</div>
 		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-compact-image-link flex-shrink-0">
 			<img
 				src="<?php echo esc_url( $image_url ); ?>"
 				alt="<?php echo esc_attr( $product_title ); ?>"
-				class="rfs-ref-product-compact-image w-24 h-24 object-contain"
+				class="rfs-ref-product-compact-image w-20 h-20 lg:w-24 lg:h-24 object-contain"
 				loading="lazy"
 			/>
 		</a>
 
 		<div class="rfs-ref-product-compact-content flex flex-col justify-between flex-grow min-w-0">
 			<div>
-				<div class="rfs-ref-product-compact-category flex items-center gap-1 text-[10px] text-gray-500 mb-1">
-					<svg class="w-3 h-3 text-zinc-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+				<div class="rfs-ref-product-compact-category flex items-center gap-0.5 lg:gap-1 text-[9px] lg:text-[10px] text-gray-500 mb-0.5 lg:mb-1">
+					<svg class="w-2.5 h-2.5 lg:w-3 lg:h-3 text-zinc-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
 					</svg>
 					<span class="truncate"><?php echo esc_html( $category_text ); ?></span>
 				</div>
 
-				<h3 class="rfs-ref-product-compact-title text-sm font-bold text-primary-700 leading-tight mb-1 line-clamp-2">
+				<h3 class="rfs-ref-product-compact-title text-xs lg:text-sm font-bold text-primary-700 leading-tight mb-0.5 lg:mb-1 line-clamp-2">
 					<a href="<?php echo esc_url( $product_url ); ?>" class="hover:text-primary-800">
 						<?php echo esc_html( $product_title ); ?>
 					</a>
 				</h3>
 
-				<div class="rfs-ref-product-compact-rating mb-2 scale-90 origin-left">
+				<div class="rfs-ref-product-compact-rating mb-1 lg:mb-2 scale-75 lg:scale-90 origin-left">
 					<?php echo $rating_html; ?>
 				</div>
 			</div>
 
-			<div class="rfs-ref-product-compact-footer flex justify-between items-center gap-2">
-				<span class="rfs-ref-product-compact-price text-xs font-bold text-black whitespace-nowrap"><?php echo wp_kses_post( $price_html ); ?></span>
+			<div class="rfs-ref-product-compact-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 lg:gap-2">
+				<span class="rfs-ref-product-compact-price text-[10px] lg:text-xs font-bold text-black whitespace-nowrap"><?php echo wp_kses_post( $price_html ); ?></span>
 				<a
 					href="<?php echo esc_url( $product_url ); ?>"
-					class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap"
+					class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
 				>
 					<?php echo esc_html( $button_text ); ?>
 				</a>

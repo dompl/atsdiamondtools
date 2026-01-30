@@ -11,18 +11,12 @@
  */
 
 export function initCheckout() {
-	console.log('=== Custom Checkout JS Init ===');
-	console.log('Body classes:', document.body.className);
-	console.log('wc_checkout_params available?', typeof wc_checkout_params !== 'undefined');
-	console.log('WooCommerce object available?', typeof woocommerce_params !== 'undefined');
 
 	// Only run on checkout page
 	if (!document.body.classList.contains('woocommerce-checkout')) {
-		console.log('Not on checkout page, exiting');
 		return;
 	}
 
-	console.log('On checkout page, initializing custom checkout features...');
 
 	const checkout = {
 		// DOM Elements
@@ -88,13 +82,11 @@ export function initCheckout() {
 			if (this.elements.form) {
 				// Show loading state when checkout is updating
 				jQuery(document.body).on('update_checkout', function () {
-					console.log('Checkout: WooCommerce update_checkout event fired');
 					self.showLoadingState();
 				});
 
 				// Hide loading state when checkout update is complete
 				jQuery(document.body).on('updated_checkout', function () {
-					console.log('Checkout: WooCommerce updated_checkout event fired');
 					self.hideLoadingState();
 					// Re-initialize shipping methods after AJAX update
 					self.initShippingMethods();
@@ -102,7 +94,6 @@ export function initCheckout() {
 
 				// Scroll to error messages
 				jQuery(document.body).on('checkout_error', function () {
-					console.log('Checkout: WooCommerce checkout_error event fired');
 					self.scrollToError();
 				});
 			}
@@ -227,13 +218,11 @@ export function initCheckout() {
 
 			// Update visuals when shipping method changes (do NOT trigger update_checkout - WooCommerce does that)
 			jQuery(document.body).on('change', 'input[name^="shipping_method"]', function() {
-				console.log('Checkout: Shipping method changed, updating visuals only');
 				updateAllShippingVisuals();
 			});
 
 			// Update visuals after WooCommerce completes its AJAX update
 			jQuery(document.body).on('updated_checkout', function() {
-				console.log('Checkout: Checkout updated by WooCommerce, refreshing visuals');
 				updateAllShippingVisuals();
 			});
 		},
