@@ -435,8 +435,7 @@ import $ from 'jquery';
 		 * Initialize price and image updates for variations
 		 */
 		initializeVariationPriceAndImage: function ($form) {
-			const $priceHtml = $(this.elements.modalContent).find('.rfs-ref-quick-view-price');
-			const mainSplide = $(this.elements.modalContent).find('#product-main-splide').data('splide');
+			const $priceHtml = $(this.elements.modalContent).find('.rfs-ref-quick-view-price p');
 
 			// Store original data
 			if ($priceHtml.length) {
