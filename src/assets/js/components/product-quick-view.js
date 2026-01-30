@@ -322,11 +322,17 @@ import $ from 'jquery';
 
 			// Helper to refresh options from select
 			const refreshDropdown = ($wrapper) => {
+				console.log('[DROPDOWN DEBUG] refreshDropdown called for wrapper:', $wrapper);
 				const $select = $wrapper.find('select');
+				console.log('[DROPDOWN DEBUG] Select found:', $select.length);
 				const $list = $wrapper.find('.dropdown-options-list');
+				console.log('[DROPDOWN DEBUG] Options list found:', $list.length);
 				const $btnText = $wrapper.find('.dropdown-selected-text');
+				console.log('[DROPDOWN DEBUG] Button text element found:', $btnText.length);
 				const selectName = $select.data('attribute_name') || $select.attr('name');
+				console.log('[DROPDOWN DEBUG] Select name:', selectName);
 				const variationsData = $form.data('product_variations') || [];
+				console.log('[DROPDOWN DEBUG] Variations data:', variationsData.length);
 
 				$list.empty();
 
@@ -368,33 +374,54 @@ import $ from 'jquery';
 			};
 
 			// Initial Population
-			$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function () {
+			console.log('[DROPDOWN DEBUG] Starting initial population...');
+			$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function (index) {
+				console.log('[DROPDOWN DEBUG] Refreshing dropdown', index);
 				refreshDropdown($(this));
 			});
+			console.log('[DROPDOWN DEBUG] Initial population complete');
 
 			// Initialize Flowbite dropdowns
 			setTimeout(() => {
-				$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function () {
+				console.log('[DROPDOWN DEBUG] Starting Flowbite initialization...');
+				console.log('[DROPDOWN DEBUG] window.Flowbite exists:', typeof window.Flowbite !== 'undefined');
+				console.log('[DROPDOWN DEBUG] window.Flowbite.Dropdown exists:', typeof window.Flowbite !== 'undefined' && typeof window.Flowbite.Dropdown !== 'undefined');
+
+				$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function (index) {
+					console.log('[DROPDOWN DEBUG] Processing dropdown wrapper', index);
 					const $wrapper = $(this);
 					const $button = $wrapper.find('[data-dropdown-toggle]');
 					const $menu = $wrapper.find('[id^="dropdown_"]');
+
+					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Button found:', $button.length);
+					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Menu found:', $menu.length);
 
 					if ($button.length && $menu.length) {
 						const triggerEl = $button[0];
 						const targetEl = $menu[0];
 
+						console.log('[DROPDOWN DEBUG] Wrapper', index, '- Elements ready, initializing Flowbite...');
+
 						// Initialize Flowbite Dropdown
 						if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
-							const dropdown = new window.Flowbite.Dropdown(targetEl, triggerEl, {
-								placement: 'bottom',
-								triggerType: 'click',
-								offsetSkidding: 0,
-								offsetDistance: 10,
-							});
-							dropdownInstances.set(triggerEl, dropdown);
+							try {
+								const dropdown = new window.Flowbite.Dropdown(targetEl, triggerEl, {
+									placement: 'bottom',
+									triggerType: 'click',
+									offsetSkidding: 0,
+									offsetDistance: 10,
+								});
+								dropdownInstances.set(triggerEl, dropdown);
+								console.log('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite dropdown initialized successfully');
+							} catch (error) {
+								console.error('[DROPDOWN DEBUG] Wrapper', index, '- Error initializing Flowbite:', error);
+							}
+						} else {
+							console.error('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite not available');
 						}
 					}
 				});
+				console.log('[DROPDOWN DEBUG] Flowbite initialization complete');
 			}, 100);
 
 			// Handle Option Click
