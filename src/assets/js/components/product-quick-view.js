@@ -410,8 +410,15 @@ import $ from 'jquery';
 					dropdown.hide();
 				}
 
-				// Update Select
+				// Update Select and trigger WooCommerce variation form check
 				$select.val(value).trigger('change');
+
+				// Manually trigger variation form update
+				const $variationForm = $select.closest('.variations_form');
+				if ($variationForm.length) {
+					$variationForm.trigger('check_variations');
+					$variationForm.trigger('woocommerce_variation_select_change');
+				}
 			});
 
 			// Listen for WC updates
@@ -443,6 +450,8 @@ import $ from 'jquery';
 			}
 
 			$form.on('found_variation', (event, variation) => {
+				console.log('Variation found:', variation);
+
 				// Update price
 				if (variation.price_html && $priceHtml.length) {
 					let priceHtml = variation.price_html;
@@ -450,6 +459,7 @@ import $ from 'jquery';
 						priceHtml += ' <span class="tax_label">+VAT</span>';
 					}
 					$priceHtml.html(priceHtml);
+					console.log('Price updated:', priceHtml);
 				}
 
 				// Update image if available
