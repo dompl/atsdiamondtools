@@ -171,6 +171,61 @@ function ats_clear_cache_on_stock_change($product) {
 }
 
 /**
+ * Hook: Clear cache when order is processed and stock is reduced
+ */
+add_action('woocommerce_reduce_order_stock', 'ats_clear_cache_on_order_stock_reduction');
+add_action('woocommerce_restore_order_stock', 'ats_clear_cache_on_order_stock_restoration');
+
+function ats_clear_cache_on_order_stock_reduction($order) {
+    if (!$order) {
+        return;
+    }
+
+    // Get order object if ID was passed
+    if (is_numeric($order)) {
+        $order = wc_get_order($order);
+    }
+
+    if (!$order) {
+        return;
+    }
+
+    // Clear cache for all products in the order
+    foreach ($order->get_items() as $item) {
+        $product_id = $item->get_product_id();
+        $variation_id = $item->get_variation_id();
+
+        if ($product_id) {
+            ats_clear_product_cache($product_id);
+        }
+
+        if ($variation_id) {
+            ats_clear_product_cache($variation_id);
+        }
+    }
+}
+
+function ats_clear_cache_on_order_stock_restoration($order) {
+    // Same logic as reduction - clear cache when stock is restored (refunds, cancellations)
+    ats_clear_cache_on_order_stock_reduction($order);
+}
+
+/**
+ * Hook: Clear cache when order status changes (alternative trigger for stock updates)
+ */
+add_action('woocommerce_order_status_changed', 'ats_clear_cache_on_order_status_change', 10, 4);
+
+function ats_clear_cache_on_order_status_change($order_id, $old_status, $new_status, $order) {
+    // Clear cache when order moves to processing or completed (stock might be reduced)
+    // Or when order is cancelled/refunded (stock might be restored)
+    $stock_affecting_statuses = array('processing', 'completed', 'cancelled', 'refunded');
+
+    if (in_array($new_status, $stock_affecting_statuses) || in_array($old_status, $stock_affecting_statuses)) {
+        ats_clear_cache_on_order_stock_reduction($order);
+    }
+}
+
+/**
  * Hook: Clear cache when product price changes
  */
 add_action('woocommerce_product_object_updated_props', 'ats_clear_cache_on_price_change', 10, 2);
