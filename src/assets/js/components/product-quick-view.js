@@ -253,6 +253,11 @@ import $ from 'jquery';
 				}
 			}, 250);
 
+			// Initialize custom dropdowns for variations
+			setTimeout(() => {
+				this.initializeVariationDropdowns();
+			}, 300);
+
 			// Trigger custom event for other scripts
 			$(document).trigger('ats_quick_view_loaded', [this.currentProductId]);
 
@@ -300,6 +305,124 @@ import $ from 'jquery';
 
 				main.mount();
 			}
+		},
+
+		/**
+		 * Initialize variation dropdowns with Flowbite
+		 */
+		initializeVariationDropdowns: function () {
+			const $form = $(this.elements.modalContent).find('.variations_form');
+			const dropdownInstances = new Map();
+
+			// Helper to refresh options from select
+			const refreshDropdown = ($wrapper) => {
+				const $select = $wrapper.find('select');
+				const $list = $wrapper.find('.dropdown-options-list');
+				const $btnText = $wrapper.find('.dropdown-selected-text');
+				const selectName = $select.data('attribute_name') || $select.attr('name');
+				const variationsData = $form.data('product_variations') || [];
+
+				$list.empty();
+
+				// Update selected text based on current value
+				const currentVal = $select.val();
+				if (currentVal) {
+					const $selectedOpt = $select.find('option[value="' + currentVal.replace(/"/g, '\\"') + '"]');
+					if ($selectedOpt.length) {
+						$btnText.text($selectedOpt.text());
+					}
+				} else {
+					$btnText.text('Choose an option');
+				}
+
+				// Rebuild list
+				$select.find('option').each(function () {
+					const $opt = $(this);
+					const value = $opt.val();
+					const text = $opt.text();
+
+					if (!value) return; // Skip placeholder
+
+					const li = $('<li>');
+					const btn = $('<button type="button">')
+						.addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-1 hover:bg-brand-dark transition-colors duration-150')
+						.data('value', value)
+						.text(text);
+
+					// Active state
+					if (currentVal === value) {
+						btn.addClass('bg-gray-100 text-primary-600 font-bold');
+					} else {
+						btn.addClass('text-white');
+					}
+
+					li.append(btn);
+					$list.append(li);
+				});
+			};
+
+			// Initial Population
+			$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function () {
+				refreshDropdown($(this));
+			});
+
+			// Initialize Flowbite dropdowns
+			setTimeout(() => {
+				$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function () {
+					const $wrapper = $(this);
+					const $button = $wrapper.find('[data-dropdown-toggle]');
+					const $menu = $wrapper.find('[id^="dropdown_"]');
+
+					if ($button.length && $menu.length) {
+						const triggerEl = $button[0];
+						const targetEl = $menu[0];
+
+						// Initialize Flowbite Dropdown
+						if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
+							const dropdown = new window.Flowbite.Dropdown(targetEl, triggerEl, {
+								placement: 'bottom',
+								triggerType: 'click',
+								offsetSkidding: 0,
+								offsetDistance: 10,
+							});
+							dropdownInstances.set(triggerEl, dropdown);
+						}
+					}
+				});
+			}, 100);
+
+			// Handle Option Click
+			$(document).off('click.quickview', '.ats-dropdown-option').on('click.quickview', '.ats-dropdown-option', function (e) {
+				e.preventDefault();
+				const $option = $(this);
+				const value = $option.data('value');
+				const $wrapper = $option.closest('.flowbite-dropdown-wrapper');
+				const $select = $wrapper.find('select');
+				const $btn = $wrapper.find('.ats-dropdown-trigger');
+
+				// Close dropdown using Flowbite instance
+				const triggerEl = $btn[0];
+				if (dropdownInstances.has(triggerEl)) {
+					const dropdown = dropdownInstances.get(triggerEl);
+					dropdown.hide();
+				}
+
+				// Update Select
+				$select.val(value).trigger('change');
+			});
+
+			// Listen for WC updates
+			$form.on('woocommerce_update_variation_values', function () {
+				$('.flowbite-dropdown-wrapper').each(function () {
+					refreshDropdown($(this));
+				});
+			});
+
+			// Sync if select changes elsewhere (e.g. reset)
+			$('.flowbite-dropdown-wrapper select', this.elements.modalContent).on('change', function () {
+				const $wrapper = $(this).closest('.flowbite-dropdown-wrapper');
+				refreshDropdown($wrapper);
+			});
 		},
 
 		/**
