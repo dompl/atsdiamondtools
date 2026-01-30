@@ -348,12 +348,19 @@ import $ from 'jquery';
 				}
 
 				// Rebuild list
+				let optionCount = 0;
 				$select.find('option').each(function () {
 					const $opt = $(this);
 					const value = $opt.val();
 					const text = $opt.text();
 
-					if (!value) return; // Skip placeholder
+					if (!value) {
+						console.log('[DROPDOWN DEBUG] Skipping empty option');
+						return; // Skip placeholder
+					}
+
+					optionCount++;
+					console.log('[DROPDOWN DEBUG] Building option', optionCount, '- Value:', value, 'Text:', text);
 
 					const li = $('<li>');
 					const btn = $('<button type="button">')
@@ -371,6 +378,7 @@ import $ from 'jquery';
 					li.append(btn);
 					$list.append(li);
 				});
+				console.log('[DROPDOWN DEBUG] Total options built:', optionCount);
 			};
 
 			// Initial Population
@@ -407,9 +415,16 @@ import $ from 'jquery';
 								triggerType: 'click',
 								offsetSkidding: 0,
 								offsetDistance: 10,
+								onShow: () => {
+									console.log('[DROPDOWN DEBUG] Dropdown showing');
+								},
+								onHide: () => {
+									console.log('[DROPDOWN DEBUG] Dropdown hiding');
+								}
 							});
 							dropdownInstances.set(triggerEl, dropdown);
 							console.log('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite dropdown initialized successfully');
+							console.log('[DROPDOWN DEBUG] Wrapper', index, '- Dropdown instance:', dropdown);
 						} catch (error) {
 							console.error('[DROPDOWN DEBUG] Wrapper', index, '- Error initializing Flowbite:', error);
 						}
