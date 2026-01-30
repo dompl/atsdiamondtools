@@ -44,11 +44,27 @@ if ( !function_exists( 'ats_product_shortcode' ) ) {
             return '<!-- ATS Product: Product not found or not published -->';
         }
 
+        // Get display type
+        $display_type = sanitize_text_field( $atts['display'] );
+
+        // Check if product is in user's favorites (for cache key)
+        $is_favorite = false;
+        if ( is_user_logged_in() ) {
+            $user_id = get_current_user_id();
+            $favorites = get_user_meta( $user_id, 'ats_favorite_products', true );
+            $is_favorite = is_array( $favorites ) && in_array( $product_id, $favorites );
+        }
+
+        // Try to get cached HTML
+        $cached_html = ats_get_cached_product_html( $product_id, $display_type, $is_favorite );
+        if ( $cached_html !== false ) {
+            return $cached_html;
+        }
+
         // Allow modification of product before rendering
         $product = apply_filters( 'ats_product_before_render', $product, $atts );
 
         // Get product data
-        $display_type  = sanitize_text_field( $atts['display'] );
         $product_title = $product->get_name();
         $product_url   = $product->get_permalink();
         $image_id      = get_post_thumbnail_id( $product->get_id() );
@@ -77,6 +93,9 @@ if ( !function_exists( 'ats_product_shortcode' ) ) {
         } else {
             $html = ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
         }
+
+        // Cache the generated HTML
+        ats_set_cached_product_html( $product_id, $display_type, $is_favorite, $html );
 
         // Allow filtering of the output
         return apply_filters( 'ats_product_html', $html, $product, $atts );
