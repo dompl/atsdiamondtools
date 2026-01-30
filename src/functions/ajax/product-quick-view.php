@@ -273,7 +273,14 @@ function ats_render_product_quick_view( $product ) {
 
                 <!-- Add to Cart Form -->
                 <div class="rfs-ref-quick-view-cart ats-product-form">
-                    <?php woocommerce_template_single_add_to_cart(); ?>
+                    <?php
+                    // For variable products, we need to ensure variation elements exist
+                    if ($product->is_type('variable')) {
+                        echo '<div class="woocommerce-variation-price" style="display:none;"></div>';
+                        echo '<div class="woocommerce-variation-availability" style="display:none;"></div>';
+                    }
+                    woocommerce_template_single_add_to_cart();
+                    ?>
                 </div>
 
             </div>
