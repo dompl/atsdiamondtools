@@ -6,7 +6,7 @@
  * @package SkylineWP Dev Child
  */
 
-import { Modal } from 'flowbite';
+import { Modal, Dropdown } from 'flowbite';
 import Splide from '@splidejs/splide';
 import $ from 'jquery';
 
@@ -384,8 +384,7 @@ import $ from 'jquery';
 			// Initialize Flowbite dropdowns
 			setTimeout(() => {
 				console.log('[DROPDOWN DEBUG] Starting Flowbite initialization...');
-				console.log('[DROPDOWN DEBUG] window.Flowbite exists:', typeof window.Flowbite !== 'undefined');
-				console.log('[DROPDOWN DEBUG] window.Flowbite.Dropdown exists:', typeof window.Flowbite !== 'undefined' && typeof window.Flowbite.Dropdown !== 'undefined');
+				console.log('[DROPDOWN DEBUG] Dropdown class available:', typeof Dropdown !== 'undefined');
 
 				$('.flowbite-dropdown-wrapper', this.elements.modalContent).each(function (index) {
 					console.log('[DROPDOWN DEBUG] Processing dropdown wrapper', index);
@@ -402,22 +401,17 @@ import $ from 'jquery';
 
 						console.log('[DROPDOWN DEBUG] Wrapper', index, '- Elements ready, initializing Flowbite...');
 
-						// Initialize Flowbite Dropdown
-						if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
-							try {
-								const dropdown = new window.Flowbite.Dropdown(targetEl, triggerEl, {
-									placement: 'bottom',
-									triggerType: 'click',
-									offsetSkidding: 0,
-									offsetDistance: 10,
-								});
-								dropdownInstances.set(triggerEl, dropdown);
-								console.log('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite dropdown initialized successfully');
-							} catch (error) {
-								console.error('[DROPDOWN DEBUG] Wrapper', index, '- Error initializing Flowbite:', error);
-							}
-						} else {
-							console.error('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite not available');
+						try {
+							const dropdown = new Dropdown(targetEl, triggerEl, {
+								placement: 'bottom',
+								triggerType: 'click',
+								offsetSkidding: 0,
+								offsetDistance: 10,
+							});
+							dropdownInstances.set(triggerEl, dropdown);
+							console.log('[DROPDOWN DEBUG] Wrapper', index, '- Flowbite dropdown initialized successfully');
+						} catch (error) {
+							console.error('[DROPDOWN DEBUG] Wrapper', index, '- Error initializing Flowbite:', error);
 						}
 					}
 				});
