@@ -398,14 +398,19 @@ import $ from 'jquery';
 					console.log('[DROPDOWN DEBUG] Processing dropdown wrapper', index);
 					const $wrapper = $(this);
 					const $button = $wrapper.find('[data-dropdown-toggle]');
-					const $menu = $wrapper.find('[id^="dropdown_"]');
+					const dropdownId = $button.attr('data-dropdown-toggle');
+					const $menu = $wrapper.find('#' + dropdownId);
 
 					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Button found:', $button.length);
+					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Dropdown ID:', dropdownId);
 					console.log('[DROPDOWN DEBUG] Wrapper', index, '- Menu found:', $menu.length);
 
 					if ($button.length && $menu.length) {
 						const triggerEl = $button[0];
 						const targetEl = $menu[0];
+
+						console.log('[DROPDOWN DEBUG] Wrapper', index, '- triggerEl:', triggerEl);
+						console.log('[DROPDOWN DEBUG] Wrapper', index, '- targetEl:', targetEl);
 
 						console.log('[DROPDOWN DEBUG] Wrapper', index, '- Elements ready, initializing Flowbite...');
 
