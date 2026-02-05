@@ -78,22 +78,23 @@ import $ from 'jquery';
 		bindEvents: function () {
 			const self = this;
 
-			// Expand button clicks
-			this.elements.expandButtons.forEach(function (button) {
-				button.addEventListener('click', function (e) {
+			// Use event delegation for expand buttons (works with dynamically loaded products)
+			document.addEventListener('click', function (e) {
+				// Check if the clicked element or its parent is an expand button
+				const expandButton = e.target.closest('.ats-expand-product');
+				if (expandButton) {
 					e.preventDefault();
 					e.stopPropagation();
 
-					const productCard = this.closest('[data-product-id]');
+					const productCard = expandButton.closest('[data-product-id]');
 					if (productCard) {
 						const productId = productCard.getAttribute('data-product-id');
 						if (productId) {
 							self.openQuickView(productId);
 						}
 					}
-				});
+				}
 			});
-
 			// Close button click
 			const closeButton = this.elements.modal?.querySelector('[data-modal-hide]');
 			if (closeButton) {
@@ -221,7 +222,28 @@ import $ from 'jquery';
 
 			// Reinitialize image gallery if present
 			this.initializeGallery();
-		},
+
+		// Bind add to cart event to show toast notification
+		this.bindAddToCartEvent();
+	},
+
+	/**
+	 * Bind add to cart event listener for toast notifications
+	 */
+	bindAddToCartEvent: function () {
+		const self = this;
+
+		// Store product name when modal opens
+		const productName = self.elements.modalContent?.querySelector('.rfs-ref-quick-view-title')?.textContent || 'Product';
+
+		// Listen for WooCommerce added_to_cart event (global event)
+		$(document.body).off('added_to_cart.quickview').on('added_to_cart.quickview', function (event, fragments, cart_hash, $button) {
+			// Only show toast if quick view modal is open
+			if (self.modalInstance && self.currentProductId) {
+				self.showAddToCartToast(productName);
+			}
+		});
+	},
 
 		/**
 		 * Initialize product image gallery
@@ -444,11 +466,6 @@ import $ from 'jquery';
 		initializeVariationPriceAndImage: function ($form) {
 			const $priceHtml = $(this.elements.modalContent).find('.rfs-ref-quick-view-price p');
 
-			// Debug: Check what elements exist
-			console.log('Price element found:', $priceHtml.length);
-			console.log('Single variation wrap:', $form.find('.single_variation_wrap').length);
-			console.log('Single variation:', $form.find('.single_variation').length);
-
 			// Store original data
 			if ($priceHtml.length) {
 				$priceHtml.data('original-html', $priceHtml.html());
@@ -456,8 +473,6 @@ import $ from 'jquery';
 
 			// Listen for show_variation event (this is what WooCommerce uses)
 			$form.on('show_variation', (event, variation) => {
-				console.log('show_variation event - Variation found:', variation);
-
 				// Update price
 				if (variation.price_html && $priceHtml.length) {
 					let priceHtml = variation.price_html;
@@ -465,7 +480,6 @@ import $ from 'jquery';
 						priceHtml += ' <span class="tax_label">+VAT</span>';
 					}
 					$priceHtml.html(priceHtml);
-					console.log('Price updated:', priceHtml);
 				}
 
 				// Update image if available
@@ -507,7 +521,6 @@ import $ from 'jquery';
 
 			// Also listen for hide_variation
 			$form.on('hide_variation', () => {
-				console.log('hide_variation event');
 				// Reset price
 				if ($priceHtml.length && $priceHtml.data('original-html')) {
 					$priceHtml.html($priceHtml.data('original-html'));
@@ -529,7 +542,6 @@ import $ from 'jquery';
 			});
 
 			$form.on('reset_data', () => {
-				console.log('reset_data event');
 				// Reset price
 				if ($priceHtml.length && $priceHtml.data('original-html')) {
 					$priceHtml.html($priceHtml.data('original-html'));
@@ -593,6 +605,39 @@ import $ from 'jquery';
 					</div>
 				</div>
 			`;
+		},
+
+		/**
+		 * Show toast notification when product is added to cart
+		 * @param {string} productName - Name of the product added
+		 */
+		showAddToCartToast: function (productName) {
+			const $toast = $(`
+				<div class="rfs-ref-cart-toast" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; max-width: 400px; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 25px -3px rgba(0,0,0,0.2); background-color: #8b6b84; border: 1px solid #8b6b84; color: #ffffff; animation: slideInRight 0.4s ease-out; display: flex; align-items: center; gap: 12px;">
+					<svg style="width: 24px; height: 24px; flex-shrink: 0; color: #ffffff;" fill="currentColor" viewBox="0 0 20 20">
+						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+					</svg>
+					<div style="flex: 1;">
+						<p style="font-weight: 600; font-size: 14px; margin: 0; color: #ffffff;">Added to basket!</p>
+						<p style="font-size: 13px; margin: 0; opacity: 0.95; color: #ffffff;">${productName}</p>
+					</div>
+				</div>
+			`);
+
+			// Append to body
+			$('body').append($toast);
+
+			// Auto-remove after 4 seconds
+			setTimeout(() => {
+				$toast.css({
+					animation: 'slideOutRight 0.4s ease-in',
+					opacity: '0',
+					transform: 'translateX(100%)'
+				});
+				setTimeout(() => {
+					$toast.remove();
+				}, 400);
+			}, 4000);
 		},
 
 		/**

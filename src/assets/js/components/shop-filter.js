@@ -356,9 +356,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				e.preventDefault();
 				const categoryId = parseInt(this.dataset.categoryId) || 0;
 
-				// If "All Products" (categoryId = 0) is clicked from a category page, redirect to shop page
-				if (categoryId === 0 && initialCategory !== 0) {
-					// Redirect to shop page
+				// If "All Products" is clicked, always redirect to shop page
+				if (categoryId === 0) {
 					const shopUrl = window.themeData?.shop_url || '/shop/';
 					window.location.href = shopUrl;
 					return;

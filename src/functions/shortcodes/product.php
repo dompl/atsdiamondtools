@@ -220,12 +220,22 @@ if ( !function_exists( 'ats_render_product_card' ) ) {
 
 		<div class="rfs-ref-product-footer flex justify-between items-center mt-auto">
 			<span class="rfs-ref-product-price text-[12px] font-bold text-black"><?php echo wp_kses_post( $price_html ); ?></span>
-			<a
-				href="<?php echo esc_url( $product_url ); ?>"
-				class="rfs-ref-product-cta-btn ats-btn ats-btn-sm ats-btn-yellow"
-			>
-				<?php echo esc_html( $button_text ); ?>
-			</a>
+			<?php if ( $product->is_type( 'variable' ) ) : ?>
+				<button
+					class="rfs-ref-product-cta-btn ats-btn ats-btn-sm ats-btn-yellow ats-expand-product"
+					data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+					aria-label="<?php echo esc_attr( 'Select size for ' . $product_title ); ?>"
+				>
+					<?php echo esc_html( $button_text ); ?>
+				</button>
+			<?php else : ?>
+				<a
+					href="<?php echo esc_url( $product_url ); ?>"
+					class="rfs-ref-product-cta-btn ats-btn ats-btn-sm ats-btn-yellow"
+				>
+					<?php echo esc_html( $button_text ); ?>
+				</a>
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php
@@ -294,12 +304,22 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 
 			<div class="rfs-ref-product-list-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
 				<span class="rfs-ref-product-list-price text-xs lg:text-sm font-bold text-black"><?php echo wp_kses_post( $price_html ); ?></span>
-				<a
-					href="<?php echo esc_url( $product_url ); ?>"
-					class="rfs-ref-product-list-cta-btn inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap"
-				>
-					<?php echo esc_html( $button_text ); ?>
-				</a>
+				<?php if ( $product->is_type( 'variable' ) ) : ?>
+					<button
+						class="rfs-ref-product-list-cta-btn ats-expand-product inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap"
+						data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+						aria-label="<?php echo esc_attr( 'Select size for ' . $product_title ); ?>"
+					>
+						<?php echo esc_html( $button_text ); ?>
+					</button>
+				<?php else : ?>
+					<a
+						href="<?php echo esc_url( $product_url ); ?>"
+						class="rfs-ref-product-list-cta-btn inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap"
+					>
+						<?php echo esc_html( $button_text ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 		</div>
 	</article>
@@ -363,12 +383,22 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
 
 			<div class="rfs-ref-product-compact-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 lg:gap-2">
 				<span class="rfs-ref-product-compact-price text-[10px] lg:text-xs font-bold text-black whitespace-nowrap"><?php echo wp_kses_post( $price_html ); ?></span>
-				<a
-					href="<?php echo esc_url( $product_url ); ?>"
-					class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
-				>
-					<?php echo esc_html( $button_text ); ?>
-				</a>
+				<?php if ( $product->is_type( 'variable' ) ) : ?>
+					<button
+						class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow ats-expand-product whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
+						data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+						aria-label="<?php echo esc_attr( 'Select size for ' . $product_title ); ?>"
+					>
+						<?php echo esc_html( $button_text ); ?>
+					</button>
+				<?php else : ?>
+					<a
+						href="<?php echo esc_url( $product_url ); ?>"
+						class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
+					>
+						<?php echo esc_html( $button_text ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>
