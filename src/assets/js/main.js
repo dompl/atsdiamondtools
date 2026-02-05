@@ -13,8 +13,9 @@ import './components/favorites.js';
 import './components/blog.js';
 import './components/shop-filter.js';
 import './components/contact-form.js';
+import './components/admin-quick-order.js';
 import { initATSSearch } from './components/search.js';
-import { initSingleProduct } from './components/single-product.js';
+import { initSingleProduct, initQuantityButtons, initAjaxAddToCart } from './components/single-product.js';
 import { initWooCommerceAccount } from './components/woocommerce-account.js';
 import { initProductTabs } from './components/product-tabs.js';
 import { initReviewForm } from './components/review-form.js';
@@ -47,4 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	initReviewForm();
 	initCart();
 	initCheckout();
+
+	// Initialize quantity buttons globally (for product pages, quick view, cart, etc.)
+	initQuantityButtons();
+
+	// Initialize AJAX add to cart globally (for product pages, quick view, etc.)
+	initAjaxAddToCart();
 });

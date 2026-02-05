@@ -79,6 +79,7 @@ add_action( 'wp_enqueue_scripts', function () {
         'calculator_nonce'       => wp_create_nonce( 'ats_calculator_nonce' ),
         'ats_load_more_nonce' => wp_create_nonce( 'ats_load_more_posts' ),
         'theme_dir'              => get_stylesheet_directory_uri(),
+        'shop_url'               => wc_get_page_permalink( 'shop' ),
         'is_admin'               => current_user_can( 'administrator' ) && is_user_logged_in() ? true : false,
         'is_user_logged_in'      => is_user_logged_in(),
     ];

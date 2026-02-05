@@ -23,7 +23,7 @@ function contact_us_fields() {
 
         Image::make('Banner Image', 'banner_image')
             ->helperText('Banner background image (recommended: 1920x400px or larger)')
-            ->returnFormat('id'),
+            ->format('id'),
 
         Text::make('Banner Title', 'banner_title')
             ->helperText('Main heading displayed on the banner')
@@ -93,6 +93,9 @@ function component_contact_us_html(string $output, string $layout): string {
     }
 
     // Get field values
+    $banner_image = get_sub_field('banner_image');
+    $banner_title = get_sub_field('banner_title') ?: 'Contact Us';
+    $banner_description = get_sub_field('banner_description');
     $section_title = get_sub_field('section_title') ?: 'Contact Us';
     $company_details = get_sub_field('company_details') ?: [];
     $recipient_email = get_sub_field('recipient_email');
@@ -110,8 +113,57 @@ function component_contact_us_html(string $output, string $layout): string {
         $recaptcha_site_key = RECAPTCHA_SITE_KEY;
     }
 
+    // Get banner image URL using wpimage
+    $banner_image_url = '';
+    if ($banner_image) {
+        $banner_image_url = wpimage($banner_image, [1920, 400], false, true, true, true, 85);
+    }
+
     ob_start();
     ?>
+
+    <?php if ($banner_image_url): ?>
+        <!-- Contact Banner -->
+        <div class="rfs-ref-contact-banner-wrapper">
+            <div class="rfs-ref-shop-container container mx-auto px-4 pt-4 mb-6">
+                <div class="rfs-ref-contact-banner relative h-[200px] md:h-[250px] overflow-hidden rounded-lg">
+                    <!-- Background Image -->
+                    <div class="absolute inset-0">
+                        <img src="<?php echo esc_url($banner_image_url); ?>"
+                             alt="<?php echo esc_attr($banner_title); ?>"
+                             class="w-full h-full object-cover" />
+                        <!-- Overlay Gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
+                    </div>
+
+                    <!-- Decorative Brand Elements -->
+                    <div class="rfs-ref-banner-decorations absolute inset-0 pointer-events-none opacity-20">
+                        <!-- Large Circle - Top Right -->
+                        <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-600 blur-3xl"></div>
+                        <!-- Medium Circle - Bottom Left -->
+                        <div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-ats-yellow blur-2xl"></div>
+                        <!-- Small Accent - Middle -->
+                        <div class="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-primary-300 blur-xl"></div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="rfs-ref-contact-banner-content relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
+                        <div class="max-w-3xl">
+                            <h1 class="rfs-ref-banner-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                                <?php echo esc_html($banner_title); ?>
+                            </h1>
+
+                            <?php if (!empty($banner_description)): ?>
+                                <div class="rfs-ref-banner-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
+                                    <?php echo esc_html($banner_description); ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="rfs-ref-contact-us-simple py-8 lg:py-12 bg-white">
         <div class="container mx-auto px-4">
@@ -324,4 +376,4 @@ add_filter('skylinewp_flexible_content_output', 'component_contact_us_html', 10,
 // Define the custom layout for flexible content
 return Layout::make('Contact Us', 'contact_us')
     ->layout('block')
-    ->fields(contact_us_simple_fields());
+    ->fields(contact_us_fields());

@@ -19,9 +19,6 @@ export function initSingleProduct() {
 		return;
 	}
 
-	// Initialize Quantity Buttons
-	initQuantityButtons();
-
 	// Initialize Splide Gallery
 	initProductGallery();
 
@@ -33,9 +30,6 @@ export function initSingleProduct() {
 
 	// Initialize Custom Dropdowns
 	initCustomDropdowns();
-
-	// Initialize AJAX Add to Cart
-	initAjaxAddToCart();
 }
 
 /**
@@ -148,8 +142,9 @@ function initProductGallery() {
 
 /**
  * AJAX Add to Cart for Single Product with Enhanced Loading UI
+ * Exported so it can be initialized globally on all pages
  */
-function initAjaxAddToCart() {
+export function initAjaxAddToCart() {
 	const $form = $('form.cart');
 	const $productInfo = $('#ats-single-product-info');
 
@@ -259,7 +254,15 @@ function initAjaxAddToCart() {
 				// Trigger WooCommerce event for cart updates
 				$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $btn]);
 
-				// Small delay to ensure cart is updated, then open modal
+				// Close quick view modal if we're in it
+				if ($btn.closest('#ats-product-quick-view-modal').length > 0) {
+					// Close the quick view modal
+					if (window.ProductQuickView && typeof window.ProductQuickView.closeModal === 'function') {
+						window.ProductQuickView.closeModal();
+					}
+				}
+
+				// Small delay to ensure cart is updated
 				setTimeout(() => {
 					removeLoadingOverlay();
 					$btn.removeClass('loading').prop('disabled', false);
@@ -269,12 +272,7 @@ function initAjaxAddToCart() {
 						window.ATSMiniCart.loadCart();
 					}
 
-					// Open MiniCart Modal after cart is updated
-					setTimeout(() => {
-						if (window.ATSMiniCartModal && typeof window.ATSMiniCartModal.open === 'function') {
-							window.ATSMiniCartModal.open();
-						}
-					}, 200);
+					// Do NOT auto-open mini cart modal - user must click cart icon to open it
 				}, 300);
 			},
 			error: function (xhr, status, error) {
@@ -297,8 +295,9 @@ function initAjaxAddToCart() {
 
 /**
  * Quantity Buttons (+/-)
+ * Exported so it can be initialized globally on all pages
  */
-function initQuantityButtons() {
+export function initQuantityButtons() {
 	$(document).on('click', '.ats-qty-btn', function (e) {
 		e.preventDefault();
 		const $btn = $(this);
@@ -490,19 +489,10 @@ function initCategoryToggle() {
 }
 
 /**
- * Initialize Flowbite Dropdowns for Variations
+ * Initialize Custom Dropdowns for Variations (WITHOUT Flowbite auto-init conflict)
  */
 function initCustomDropdowns() {
 	const $form = $('form.variations_form');
-
-	// Import Flowbite Dropdown for manual initialization
-	let Dropdown;
-	if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
-		Dropdown = window.Flowbite.Dropdown;
-	}
-
-	// Store dropdown instances
-	const dropdownInstances = new Map();
 
 	// Helper to refresh options from select
 	const refreshDropdown = ($wrapper) => {
@@ -602,30 +592,42 @@ function initCustomDropdowns() {
 		refreshDropdown($(this));
 	});
 
-	// Initialize Flowbite dropdowns manually
-	setTimeout(() => {
-		$('.flowbite-dropdown-wrapper').each(function () {
-			const $wrapper = $(this);
-			const $button = $wrapper.find('[data-dropdown-toggle]');
-			const $menu = $wrapper.find('[id^="dropdown_"]');
+	// Remove Flowbite's data-dropdown-toggle to prevent auto-initialization conflicts
+	// We'll handle the dropdown manually
+	$('.flowbite-dropdown-wrapper [data-dropdown-toggle]').each(function() {
+		const $btn = $(this);
+		const targetId = $btn.attr('data-dropdown-toggle');
 
-			if ($button.length && $menu.length) {
-				const triggerEl = $button[0];
-				const targetEl = $menu[0];
+		// Store the target ID for later use
+		$btn.data('manual-dropdown-target', targetId);
 
-				// Initialize Flowbite Dropdown
-				if (typeof window.Flowbite !== 'undefined' && window.Flowbite.Dropdown) {
-					const dropdown = new window.Flowbite.Dropdown(targetEl, triggerEl, {
-						placement: 'bottom',
-						triggerType: 'click',
-						offsetSkidding: 0,
-						offsetDistance: 10,
-					});
-					dropdownInstances.set(triggerEl, dropdown);
-				}
+		// Remove Flowbite's trigger attribute
+		$btn.removeAttr('data-dropdown-toggle');
+
+		// Add manual click handler for button
+		$btn.on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			const target = $btn.data('manual-dropdown-target');
+			const $menu = $('#' + target);
+			const isHidden = $menu.hasClass('hidden');
+
+			// Close all other dropdowns first
+			$('.flowbite-dropdown-wrapper [id^="dropdown_"]').each(function() {
+				$(this).addClass('hidden');
+			});
+
+			// Toggle this dropdown
+			if (isHidden) {
+				$menu.removeClass('hidden');
+				$btn.attr('aria-expanded', 'true');
+			} else {
+				$menu.addClass('hidden');
+				$btn.attr('aria-expanded', 'false');
 			}
 		});
-	}, 100);
+	});
 
 	// Listen for WC updates
 	$form.on('woocommerce_update_variation_values', function () {
@@ -637,21 +639,31 @@ function initCustomDropdowns() {
 	// Handle Option Click
 	$(document).on('click', '.ats-dropdown-option', function (e) {
 		e.preventDefault();
+		e.stopPropagation();
+
 		const $option = $(this);
 		const value = $option.data('value');
 		const $wrapper = $option.closest('.flowbite-dropdown-wrapper');
 		const $select = $wrapper.find('select');
-		const $btn = $wrapper.find('.ats-dropdown-trigger');
+		const $menu = $wrapper.find('[id^="dropdown_"]');
+		const $button = $wrapper.find('button[data-manual-dropdown-target]');
 
-		// Close dropdown using Flowbite instance
-		const triggerEl = $btn[0];
-		if (dropdownInstances.has(triggerEl)) {
-			const dropdown = dropdownInstances.get(triggerEl);
-			dropdown.hide();
-		}
+		// Hide the dropdown
+		$menu.addClass('hidden');
 
-		// Update Select
+		// Update button aria
+		$button.attr('aria-expanded', 'false');
+
+		// Update the select value
 		$select.val(value).trigger('change');
+	});
+
+	// Close dropdown when clicking outside
+	$(document).on('click', function(e) {
+		if (!$(e.target).closest('.flowbite-dropdown-wrapper').length) {
+			$('.flowbite-dropdown-wrapper [id^="dropdown_"]').addClass('hidden');
+			$('.flowbite-dropdown-wrapper button[data-manual-dropdown-target]').attr('aria-expanded', 'false');
+		}
 	});
 
 	// Sync if select changes elsewhere (e.g. reset)

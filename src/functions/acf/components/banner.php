@@ -104,7 +104,7 @@ return ob_get_clean();
     }
     ?>
 
-	<div class="rfs-ref-banner-container flex items-center justify-center mb-0 mt-4" id="<?php echo esc_attr( $banner_id ); ?>" data-slides-count="<?php echo count( $slides ); ?>">
+	<div class="rfs-ref-banner-container flex items-center justify-center mb-8 mt-4" id="<?php echo esc_attr( $banner_id ); ?>" data-slides-count="<?php echo count( $slides ); ?>">
 		<!-- Banner Container -->
 		<div class="rfs-ref-banner-wrapper container flex flex-col lg:flex-row gap-6 lg:gap-5 lg:py-0">
 			<!-- Sidebar (Navigation) -->

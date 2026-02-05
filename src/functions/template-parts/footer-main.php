@@ -122,13 +122,17 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
                         </h3>
                     <?php endif; ?>
 
-                    <?php if ( $category_links && is_array( $category_links ) ): ?>
+                    <?php
+                    // Check if there are custom category links from ACF
+                    if ( $category_links && is_array( $category_links ) && ! empty( $category_links ) ):
+                        // Display custom links from ACF
+                        ?>
                         <div class="rfs-ref-footer-categories-grid grid grid-cols-2 gap-x-4 gap-y-3">
                             <?php foreach ( $category_links as $link_item ): ?>
                                 <?php
-$link = $link_item['ats_footer_category_link'] ?? null;
-if ( $link && isset( $link['url'], $link['title'] ) ):
-?>
+                                $link = $link_item['ats_footer_category_link'] ?? null;
+                                if ( $link && isset( $link['url'], $link['title'] ) ):
+                                ?>
                                     <a href="<?php echo esc_url( $link['url'] ); ?>"
                                        class="text-gray-600 hover:text-primary-800 text-sm"
                                        <?php echo( isset( $link['target'] ) && $link['target'] === '_blank' ) ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
@@ -137,7 +141,37 @@ if ( $link && isset( $link['url'], $link['title'] ) ):
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
-                    <?php endif; ?>
+                    <?php
+                    else:
+                        // No custom links - get all product categories automatically
+                        $categories = get_terms( array(
+                            'taxonomy'   => 'product_cat',
+                            'hide_empty' => false,
+                            'orderby'    => 'name',
+                            'order'      => 'ASC',
+                        ) );
+
+                        if ( ! is_wp_error( $categories ) && ! empty( $categories ) ) {
+                            // Filter out "Uncategorized"
+                            $categories = array_filter( $categories, function( $cat ) {
+                                return strtolower( $cat->name ) !== 'uncategorized';
+                            } );
+
+                            if ( ! empty( $categories ) ):
+                            ?>
+                        <div class="rfs-ref-footer-categories-grid grid grid-cols-2 gap-x-4 gap-y-3">
+                            <?php foreach ( $categories as $category ): ?>
+                                <a href="<?php echo esc_url( get_term_link( $category ) ); ?>"
+                                   class="text-gray-600 hover:text-primary-800 text-sm">
+                                    <?php echo esc_html( $category->name ); ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                            <?php
+                            endif;
+                        }
+                    endif;
+                    ?>
                 </div>
 
                 <!-- Column 4: Newsletter -->

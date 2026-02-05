@@ -221,6 +221,36 @@ add_filter( 'woocommerce_available_variation', function( $data, $product, $varia
 	return $data;
 }, 10, 3 );
 
+/**
+ * Output variation templates globally for quick view modal
+ *
+ * WooCommerce variation templates need to be present in the DOM before the variation
+ * form is initialized. When loading products via AJAX (quick view modal), script tags
+ * inserted via innerHTML don't get properly added to the DOM. This outputs the required
+ * templates globally so they're always available.
+ */
+add_action( 'wp_footer', function() {
+	// Only output once, even if called multiple times
+	static $templates_output = false;
+
+	if ( $templates_output ) {
+		return;
+	}
+
+	$templates_output = true;
+
+	// Output the variation templates that WooCommerce's JS requires
+	?>
+	<script type="text/template" id="tmpl-variation-template">
+		<div class="woocommerce-variation-description">{{{ data.variation.variation_description }}}</div>
+		<div class="woocommerce-variation-price">{{{ data.variation.price_html }}}</div>
+		<div class="woocommerce-variation-availability">{{{ data.variation.availability_html }}}</div>
+	</script>
+	<script type="text/template" id="tmpl-unavailable-variation-template">
+		<p role="alert"><?php esc_html_e( 'Sorry, this product is unavailable. Please choose a different combination.', 'woocommerce' ); ?></p>
+	</script>
+	<?php
+}, 999 );
 
 // You can directly override the package name using the filter as WooCommerce does internally.
 // The filter 'woocommerce_shipping_package_name' is the correct and only way to modify the shipping package name

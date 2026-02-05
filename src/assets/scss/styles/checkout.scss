@@ -69,6 +69,88 @@
 			@apply text-red-600 hover:text-red-800 underline font-medium;
 		}
 	}
+
+	// ============================================
+	// Select2 Dropdown Styling (Country/Region)
+	// ============================================
+
+	// Style Select2 container to match input fields
+	.select2-container {
+		@apply w-full;
+
+		.select2-selection--single {
+			@apply w-full px-4 py-3 border border-gray-300 rounded-lg;
+			@apply text-sm text-ats-dark bg-white;
+			@apply transition-colors duration-200;
+			height: auto !important;
+			min-height: 48px !important;
+			display: flex !important;
+			align-items: center !important;
+
+			.select2-selection__rendered {
+				@apply text-sm text-ats-dark;
+				padding: 0 !important;
+				line-height: normal !important;
+			}
+
+			.select2-selection__arrow {
+				height: 100% !important;
+				top: 0 !important;
+				right: 12px !important;
+
+				b {
+					border-color: theme('colors.ats.dark') transparent transparent transparent !important;
+					border-width: 6px 4px 0 4px !important;
+					margin-left: -4px !important;
+					margin-top: -3px !important;
+				}
+			}
+		}
+
+		// Hover state
+		.select2-selection--single:hover {
+			@apply border-gray-400;
+		}
+
+		// Focus state
+		&.select2-container--focus,
+		&.select2-container--open {
+			.select2-selection--single {
+				@apply ring-2 ring-ats-yellow border-ats-yellow;
+				outline: none !important;
+			}
+		}
+	}
+
+	// Style Select2 dropdown results
+	.select2-dropdown {
+		@apply border border-gray-300 rounded-lg shadow-lg;
+		margin-top: 4px !important;
+
+		.select2-search--dropdown {
+			padding: 8px !important;
+
+			.select2-search__field {
+				@apply w-full px-3 py-2 border border-gray-300 rounded-lg text-sm;
+				@apply focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow;
+			}
+		}
+
+		.select2-results__options {
+			.select2-results__option {
+				@apply px-4 py-2 text-sm text-ats-dark;
+
+				&:hover,
+				&.select2-results__option--highlighted {
+					@apply bg-ats-yellow bg-opacity-10 text-ats-dark;
+				}
+
+				&.select2-results__option--selected {
+					@apply bg-gray-100 text-ats-dark;
+				}
+			}
+		}
+	}
 }
 
 // ============================================
@@ -76,32 +158,54 @@
 // ============================================
 
 .woocommerce-checkout {
-	// Container for postcode lookup (make it inline)
-	.crafty_billing,
-	.crafty_shipping {
-		@apply flex items-end gap-3 mb-4;
+	// Target only the crafty clicks postcode fields specifically
+	// Input field (form-row-first)
+	.crafty_billing.form-row-first,
+	.crafty_shipping.form-row-first {
+		@apply mb-0;
+		display: inline-block !important;
+		vertical-align: top !important;
+		width: calc(65% - 0.5rem) !important;
+		float: none #{!important};
+		margin-right: 1rem !important;
+		margin-left: 0 !important;
 
-		&.form-row-first,
-		&.form-row-last {
-			@apply w-auto flex-1;
-		}
-
-		// Postcode label - make it bold
 		label {
-			@apply font-bold;
+			@apply text-sm font-medium text-ats-dark mb-2 block;
 		}
 	}
 
-	// Postcode search input field
+	// Button field (form-row-last)
+	.crafty_billing.form-row-last,
+	.crafty_shipping.form-row-last {
+		@apply mb-0;
+		display: inline-block !important;
+		vertical-align: top !important;
+		width: calc(35% - 1rem) !important;
+		float: none #{!important};
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+
+		// Hide the empty label but maintain spacing
+		label {
+			@apply mb-2 block text-sm;
+			visibility: hidden !important;
+			height: 1.75rem !important;
+		}
+	}
+
+	// Postcode search input field - make it wider and better looking
 	.crafty_billing input.input-text,
 	.crafty_shipping input.input-text {
 		@apply w-full px-4 py-3 border border-gray-300 rounded-lg;
 		@apply text-sm text-ats-dark;
 		@apply focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow;
 		@apply transition-colors duration-200;
+		min-height: 48px !important;
+		float: none #{!important};
 	}
 
-	// Find Address button - ATS brand dark styling
+	// Find Address button - ATS brand dark styling, aligned with input
 	#billing_cp_button,
 	#shipping_cp_button {
 		@apply px-6 py-3 bg-ats-dark text-white;
@@ -111,6 +215,7 @@
 		@apply hover:bg-primary-700;
 		min-height: 48px !important;
 		white-space: nowrap !important;
+		float: none #{!important};
 
 		// Override any inline styles from plugin
 		background-color: theme('colors.ats.dark') #{!important};
@@ -143,6 +248,18 @@
 		@apply text-xs text-ats-text underline cursor-pointer;
 		@apply hover:text-ats-dark transition-colors;
 		margin-top: 0.5rem !important;
+		display: inline-block !important;
+	}
+
+	// Fix postcode lookup inline layout
+	// Create a wrapper div that contains both fields on the same line
+	.woocommerce-billing-fields__field-wrapper,
+	.woocommerce-shipping-fields__field-wrapper {
+		// Make crafty fields break out of grid and use inline-block
+		.crafty_billing,
+		.crafty_shipping {
+			grid-column: 1 / -1 !important; // Span all columns
+		}
 	}
 }
 

@@ -28,6 +28,7 @@ function simple_content_fields() {
             ->helperText('Choose the width of the content container')
             ->choices([
                 'default' => 'Default (Full Width)',
+                'medium' => 'Medium (Checkout Width)',
                 'narrow' => 'Narrow (Centered)',
             ])
             ->default('default')
@@ -72,6 +73,7 @@ function component_simple_content_html(string $output, string $layout): string {
     // Define container width classes
     $width_classes = [
         'default' => 'container mx-auto px-4',
+        'medium' => 'container mx-auto px-4 max-w-7xl',
         'narrow' => 'container mx-auto px-4 max-w-3xl',
     ];
 
