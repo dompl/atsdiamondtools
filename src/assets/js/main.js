@@ -6,6 +6,7 @@ import 'flowbite';
 
 // Active Components
 import './components/add_to_cart.js';
+import './components/ajax-add-to-cart.js';
 import './components/newsletter.js';
 import './components/product-scroller.js';
 import './components/product-quick-view.js';

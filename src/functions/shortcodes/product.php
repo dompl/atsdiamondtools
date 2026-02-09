@@ -229,12 +229,13 @@ if ( !function_exists( 'ats_render_product_card' ) ) {
 					<?php echo esc_html( $button_text ); ?>
 				</button>
 			<?php else : ?>
-				<a
-					href="<?php echo esc_url( $product_url ); ?>"
-					class="rfs-ref-product-cta-btn ats-btn ats-btn-sm ats-btn-yellow"
+				<button
+					class="rfs-ref-product-cta-btn ats-btn ats-btn-sm ats-btn-yellow ats-ajax-add-to-cart"
+					data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+					aria-label="<?php echo esc_attr( 'Add ' . $product_title . ' to cart' ); ?>"
 				>
 					<?php echo esc_html( $button_text ); ?>
-				</a>
+				</button>
 			<?php endif; ?>
 		</div>
 	</div>
@@ -313,12 +314,13 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 						<?php echo esc_html( $button_text ); ?>
 					</button>
 				<?php else : ?>
-					<a
-						href="<?php echo esc_url( $product_url ); ?>"
-						class="rfs-ref-product-list-cta-btn inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap"
+					<button
+						class="rfs-ref-product-list-cta-btn inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap ats-ajax-add-to-cart"
+						data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+						aria-label="<?php echo esc_attr( 'Add ' . $product_title . ' to cart' ); ?>"
 					>
 						<?php echo esc_html( $button_text ); ?>
-					</a>
+					</button>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -392,12 +394,13 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
 						<?php echo esc_html( $button_text ); ?>
 					</button>
 				<?php else : ?>
-					<a
-						href="<?php echo esc_url( $product_url ); ?>"
-						class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
+					<button
+						class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3 ats-ajax-add-to-cart"
+						data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+						aria-label="<?php echo esc_attr( 'Add ' . $product_title . ' to cart' ); ?>"
 					>
 						<?php echo esc_html( $button_text ); ?>
-					</a>
+					</button>
 				<?php endif; ?>
 			</div>
 		</div>
