@@ -22,34 +22,28 @@ if ( ! function_exists( 'register_ats_settings_options' ) ) {
 						->placement( 'left' ),
 
 					Text::make( 'Out of Stock Button Text', 'out_of_stock_button_text' )
-						->helperText( 'Text displayed on product cards when out of stock' )
-						->defaultValue( 'Out of Stock' )
+						->instructions( 'Text displayed on product cards when out of stock. Default: Out of Stock' )
 						->required(),
 
 					Text::make( 'Back in Stock Form Heading', 'back_in_stock_heading' )
-						->helperText( 'Heading shown above the notification form on product page' )
-						->defaultValue( 'Notify me when back in stock' )
+						->instructions( 'Heading shown above the notification form. Default: Notify me when back in stock' )
 						->required(),
 
 					Textarea::make( 'Back in Stock Form Description', 'back_in_stock_description' )
-						->helperText( 'Description text shown on the notification form' )
-						->defaultValue( 'Enter your email address below and we\'ll notify you when this product is available again.' )
+						->instructions( 'Description text shown on the form. Default: Enter your email address below and we\'ll notify you when this product is available again.' )
 						->rows( 3 ),
 
 					Text::make( 'Email Subject Line', 'back_in_stock_email_subject' )
-						->helperText( 'Subject line for back-in-stock notification emails' )
-						->defaultValue( '{product_name} is back in stock!' )
+						->instructions( 'Subject for notification emails. Use {product_name} variable. Default: {product_name} is back in stock!' )
 						->required(),
 
 					Textarea::make( 'Email Message Template', 'back_in_stock_email_message' )
-						->helperText( 'Email message template. Available variables: {user_name}, {product_name}, {product_link}' )
-						->defaultValue( "Hello {user_name},\n\nGreat news! {product_name} has returned to stock.\n\nClick here to view: {product_link}\n\nThank you for your patience!" )
+						->instructions( 'Email template. Variables: {user_name}, {product_name}, {product_link}. Default: Hello {user_name}, Great news! {product_name} has returned to stock. Click here to view: {product_link}' )
 						->rows( 8 )
 						->required(),
 
 					Text::make( 'Notification Success Message', 'back_in_stock_success_message' )
-						->helperText( 'Message shown after successful subscription' )
-						->defaultValue( 'Thank you! We\'ll notify you when this product is back in stock.' )
+						->instructions( 'Message after successful subscription. Default: Thank you! We\'ll notify you when this product is back in stock.' )
 						->required(),
 				],
 				'location' => [
