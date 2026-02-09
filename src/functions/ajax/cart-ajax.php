@@ -147,6 +147,37 @@ add_action( 'wp_ajax_ats_get_cart_totals', 'ats_ajax_get_cart_totals' );
 add_action( 'wp_ajax_nopriv_ats_get_cart_totals', 'ats_ajax_get_cart_totals' );
 
 /**
+ * Update shipping method via AJAX
+ */
+function ats_ajax_update_shipping_method() {
+	// Verify nonce
+	check_ajax_referer( 'ats-cart-nonce', 'nonce' );
+
+	$shipping_method = isset( $_POST['shipping_method'] ) ? sanitize_text_field( wp_unslash( $_POST['shipping_method'] ) ) : '';
+
+	if ( empty( $shipping_method ) ) {
+		wp_send_json_error( array( 'message' => __( 'Invalid shipping method', 'woocommerce' ) ) );
+	}
+
+	// Set the chosen shipping method
+	$chosen_shipping_methods = array( $shipping_method );
+	WC()->session->set( 'chosen_shipping_methods', $chosen_shipping_methods );
+
+	// Recalculate cart totals with new shipping method
+	WC()->cart->calculate_shipping();
+	WC()->cart->calculate_totals();
+
+	wp_send_json_success(
+		array(
+			'message'    => __( 'Shipping method updated', 'woocommerce' ),
+			'cart_total' => WC()->cart->get_cart_total(),
+		)
+	);
+}
+add_action( 'wp_ajax_ats_update_shipping_method', 'ats_ajax_update_shipping_method' );
+add_action( 'wp_ajax_nopriv_ats_update_shipping_method', 'ats_ajax_update_shipping_method' );
+
+/**
  * Enqueue cart AJAX nonce
  */
 function ats_enqueue_cart_nonce() {

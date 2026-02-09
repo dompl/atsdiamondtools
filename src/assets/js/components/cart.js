@@ -439,7 +439,7 @@ export function initCart() {
 		},
 
 		/**
-		 * Initialize shipping method visual states
+		 * Initialize shipping method visual states and change handlers
 		 */
 		initShippingMethods() {
 			const self = this;
@@ -453,11 +453,57 @@ export function initCart() {
 
 				// Listen for changes
 				input.addEventListener('change', function() {
-					// Update all shipping methods
+					// Update all shipping methods visually
 					shippingInputs.forEach(function(otherInput) {
 						self.updateShippingMethodVisual(otherInput);
 					});
+
+					// Update shipping method on backend and refresh totals
+					self.updateShippingMethod(input.value);
 				});
+			});
+		},
+
+		/**
+		 * Update shipping method on backend and refresh totals
+		 * @param {string} shippingMethod - Selected shipping method
+		 */
+		updateShippingMethod(shippingMethod) {
+			const self = this;
+
+			if (this.isUpdating) return;
+			this.isUpdating = true;
+
+			// Show loading state on totals
+			if (this.elements.totalsWrapper) {
+				this.elements.totalsWrapper.style.opacity = '0.5';
+			}
+
+			$.ajax({
+				url: window.themeData?.ajax_url || '/wp-admin/admin-ajax.php',
+				type: 'POST',
+				data: {
+					action: 'ats_update_shipping_method',
+					nonce: window.themeData?.cart_nonce || '',
+					shipping_method: shippingMethod,
+				},
+				success(response) {
+					if (response.success) {
+						// Refresh cart totals to show new shipping cost
+						self.refreshCartTotals();
+					} else {
+						console.error('Failed to update shipping method:', response.data?.message);
+					}
+				},
+				error(xhr, status, error) {
+					console.error('AJAX error updating shipping method:', error);
+				},
+				complete() {
+					self.isUpdating = false;
+					if (self.elements.totalsWrapper) {
+						self.elements.totalsWrapper.style.opacity = '1';
+					}
+				},
 			});
 		},
 
