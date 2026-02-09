@@ -82,16 +82,23 @@ if ( !function_exists( 'ats_product_shortcode' ) ) {
         $average_rating = $product->get_average_rating();
         $rating_html    = ats_get_star_rating_html( $average_rating, $rating_count );
 
-        // Button text
-        $button_text = $is_variable ? 'Select Size' : 'Add to Cart';
+        // Check stock status
+        $is_in_stock = $product->is_in_stock();
+
+        // Button text based on stock status
+        if ( ! $is_in_stock ) {
+            $button_text = get_field( 'out_of_stock_button_text', 'option' ) ?: 'Out of Stock';
+        } else {
+            $button_text = $is_variable ? 'Select Size' : 'Add to Cart';
+        }
 
         // Render based on display type
         if ( $display_type === '2' ) {
-            $html = ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
+            $html = ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock );
         } elseif ( $display_type === '3' ) {
-            $html = ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
+            $html = ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock );
         } else {
-            $html = ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url );
+            $html = ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock );
         }
 
         // Cache the generated HTML
@@ -179,7 +186,7 @@ if ( !function_exists( 'ats_get_star_rating_html' ) ) {
  * @return string HTML output
  */
 if ( !function_exists( 'ats_render_product_card' ) ) {
-    function ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
+    function ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock = true ) {
         // Get image URL using wpimage() - 224x224 for grid layout with retina support
         $image_url = $image_id ? wpimage( $image_id, [224, 224], false, true, true ) : wc_placeholder_img_src( 'large' );
 
@@ -220,7 +227,16 @@ if ( !function_exists( 'ats_render_product_card' ) ) {
 
 		<div class="rfs-ref-product-footer flex justify-between items-center mt-auto">
 			<span class="rfs-ref-product-price text-[12px] font-bold text-black"><?php echo wp_kses_post( $price_html ); ?></span>
-			<?php if ( $product->is_type( 'variable' ) ) : ?>
+			<?php if ( ! $is_in_stock ) : ?>
+				<!-- Out of stock - link to product page -->
+				<a
+					href="<?php echo esc_url( $product_url ); ?>"
+					class="rfs-ref-product-out-of-stock-btn ats-btn ats-btn-sm bg-gray-400 text-white cursor-default pointer-events-none"
+					aria-label="<?php echo esc_attr( $button_text ); ?>"
+				>
+					<?php echo esc_html( $button_text ); ?>
+				</a>
+			<?php elseif ( $product->is_type( 'variable' ) ) : ?>
 				<button
 					class="rfs-ref-product-cta-btn ats-btn ats-btn-sm ats-btn-yellow ats-expand-product"
 					data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
@@ -258,7 +274,7 @@ return ob_get_clean();
  * @return string HTML output
  */
 if ( !function_exists( 'ats_render_product_list' ) ) {
-    function ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
+    function ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock = true ) {
         // Get image URL using wpimage() - 160x160 for list layout with retina support
 		  $image_size = 120;
         $image_url = $image_id ? wpimage( $image_id, [ $image_size,  $image_size], false, true, true ) : wc_placeholder_img_src( 'medium' );
@@ -305,7 +321,16 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 
 			<div class="rfs-ref-product-list-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
 				<span class="rfs-ref-product-list-price text-xs lg:text-sm font-bold text-black"><?php echo wp_kses_post( $price_html ); ?></span>
-				<?php if ( $product->is_type( 'variable' ) ) : ?>
+				<?php if ( ! $is_in_stock ) : ?>
+					<!-- Out of stock - link to product page -->
+					<a
+						href="<?php echo esc_url( $product_url ); ?>"
+						class="rfs-ref-product-out-of-stock-btn inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-gray-400 text-white text-[10px] lg:text-xs font-bold uppercase rounded whitespace-nowrap cursor-default pointer-events-none"
+						aria-label="<?php echo esc_attr( $button_text ); ?>"
+					>
+						<?php echo esc_html( $button_text ); ?>
+					</a>
+				<?php elseif ( $product->is_type( 'variable' ) ) : ?>
 					<button
 						class="rfs-ref-product-list-cta-btn ats-expand-product inline-flex justify-center items-center px-3 lg:px-4 py-1.5 bg-accent-yellow hover:bg-yellow-500 text-black text-[10px] lg:text-xs font-bold uppercase rounded transition-colors whitespace-nowrap"
 						data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
