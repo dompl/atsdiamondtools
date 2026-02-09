@@ -120,6 +120,7 @@ add_action( 'wp_ajax_nopriv_ats_remove_coupon', 'ats_ajax_remove_coupon' );
 
 /**
  * Get cart totals HTML via AJAX
+ * Includes cart totals and cross-sells to prevent disappearing
  */
 function ats_ajax_get_cart_totals() {
 	// Verify nonce
@@ -128,7 +129,7 @@ function ats_ajax_get_cart_totals() {
 	// Recalculate totals
 	WC()->cart->calculate_totals();
 
-	// Get cart totals HTML
+	// Get cart totals HTML (this includes cross-sells via woocommerce_after_cart_totals hook)
 	ob_start();
 	woocommerce_cart_totals();
 	$html = ob_get_clean();

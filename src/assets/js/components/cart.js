@@ -63,12 +63,12 @@ export function initCart() {
 
 			// Listen for products added to cart from cross-sells
 			$(document.body).on('added_to_cart', function(e, fragments, cart_hash, $button) {
-				// If the add to cart was from cross-sells area, refresh the cart
+				// If the add to cart was from cross-sells area, refresh cart items and totals
 				if ($button && $button.closest('.rfs-ref-cart-cross-sells').length) {
-					// Reload the page to show updated cart
+					// Reload the page to show updated cart with new item
 					setTimeout(function() {
 						window.location.reload();
-					}, 500);
+					}, 800);
 				}
 			});
 

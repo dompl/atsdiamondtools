@@ -13,16 +13,16 @@ defined( 'ABSPATH' ) || exit;
 
 if ( $cross_sells ) : ?>
 
-	<div class="rfs-ref-cart-cross-sells cross-sells container mx-auto px-4 mt-12 mb-8">
+	<div class="rfs-ref-cart-cross-sells cross-sells border-t border-gray-200 pt-6 mt-6">
 		<?php
 		$heading = apply_filters( 'woocommerce_product_cross_sells_products_heading', __( 'You may also like', 'woocommerce' ) );
 
 		if ( $heading ) :
 			?>
-			<h2 class="text-2xl font-bold text-ats-dark mb-6"><?php echo esc_html( $heading ); ?></h2>
+			<h3 class="text-lg font-semibold text-ats-dark mb-4"><?php echo esc_html( $heading ); ?></h3>
 		<?php endif; ?>
 
-		<div class="rfs-ref-cross-sells-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+		<div class="rfs-ref-cross-sells-list flex flex-col gap-4">
 			<?php foreach ( $cross_sells as $cross_sell ) : ?>
 				<?php
 				$product = wc_get_product( $cross_sell->get_id() );
