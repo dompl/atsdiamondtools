@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( $cross_sells ) : ?>
 
-	<div class="rfs-ref-cart-cross-sells cross-sells border-t border-gray-200 pt-6 mt-6">
+	<div class="rfs-ref-cart-cross-sells cross-sells bg-white border border-gray-200 rounded-lg p-6">
 		<?php
 		$heading = apply_filters( 'woocommerce_product_cross_sells_products_heading', __( 'You may also like', 'woocommerce' ) );
 

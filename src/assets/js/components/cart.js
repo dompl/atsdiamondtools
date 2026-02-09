@@ -63,18 +63,13 @@ export function initCart() {
 
 			// Listen for products added to cart from cross-sells
 			$(document.body).on('added_to_cart', function(e, fragments, cart_hash, $button) {
-				// If the add to cart was from cross-sells area, refresh cart items and totals
+				// If the add to cart was from cross-sells area, reload page to show updated cart
 				if ($button && $button.closest('.rfs-ref-cart-cross-sells').length) {
-					// Reload the page to show updated cart with new item
+					// Show success message briefly then reload
 					setTimeout(function() {
 						window.location.reload();
-					}, 800);
+					}, 300);
 				}
-			});
-
-			// Ensure cross-sells stay visible on WooCommerce cart updates
-			$(document.body).on('updated_cart_totals updated_wc_div', function() {
-				self.ensureCrossSellsVisible();
 			});
 
 			// Quantity decrease button
@@ -420,27 +415,12 @@ export function initCart() {
 
 						// Re-initialize shipping methods after updating HTML
 						self.initShippingMethods();
-
-						// Ensure cross-sells remain visible (defensive fix)
-						self.ensureCrossSellsVisible();
 					}
 				},
 				complete() {
 					self.elements.totalsWrapper.style.opacity = '1';
 				},
 			});
-		},
-
-		/**
-		 * Ensure cross-sells section remains visible after AJAX updates
-		 */
-		ensureCrossSellsVisible() {
-			const crossSells = document.querySelector('.rfs-ref-cart-cross-sells');
-			if (crossSells) {
-				// Make sure it's visible and not affected by AJAX updates
-				crossSells.style.display = '';
-				crossSells.style.opacity = '1';
-			}
 		},
 
 		/**

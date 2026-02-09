@@ -232,6 +232,14 @@ do_action( 'woocommerce_before_cart' ); ?>
 					do_action( 'woocommerce_cart_collaterals' );
 					?>
 				</div>
+
+				<?php
+				/**
+				 * Custom action for cross-sells after cart totals
+				 * Separate container from cart totals
+				 */
+				do_action( 'ats_cart_sidebar_after_totals' );
+				?>
 			</div>
 		</div>
 

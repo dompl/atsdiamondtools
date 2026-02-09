@@ -16,10 +16,10 @@ defined( 'ABSPATH' ) || exit;
 remove_action( 'woocommerce_cart_collaterals', 'woocommerce_cross_sell_display' );
 
 /**
- * Add cross-sells inside cart totals wrapper (after cart totals)
- * This ensures they're included in AJAX updates and don't disappear
+ * Add cross-sells in sidebar after cart totals (as separate container)
+ * Hooked to a custom action we'll add in cart.php
  */
-add_action( 'woocommerce_after_cart_totals', 'ats_display_cart_cross_sells', 10 );
+add_action( 'ats_cart_sidebar_after_totals', 'ats_display_cart_cross_sells', 10 );
 
 function ats_display_cart_cross_sells() {
 	// Get cross-sells
