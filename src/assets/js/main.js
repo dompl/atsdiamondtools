@@ -22,6 +22,7 @@ import { initProductTabs } from './components/product-tabs.js';
 import { initReviewForm } from './components/review-form.js';
 import { initCart } from './components/cart.js';
 import { initCheckout } from './components/checkout.js';
+import { initFreeDeliveryNotice } from './components/free-delivery-notice.js';
 
 // Inactive Components
 import './components/banner.js';
@@ -55,4 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Initialize AJAX add to cart globally (for product pages, quick view, etc.)
 	initAjaxAddToCart();
+
+	// Initialize free delivery notice updates
+	initFreeDeliveryNotice();
 });

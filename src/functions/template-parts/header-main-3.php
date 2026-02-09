@@ -27,6 +27,7 @@
 			<div class="flex flex-row justify-between items-start lg:items-center border-b border-neutral-500 pb-2 gap-4 lg:gap-0">
 				<?php echo heading_data( 'navigation' ); ?>
 				<div class="flex flex-col sm:flex-row gap-4 xl:gap-8 items-start sm:items-center text-sm font-bold">
+					<?php ats_render_free_delivery_notice( 'header' ); ?>
 					<div class="flex items-center gap-2">
 						<?php echo heading_data( 'phone_html' ); ?>
 					</div>
@@ -78,8 +79,8 @@
 		<div class="text-white">
 				<?php echo heading_data( 'email_html', true ); ?>
 		</div>
-		<div class="mb-4">
-
+		<div class="mb-4 pt-4 border-t border-white/10">
+			<?php ats_render_free_delivery_notice( 'mobile' ); ?>
 		</div>
 		<div class="absolute bottom-0 left-0 right-0 p-4 bg-black/50 border-t border-white/10">
 		<div class="flex items-center justify-center gap-2 mb-2">
