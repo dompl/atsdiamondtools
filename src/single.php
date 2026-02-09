@@ -69,22 +69,12 @@ get_header();
 						<?php endif; ?>
 
 						<!-- Title -->
-						<h1 class="rfs-ref-post-title text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+						<h1 class="rfs-ref-post-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
 							<?php the_title(); ?>
 						</h1>
 
 						<!-- Meta Info -->
 						<div class="rfs-ref-post-meta flex flex-wrap items-center gap-4 md:gap-6 text-gray-300">
-							<!-- Author -->
-							<div class="rfs-ref-post-author flex items-center gap-2">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-								</svg>
-								<span class="font-medium text-white"><?php the_author(); ?></span>
-							</div>
-
-							<span class="text-gray-400">•</span>
-
 							<!-- Date -->
 							<div class="rfs-ref-post-date flex items-center gap-2">
 								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,18 +118,11 @@ get_header();
 							</div>
 						<?php endif; ?>
 
-						<h1 class="rfs-ref-post-title text-3xl md:text-5xl font-bold text-ats-dark mb-6">
+						<h1 class="rfs-ref-post-title text-2xl md:text-3xl lg:text-4xl font-bold text-ats-dark mb-6">
 							<?php the_title(); ?>
 						</h1>
 
 						<div class="rfs-ref-post-meta flex flex-wrap items-center gap-4 md:gap-6 text-gray-600">
-							<div class="rfs-ref-post-author flex items-center gap-2">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-								</svg>
-								<span class="font-medium"><?php the_author(); ?></span>
-							</div>
-							<span class="text-gray-400">•</span>
 							<div class="rfs-ref-post-date flex items-center gap-2">
 								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -161,7 +144,7 @@ get_header();
 
 					<!-- Main Content Column -->
 					<div class="lg:col-span-8 xl:col-span-8">
-						<div class="rfs-ref-post-content prose prose-lg max-w-none">
+						<div class="rfs-ref-post-content prose prose-sm max-w-none">
 							<?php the_content(); ?>
 						</div>
 
@@ -184,26 +167,9 @@ get_header();
 							</div>
 						<?php endif; ?>
 
-						<!-- Author Bio -->
-						<div class="rfs-ref-post-author-bio mt-12 bg-gray-50 rounded-lg p-8 border border-gray-200">
-							<div class="flex gap-6">
-								<div class="rfs-ref-author-avatar flex-shrink-0">
-									<?php echo get_avatar(get_the_author_meta('ID'), 80, '', get_the_author(), array('class' => 'rounded-full')); ?>
-								</div>
-								<div class="rfs-ref-author-info flex-1">
-									<h3 class="text-xl font-bold text-ats-dark mb-2">
-										About <?php the_author(); ?>
-									</h3>
-									<div class="text-gray-600 prose prose-sm max-w-none">
-										<?php echo get_the_author_meta('description') ?: 'This author has not added a bio yet.'; ?>
-									</div>
-								</div>
-							</div>
-						</div>
-
 						<!-- Post Navigation -->
 						<div class="rfs-ref-post-navigation mt-12 pt-8 border-t border-gray-200">
-							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="flex flex-wrap items-center justify-between gap-4 text-sm">
 								<?php
 								$prev_post = get_previous_post();
 								$next_post = get_next_post();
@@ -211,23 +177,17 @@ get_header();
 
 								<!-- Previous Post -->
 								<?php if ($prev_post) : ?>
-									<a href="<?php echo get_permalink($prev_post); ?>"
-									   class="rfs-ref-nav-prev group flex flex-col p-6 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary-500 hover:shadow-md transition-all">
-										<span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Previous Post</span>
-										<span class="text-lg font-bold text-ats-dark group-hover:text-primary-700 transition-colors line-clamp-2">
-											<?php echo get_the_title($prev_post); ?>
-										</span>
+									<a href="<?php echo get_permalink($prev_post); ?>" class="rfs-ref-nav-prev text-ats-dark hover:text-primary-700 hover:underline">
+										← Previous Article: <?php echo get_the_title($prev_post); ?>
 									</a>
+								<?php else: ?>
+									<span></span>
 								<?php endif; ?>
 
 								<!-- Next Post -->
 								<?php if ($next_post) : ?>
-									<a href="<?php echo get_permalink($next_post); ?>"
-									   class="rfs-ref-nav-next group flex flex-col p-6 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary-500 hover:shadow-md transition-all <?php echo !$prev_post ? 'md:col-start-2' : ''; ?>">
-										<span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Next Post</span>
-										<span class="text-lg font-bold text-ats-dark group-hover:text-primary-700 transition-colors line-clamp-2">
-											<?php echo get_the_title($next_post); ?>
-										</span>
+									<a href="<?php echo get_permalink($next_post); ?>" class="rfs-ref-nav-next text-ats-dark hover:text-primary-700 hover:underline text-right">
+										Next Article: <?php echo get_the_title($next_post); ?> →
 									</a>
 								<?php endif; ?>
 							</div>

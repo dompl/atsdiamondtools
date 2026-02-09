@@ -218,6 +218,12 @@ export function initAjaxAddToCart() {
 		// Get product ID and add-to-cart parameter
 		const productId = $thisForm.find('[name="product_id"]').val() || $thisForm.find('[name="add-to-cart"]').val();
 
+		// DEBUG: Log which form and product we're adding
+		console.log('[ADD TO CART] Button clicked:', $btn[0]);
+		console.log('[ADD TO CART] Form found:', $thisForm[0]);
+		console.log('[ADD TO CART] Product ID:', productId);
+		console.log('[ADD TO CART] Is in modal?:', $btn.closest('#ats-product-quick-view-modal').length > 0);
+
 		// Build AJAX data
 		const ajaxData = {
 			action: 'ats_add_to_cart',
@@ -632,7 +638,62 @@ function initCustomDropdowns() {
 	// Listen for WC updates
 	$form.on('woocommerce_update_variation_values', function () {
 		$('.flowbite-dropdown-wrapper').each(function () {
+			// Ensure wrapper stays visible
+			$(this).show().css('display', '').removeClass('hidden').css('visibility', 'visible').css('opacity', '1');
+			$(this).find('.value').show().css('display', '').removeClass('hidden');
 			refreshDropdown($(this));
+		});
+	});
+
+	// Prevent WooCommerce from hiding the dropdown wrappers - more aggressive
+	$form.on('found_variation reset_data woocommerce_variation_select_change', function() {
+		// Use multiple timeouts to catch all WooCommerce updates
+		[10, 50, 100, 200].forEach(function(delay) {
+			setTimeout(function() {
+				$('.flowbite-dropdown-wrapper').each(function () {
+					const $wrapper = $(this);
+					$wrapper.show().css({
+						'display': '',
+						'visibility': 'visible',
+						'opacity': '1'
+					}).removeClass('hidden');
+					$wrapper.find('.value').show().css({
+						'display': '',
+						'visibility': 'visible'
+					}).removeClass('hidden');
+					$wrapper.find('.ats-dropdown-trigger').show().css({
+						'display': '',
+						'visibility': 'visible'
+					}).removeClass('hidden');
+				});
+			}, delay);
+		});
+	});
+
+	// Mutation observer to catch any DOM changes that hide the wrapper
+	const observer = new MutationObserver(function(mutations) {
+		mutations.forEach(function(mutation) {
+			if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+				const $target = $(mutation.target);
+				if ($target.hasClass('flowbite-dropdown-wrapper') || $target.closest('.flowbite-dropdown-wrapper').length) {
+					const $wrapper = $target.hasClass('flowbite-dropdown-wrapper') ? $target : $target.closest('.flowbite-dropdown-wrapper');
+					if ($wrapper.is(':hidden') || $wrapper.hasClass('hidden')) {
+						$wrapper.show().css({
+							'display': '',
+							'visibility': 'visible',
+							'opacity': '1'
+						}).removeClass('hidden');
+					}
+				}
+			}
+		});
+	});
+
+	// Observe all dropdown wrappers
+	$('.flowbite-dropdown-wrapper').each(function() {
+		observer.observe(this, {
+			attributes: true,
+			attributeFilter: ['style', 'class']
 		});
 	});
 

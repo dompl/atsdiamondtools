@@ -163,3 +163,18 @@
 		}
 	}
 }
+
+/* Hide variation price completely */
+.woocommerce-variation .woocommerce-variation-price,
+.woocommerce-variation-price,
+.single_variation .woocommerce-variation-price,
+div.woocommerce-variation-price,
+.single_variation_wrap .woocommerce-variation-price {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
