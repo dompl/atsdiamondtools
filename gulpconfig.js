@@ -4,7 +4,7 @@ module.exports = {
     "description": "ATS Diamond Tools WordPress Theme",
     "name": "ATS Diamond Tools WordPress Theme",
     "url": "http://skyline.rfsdev.co.uk",
-    "version": "0.0.37"
+    "version": "0.0.38"
   },
   "project": {
     "name": "atsdiamondtools",
@@ -15,6 +15,7 @@ module.exports = {
     "node_modules": "./node_modules/"
   },
   "settings": {
-    "useGulpSassGraph": false
+    "useGulpSassGraph": false,
+    "removerfsref": false
   }
 };
