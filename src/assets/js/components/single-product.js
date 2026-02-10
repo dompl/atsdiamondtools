@@ -141,6 +141,41 @@ function initProductGallery() {
 }
 
 /**
+ * Show toast notification when product is added to cart
+ * @param {string} productName - Name of the product added
+ */
+function showAddToCartToast(productName) {
+	// Remove any existing toast first
+	$('.rfs-ref-cart-toast').remove();
+
+	const $toast = $(`
+		<div class="rfs-ref-cart-toast" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; max-width: 400px; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 25px -3px rgba(0,0,0,0.2); background-color: #594652; border: 1px solid #594652; color: #ffffff; animation: slideInRight 0.4s ease-out; display: flex; align-items: center; gap: 12px;">
+			<svg style="width: 24px; height: 24px; flex-shrink: 0; color: #ffffff;" fill="currentColor" viewBox="0 0 20 20">
+				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+			</svg>
+			<div style="flex: 1;">
+				<p style="font-weight: 600; font-size: 14px; margin: 0; color: #ffffff;">Added to basket!</p>
+				<p style="font-size: 13px; margin: 0; opacity: 0.95; color: #ffffff;">${productName}</p>
+			</div>
+		</div>
+	`);
+
+	$('body').append($toast);
+
+	// Auto-remove after 4 seconds
+	setTimeout(() => {
+		$toast.css({
+			animation: 'slideOutRight 0.4s ease-in',
+			opacity: '0',
+			transform: 'translateX(100%)'
+		});
+		setTimeout(() => {
+			$toast.remove();
+		}, 400);
+	}, 4000);
+}
+
+/**
  * AJAX Add to Cart for Single Product with Enhanced Loading UI
  * Exported so it can be initialized globally on all pages
  */
@@ -260,9 +295,11 @@ export function initAjaxAddToCart() {
 				// Trigger WooCommerce event for cart updates
 				$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $btn]);
 
+				// Check if we're in the quick view modal
+				const isInQuickView = $btn.closest('#ats-product-quick-view-modal').length > 0;
+
 				// Close quick view modal if we're in it
-				if ($btn.closest('#ats-product-quick-view-modal').length > 0) {
-					// Close the quick view modal
+				if (isInQuickView) {
 					if (window.ProductQuickView && typeof window.ProductQuickView.closeModal === 'function') {
 						window.ProductQuickView.closeModal();
 					}
@@ -278,7 +315,11 @@ export function initAjaxAddToCart() {
 						window.ATSMiniCart.loadCart();
 					}
 
-					// Do NOT auto-open mini cart modal - user must click cart icon to open it
+					// Show toast only on single product page (quick view has its own toast)
+					if (!isInQuickView) {
+						const productName = $('h1.single-product-title').text().trim() || 'Product';
+						showAddToCartToast(productName);
+					}
 				}, 300);
 			},
 			error: function (xhr, status, error) {

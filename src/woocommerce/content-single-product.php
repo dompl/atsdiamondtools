@@ -64,12 +64,12 @@ $product_id = $product->get_id();
                     <div class="lg:col-span-5" id="ats-single-product-info">
                         <div class="space-y-4">
                             <!-- Title with Favorite Button -->
-                            <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-center justify-between gap-4">
                                 <h1 class="single-product-title flex-grow">
                                     <?php the_title(); ?>
                                 </h1>
                                 <!-- Favorite Button -->
-                                <div class="flex-shrink-0 pt-1">
+                                <div class="flex-shrink-0">
                                     <?php ats_render_favorite_button( $product_id, 'lg', true ); ?>
                                 </div>
                             </div>
@@ -161,6 +161,13 @@ $product_id = $product->get_id();
                                 <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
+
+                            <!-- Back in Stock Notification Form -->
+                            <?php
+                            if ( ! $product->is_in_stock() ) {
+                                wc_get_template( 'single-product/back-in-stock-form.php' );
+                            }
+                            ?>
 
                             <!-- Price -->
                             <div class="py-4" >

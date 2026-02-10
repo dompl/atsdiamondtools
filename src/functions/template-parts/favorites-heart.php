@@ -36,17 +36,23 @@ $heart_classes = $is_favorite ? 'ats-favorite-active' : '';
 
 <button
 	type="button"
-	class="rfs-ref-favorite-heart ats-favorite-btn <?php echo esc_attr( $heart_classes ); ?>"
+	class="rfs-ref-favorite-heart ats-favorite-btn group <?php echo esc_attr( $heart_classes ); ?>"
 	data-product-id="<?php echo esc_attr( $product_id ); ?>"
 	aria-label="<?php echo $is_favorite ? esc_attr__( 'Remove from favorites', 'skylinewp-dev-child' ) : esc_attr__( 'Add to favorites', 'skylinewp-dev-child' ); ?>"
 >
 	<!-- Heart Icon - Outline (not favorite) -->
-	<svg class="ats-heart-outline w-6 h-6 transition-all duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
-		<path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/>
+	<svg class="ats-heart-outline w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors duration-200"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		stroke-width="2">
+		<path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
 	</svg>
 
 	<!-- Heart Icon - Filled (favorite) -->
-	<svg class="ats-heart-filled w-6 h-6 transition-all duration-200 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
-		<path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z"/>
+	<svg class="ats-heart-filled hidden w-5 h-5 text-red-500 transition-colors duration-200"
+		fill="currentColor"
+		viewBox="0 0 24 24">
+		<path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
 	</svg>
 </button>
