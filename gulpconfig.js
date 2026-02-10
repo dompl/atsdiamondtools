@@ -4,11 +4,11 @@ module.exports = {
     "description": "ATS Diamond Tools WordPress Theme",
     "name": "ATS Diamond Tools WordPress Theme",
     "url": "http://skyline.rfsdev.co.uk",
-    "version": "0.0.38"
+    "version": "0.0.39"
   },
   "project": {
     "name": "atsdiamondtools",
-    "parent_name": "skylinewp-dev-parent/build",
+    "parent_name": "skylinewp",
     "parent": false
   },
   "paths": {
