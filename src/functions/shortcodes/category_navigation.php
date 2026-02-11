@@ -22,7 +22,7 @@ function shortcode_category_navigation( $atts ) {
 	$pad_counts   = 0;      // 1 for yes, 0 for no
 	$hierarchical = 1;      // 1 for yes, 0 for no
 	$title        = '';
-	$empty        = 0;
+	$empty        = 1;      // Hide empty categories
 	$width        = $atts['width'];
 	$is_collapsed = filter_var( $atts['collapsed'], FILTER_VALIDATE_BOOLEAN );
 

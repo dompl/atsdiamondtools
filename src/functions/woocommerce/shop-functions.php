@@ -35,6 +35,14 @@ function ats_get_product_categories_for_sidebar( $current_category_id = 0 ) {
 	$formatted_categories = array();
 
 	foreach ( $categories as $category ) {
+		// Get child categories first
+		$children = ats_get_child_categories( $category->term_id, $current_category_id );
+
+		// Skip this category if it has no products AND no children with products
+		if ( $category->count == 0 && empty( $children ) ) {
+			continue;
+		}
+
 		$formatted_categories[] = array(
 			'id'         => $category->term_id,
 			'name'       => $category->name,
@@ -42,7 +50,7 @@ function ats_get_product_categories_for_sidebar( $current_category_id = 0 ) {
 			'count'      => $category->count,
 			'url'        => get_term_link( $category ),
 			'is_current' => ( $current_category_id === $category->term_id ),
-			'children'   => ats_get_child_categories( $category->term_id, $current_category_id ),
+			'children'   => $children,
 		);
 	}
 
