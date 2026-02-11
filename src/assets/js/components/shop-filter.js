@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Elements
 	const loadingSpinner = document.querySelector('.rfs-ref-loading-spinner-container');
+	const loadingOverlay = document.querySelector('.rfs-ref-loading-overlay');
 	const categoryButtons = document.querySelectorAll('.rfs-ref-category-link');
 	const sortOptions = document.querySelectorAll('.rfs-ref-sort-option');
 	const currentSortLabel = document.querySelector('.rfs-ref-current-sort');
@@ -34,6 +35,24 @@ document.addEventListener('DOMContentLoaded', function() {
 	let isLoadingMore = false;
 	let maxPages = infiniteScrollTrigger ? parseInt(infiniteScrollTrigger.dataset.maxPages) : 1;
 	let currentPage = 1;
+
+	// View mode transition state (outer scope so updateProductsGrid can access it)
+	let pendingViewMode = null;
+
+	/**
+	 * Apply grid CSS classes for a given view mode.
+	 * Called either immediately (page load) or after AJAX completes.
+	 */
+	function applyViewClasses(mode) {
+		if (!productsContainer) return;
+		if (mode === 'list') {
+			productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-2', 'xl:grid-cols-4', 'justify-items-center');
+			productsContainer.classList.add('grid-cols-1', 'lg:grid-cols-2', 'gap-6');
+		} else {
+			productsContainer.classList.remove('grid-cols-1', 'lg:grid-cols-2', 'gap-6');
+			productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-2', 'xl:grid-cols-4', 'justify-items-center', 'gap-3');
+		}
+	}
 
 	// Get initial category from page (for category pages)
 	const productsContainerEl = document.querySelector('.rfs-ref-products-container');
@@ -62,6 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (loadingSpinner) {
 			loadingSpinner.classList.remove('hidden');
 		}
+		// Show overlay spinner over products (only for filter changes, not infinite scroll)
+		if (scrollToTop && loadingOverlay) {
+			loadingOverlay.classList.remove('hidden');
+		}
 		// Only scroll to top when filtering (not when loading more via infinite scroll)
 		if (scrollToTop) {
 			const container = document.querySelector('.rfs-ref-products-container');
@@ -78,6 +101,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	function hideLoading() {
 		if (loadingSpinner) {
 			loadingSpinner.classList.add('hidden');
+		}
+		// Note: overlay is hidden inside updateProductsGrid after new products render
+	}
+
+	/**
+	 * Hide the overlay spinner
+	 */
+	function hideOverlay() {
+		if (loadingOverlay) {
+			loadingOverlay.classList.add('hidden');
 		}
 	}
 
@@ -118,36 +151,36 @@ document.addEventListener('DOMContentLoaded', function() {
 				// Re-initialize product quick view for newly appended products
 				reinitializeQuickView();
 			} else {
-				// Fade out existing products first
-				const existingProducts = productsContainer.children;
-				const fadeOutDuration = 200;
+				// Apply deferred view mode CSS before injecting new cards
+				if (pendingViewMode) {
+					applyViewClasses(pendingViewMode);
+					pendingViewMode = null;
+				}
+				// Restore grid opacity if it was hidden for view transition
+				productsContainer.style.opacity = '';
+				productsContainer.style.transition = '';
 
-				// Quick fade out
-				Array.from(existingProducts).forEach(function(product) {
-					product.style.transition = 'opacity 0.2s ease-out';
+				// Replace products immediately (overlay covers the transition)
+				productsContainer.innerHTML = html;
+
+				// Hide overlay now that new products are in the DOM
+				hideOverlay();
+
+				// Animate new products in with stagger
+				const newProducts = productsContainer.children;
+				Array.from(newProducts).forEach(function(product, index) {
 					product.style.opacity = '0';
+					product.style.transform = 'translateY(20px)';
+					product.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+
+					setTimeout(function() {
+						product.style.opacity = '1';
+						product.style.transform = 'translateY(0)';
+					}, index * 30);
 				});
 
-				// After fade out, replace and animate in
-				setTimeout(function() {
-					productsContainer.innerHTML = html;
-
-					// Animate new products in with stagger
-					const newProducts = productsContainer.children;
-					Array.from(newProducts).forEach(function(product, index) {
-						product.style.opacity = '0';
-						product.style.transform = 'translateY(20px)';
-						product.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
-
-						setTimeout(function() {
-							product.style.opacity = '1';
-							product.style.transform = 'translateY(0)';
-						}, index * 30);
-					});
-
-					// Re-initialize product quick view after products are replaced
-					reinitializeQuickView();
-				}, fadeOutDuration);
+				// Re-initialize product quick view after products are replaced
+				reinitializeQuickView();
 			}
 
 			// Reinitialize moved inside conditional blocks to ensure DOM is updated
@@ -301,8 +334,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 
-		// Load 8 initially, then 4 at a time for infinite scroll (faster perceived performance)
-		formData.append('per_page', loadMore ? 4 : 8);
+		// Use consistent per_page value to prevent pagination offset issues
+		formData.append('per_page', 12);
 
 		try {
 			const response = await fetch(themeData.ajax_url, {
@@ -339,8 +372,10 @@ document.addEventListener('DOMContentLoaded', function() {
 					}
 				}
 			} else {
+				hideOverlay();
 			}
 		} catch (error) {
+			hideOverlay();
 		} finally {
 			hideLoading();
 			isLoadingMore = false;
@@ -526,9 +561,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			const rect = infiniteScrollTrigger.getBoundingClientRect();
 			const windowHeight = window.innerHeight || document.documentElement.clientHeight;
 
-			// If trigger is within viewport (no early loading), load more
-			// Reduced from +200px margin to 0 to prevent early loading
-			if (rect.top <= windowHeight) {
+			// If trigger is within 400px of viewport, load more (preload ahead)
+			if (rect.top <= windowHeight + 400) {
 				isLoadingMore = true;
 				currentPage++;
 				currentFilters.paged = currentPage;
@@ -559,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 		}, {
 			root: null, // viewport
-			rootMargin: '0px', // Load only when trigger is visible (no early loading)
+			rootMargin: '400px', // Start loading before trigger enters viewport
 			threshold: 0
 		});
 
@@ -614,37 +648,37 @@ document.addEventListener('DOMContentLoaded', function() {
 		let currentViewMode = localStorage.getItem('ats_product_view_mode') || 'grid';
 
 		// Apply saved view mode on page load
-		function applyViewMode(mode) {
+		function applyViewMode(mode, isInitial) {
 			if (mode === 'list') {
-				// List view: 1 column on mobile, 2 columns on desktop
-				productsGrid.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-2', 'xl:grid-cols-4', 'justify-items-center');
-				productsGrid.classList.add('grid-cols-1', 'lg:grid-cols-2', 'gap-6');
 				gridIcon.classList.add('hidden');
 				listIcon.classList.remove('hidden');
 				viewLabel.textContent = 'Grid View';
 				viewToggleBtn.dataset.viewMode = 'list';
 
-				// Replace all product cards with list view (display="2")
-				const productCards = productsGrid.querySelectorAll('[data-product-id]');
-				productCards.forEach(function(card) {
-					const productId = card.dataset.productId;
-					// We'll need to reload products in list view via AJAX
-					card.dataset.needsReload = 'true';
-				});
+				if (isInitial) {
+					// On page load, apply CSS immediately (cards already match from server)
+					applyViewClasses('list');
+				} else {
+					// On toggle, hide products first then defer CSS until AJAX completes
+					productsGrid.style.opacity = '0';
+					productsGrid.style.transition = 'opacity 0.15s ease-out';
+					pendingViewMode = 'list';
+				}
 
 				// Trigger a filter to reload products in list view
 				filterProducts({ view_mode: 'list' });
 			} else {
-				// Grid view: responsive grid, use display="1" (vertical cards)
-				productsGrid.classList.remove('grid-cols-1', 'lg:grid-cols-2', 'gap-6');
-				productsGrid.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-2', 'xl:grid-cols-4', 'justify-items-center', 'gap-3');
 				gridIcon.classList.remove('hidden');
 				listIcon.classList.add('hidden');
 				viewLabel.textContent = 'List View';
 				viewToggleBtn.dataset.viewMode = 'grid';
 
-				// Trigger a filter to reload products in grid view
-				if (currentViewMode === 'list') {
+				if (isInitial) {
+					applyViewClasses('grid');
+				} else if (currentViewMode === 'list') {
+					productsGrid.style.opacity = '0';
+					productsGrid.style.transition = 'opacity 0.15s ease-out';
+					pendingViewMode = 'grid';
 					filterProducts({ view_mode: 'grid' });
 				}
 			}
@@ -653,12 +687,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 
 		// Initialize with saved view mode
-		applyViewMode(currentViewMode);
+		applyViewMode(currentViewMode, true);
 
 		// Toggle view on button click
 		viewToggleBtn.addEventListener('click', function() {
 			const newMode = currentViewMode === 'grid' ? 'list' : 'grid';
-			applyViewMode(newMode);
+			applyViewMode(newMode, false);
 		});
 	}
 

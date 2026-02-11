@@ -94,41 +94,9 @@ function ats_handle_filter_products() {
 		$query_args['view_mode'] = $view_mode;
 	}
 
-	// Generate cache key for query results (to cache product IDs)
-	$cache_key_parts = array(
-		'shop_query',
-		$category,
-		$application,
-		$min_price,
-		$max_price,
-		$orderby,
-		$paged,
-		$per_page,
-		$view_mode,
-	);
-	$query_cache_key = 'ats_' . md5( implode( '_', $cache_key_parts ) );
-
-	// Try to get cached product IDs
-	$cached_product_ids = get_transient( $query_cache_key );
-
-	if ( $cached_product_ids !== false && ! $favourites_only ) {
-		// Use cached product IDs for faster rendering
-		$query_args['post__in'] = $cached_product_ids;
-		$query_args['orderby'] = 'post__in'; // Maintain order
-	}
-
 	// Render products HTML.
+	// Note: Caching disabled due to pagination offset issues with variable per_page values
 	$products_html = ats_render_product_grid( $query_args );
-
-	// Cache the product IDs if not favourites filter (favourites change per user)
-	if ( ! $favourites_only && $cached_product_ids === false ) {
-		global $wp_query;
-		if ( isset( $wp_query->posts ) ) {
-			$product_ids = wp_list_pluck( $wp_query->posts, 'ID' );
-			// Cache for 5 minutes - short enough to stay fresh, long enough to help
-			set_transient( $query_cache_key, $product_ids, 300 );
-		}
-	}
 
 	// Build count query args with proper WP_Query format
 	$count_args = array(
