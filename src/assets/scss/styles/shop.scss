@@ -30,14 +30,21 @@
 	background: transparent;
 	top: 0;
 
+	/* Explicit track styling for WebKit */
+	&::-webkit-slider-runnable-track {
+		height: 8px;
+		background: transparent;
+		border: none;
+	}
+
 	&::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		appearance: none;
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background: #d4c0cd; /* primary-600 brand color */
-		border: 2px solid #b39aac; /* primary-700 border for definition */
+		background: #d4c0cd !important; /* primary-600 brand color - !important to override resets */
+		border: 2px solid #b39aac !important; /* primary-700 border for definition */
 		cursor: pointer;
 		pointer-events: all;
 		box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -48,22 +55,29 @@
 
 		&:hover {
 			transform: scale(1.15);
-			background: #b39aac;
+			background: #b39aac !important;
 			box-shadow: 0 3px 6px rgba(0,0,0,0.25);
 		}
 
 		&:active {
 			transform: scale(1.1);
-			background: #b39aac;
+			background: #b39aac !important;
 		}
+	}
+
+	/* Explicit track styling for Firefox */
+	&::-moz-range-track {
+		height: 8px;
+		background: transparent;
+		border: none;
 	}
 
 	&::-moz-range-thumb {
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background: #d4c0cd; /* primary-600 brand color */
-		border: 2px solid #b39aac; /* primary-700 border for definition */
+		background: #d4c0cd !important; /* primary-600 brand color */
+		border: 2px solid #b39aac !important; /* primary-700 border for definition */
 		cursor: pointer;
 		pointer-events: all;
 		box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -73,13 +87,13 @@
 
 		&:hover {
 			transform: scale(1.15);
-			background: #b39aac;
+			background: #b39aac !important;
 			box-shadow: 0 3px 6px rgba(0,0,0,0.25);
 		}
 
 		&:active {
 			transform: scale(1.1);
-			background: #b39aac;
+			background: #b39aac !important;
 		}
 	}
 
@@ -87,8 +101,8 @@
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background: #d4c0cd; /* primary-600 brand color */
-		border: 2px solid #b39aac; /* primary-700 border for definition */
+		background: #d4c0cd !important; /* primary-600 brand color */
+		border: 2px solid #b39aac !important; /* primary-700 border for definition */
 		cursor: pointer;
 		pointer-events: all;
 		box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -98,13 +112,13 @@
 
 		&:hover {
 			transform: scale(1.15);
-			background: #b39aac;
+			background: #b39aac !important;
 			box-shadow: 0 3px 6px rgba(0,0,0,0.25);
 		}
 
 		&:active {
 			transform: scale(1.1);
-			background: #b39aac;
+			background: #b39aac !important;
 		}
 	}
 }

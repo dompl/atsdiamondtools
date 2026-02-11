@@ -256,7 +256,7 @@ export function initCart() {
 				type: 'POST',
 				data: {
 					action: 'ats_remove_cart_item',
-					nonce: window.themeData?.cart_nonce || '',
+					nonce: window.themeData?.mini_cart_nonce || '',
 					cart_key: cartKey,
 				},
 				success(response) {

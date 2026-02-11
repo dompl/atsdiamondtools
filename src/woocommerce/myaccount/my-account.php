@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 
         <!-- Main Content Area -->
         <div class="rfs-ref-account-content flex-grow">
-            <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden min-h-[500px] p-6 md:p-8">
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden min-h-[500px] p-6 md:p-8">
                 <?php
                     /**
                      * My Account content.

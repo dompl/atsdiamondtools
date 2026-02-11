@@ -15,14 +15,14 @@ defined( 'ABSPATH' ) || exit;
 <div class="rfs-ref-shipping-fields woocommerce-shipping-fields">
 	<?php if ( true === WC()->cart->needs_shipping_address() ) : ?>
 
-		<div class="rfs-ref-ship-to-different bg-white border-2 border-gray-300 rounded-lg p-6 mb-6" id="ship-to-different-address">
+		<div class="rfs-ref-ship-to-different bg-white border border-gray-300 rounded-lg p-6 mb-6" id="ship-to-different-address">
 			<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox flex items-center gap-3 cursor-pointer">
 				<input id="ship-to-different-address-checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox w-5 h-5 text-ats-yellow bg-white border-gray-300 rounded focus:ring-ats-yellow focus:ring-2" type="checkbox" name="ship_to_different_address" value="1" />
 				<span class="text-base font-semibold text-ats-dark"><?php esc_html_e( 'Ship to a different address?', 'woocommerce' ); ?></span>
 			</label>
 		</div>
 
-		<div class="rfs-ref-shipping-address shipping_address bg-white border-2 border-gray-300 rounded-lg p-6 lg:p-8" style="display:none;">
+		<div class="rfs-ref-shipping-address shipping_address bg-white border border-gray-300 rounded-lg p-6 lg:p-8" style="display:none;">
 
 			<h3 class="text-xl font-bold text-ats-dark mb-6"><?php esc_html_e( 'Shipping details', 'woocommerce' ); ?></h3>
 
@@ -49,7 +49,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php if ( apply_filters( 'woocommerce_enable_order_notes_field', 'yes' === get_option( 'woocommerce_enable_order_comments', 'yes' ) ) ) : ?>
 
-		<div class="bg-white border-2 border-gray-300 rounded-lg p-6 lg:p-8 mt-6">
+		<div class="bg-white border border-gray-300 rounded-lg p-6 lg:p-8 mt-6">
 
 			<?php if ( ! WC()->cart->needs_shipping() || wc_ship_to_billing_address_only() ) : ?>
 

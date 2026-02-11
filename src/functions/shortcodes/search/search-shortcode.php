@@ -60,7 +60,7 @@ function ats_render_search_shortcode( $atts = array() ) {
 				<!-- Dropdown Menu -->
 				<div
 					id="<?php echo esc_attr( $prefix ); ?>-category-dropdown"
-					class="js-search-category-dropdown absolute top-full left-0 z-50 hidden bg-white border border-neutral-200 rounded shadow-lg w-44"
+					class="js-search-category-dropdown absolute top-full left-0 z-[60] hidden bg-white border border-neutral-200 rounded shadow-lg w-44"
 				>
 					<ul class="p-2 text-sm text-ats-text font-medium">
 						<li>

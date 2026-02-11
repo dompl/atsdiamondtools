@@ -9,14 +9,12 @@ defined('ABSPATH') || exit;
 
 $post_id = get_the_ID();
 $categories = get_the_category();
-$author_id = get_the_author_meta('ID');
-$author_name = get_the_author();
 $post_date = get_the_date('F j, Y');
 $reading_time = ats_get_reading_time(get_the_content());
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class('rfs-ref-blog-card group'); ?>>
-	<div class="rfs-ref-blog-card-inner bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+	<div class="rfs-ref-blog-card-inner bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
 
 		<div class="grid grid-cols-1 md:grid-cols-12 gap-0">
 
@@ -50,13 +48,6 @@ $reading_time = ats_get_reading_time(get_the_content());
 
 				<!-- Meta Info -->
 				<div class="rfs-ref-blog-card-meta flex items-center gap-4 text-sm text-gray-500 mb-4">
-					<div class="rfs-ref-blog-card-author flex items-center gap-2">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-						</svg>
-						<span><?php echo esc_html($author_name); ?></span>
-					</div>
-					<span class="text-gray-300">•</span>
 					<div class="rfs-ref-blog-card-date flex items-center gap-2">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>

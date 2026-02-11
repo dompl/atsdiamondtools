@@ -12,17 +12,19 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<table class="shop_table woocommerce-checkout-review-order-table bg-white border border-gray-200 rounded-lg">
+<table class="shop_table woocommerce-checkout-review-order-table bg-white border border-gray-300 rounded-lg">
 <tbody>
 
 	<!-- Products Header -->
 	<tr class="rfs-ref-products-header">
-		<td colspan="2" class="p-6 pb-0">
-			<div class="space-y-4">
-				<?php
-				do_action( 'woocommerce_review_order_before_cart_contents' );
+		<td colspan="2" class="p-6 pb-4">
+			<!-- Scrollable products list with custom scrollbar -->
+			<div class="rfs-ref-review-items-scroll max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+				<div class="space-y-3">
+					<?php
+					do_action( 'woocommerce_review_order_before_cart_contents' );
 
-				foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+					foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 					$_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
 					if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_checkout_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
@@ -36,17 +38,29 @@ defined( 'ABSPATH' ) || exit;
 							</div>
 							<div class="rfs-ref-review-item-details flex-grow flex justify-between gap-4">
 								<div class="rfs-ref-review-item-name">
-									<a href="<?php echo esc_url( $_product->get_permalink( $cart_item ) ); ?>" class="text-sm font-medium text-ats-dark hover:text-ats-yellow transition-colors no-underline">
+									<a href="<?php echo esc_url( $_product->get_permalink( $cart_item ) ); ?>" class="text-xs font-medium text-ats-dark hover:text-ats-yellow transition-colors no-underline leading-tight">
 										<?php echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) ); ?>
 									</a>
 									<?php echo apply_filters( 'woocommerce_checkout_cart_item_quantity', ' <span class="text-ats-text font-normal text-xs">&times;&nbsp;' . $cart_item['quantity'] . '</span>', $cart_item, $cart_item_key ); ?>
-									<?php if ( wc_get_formatted_cart_item_data( $cart_item ) ) : ?>
-										<div class="rfs-ref-review-item-meta text-xs text-ats-text mt-1">
-											<?php echo wc_get_formatted_cart_item_data( $cart_item ); ?>
+									<?php
+									$item_data = wc_get_formatted_cart_item_data( $cart_item );
+									if ( $item_data ) :
+										// Extract only the <dd> values, strip labels and HTML wrapper
+										preg_match_all( '/<dd[^>]*>(.*?)<\/dd>/s', $item_data, $matches );
+										if ( ! empty( $matches[1] ) ) :
+											$values = array_map( 'wp_strip_all_tags', $matches[1] );
+											$values = array_map( 'trim', $values );
+											$values = array_filter( $values );
+									?>
+										<div class="rfs-ref-review-item-meta text-xs text-ats-text mt-0.5">
+											<?php echo esc_html( implode( ', ', $values ) ); ?>
 										</div>
-									<?php endif; ?>
+									<?php
+											endif;
+										endif;
+									?>
 								</div>
-								<div class="rfs-ref-review-item-total flex-shrink-0 text-sm font-semibold text-ats-dark">
+								<div class="rfs-ref-review-item-total flex-shrink-0 text-xs font-semibold text-ats-dark">
 									<?php echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key ); ?>
 								</div>
 							</div>
@@ -55,22 +69,23 @@ defined( 'ABSPATH' ) || exit;
 					}
 				}
 
-				do_action( 'woocommerce_review_order_after_cart_contents' );
-				?>
+					do_action( 'woocommerce_review_order_after_cart_contents' );
+					?>
+				</div>
 			</div>
-			<div class="border-b border-gray-200 my-6"></div>
+			</div>
 		</td>
 	</tr>
 
 	<!-- Subtotal -->
-	<tr class="cart-subtotal">
+	<tr class="cart-subtotal border-t border-gray-200">
 		<th class="px-6 py-3 text-sm text-ats-text font-normal text-left"><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></th>
 		<td class="px-6 py-3 text-sm font-medium text-ats-dark text-right"><?php wc_cart_totals_subtotal_html(); ?></td>
 	</tr>
 
 	<!-- Coupons -->
 	<?php foreach ( WC()->cart->get_coupons() as $code => $coupon ) : ?>
-		<tr class="cart-discount coupon-<?php echo esc_attr( sanitize_title( $code ) ); ?>">
+		<tr class="cart-discount coupon-<?php echo esc_attr( sanitize_title( $code ) ); ?> border-t border-gray-100">
 			<th class="px-6 py-3 text-sm text-ats-text font-normal text-left"><?php wc_cart_totals_coupon_label( $coupon ); ?></th>
 			<td class="px-6 py-3 text-sm font-medium text-green-600 text-right"><?php wc_cart_totals_coupon_html( $coupon ); ?></td>
 		</tr>
@@ -85,7 +100,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<!-- Fees -->
 	<?php foreach ( WC()->cart->get_fees() as $fee ) : ?>
-		<tr class="fee">
+		<tr class="fee border-t border-gray-100">
 			<th class="px-6 py-3 text-sm text-ats-text font-normal text-left"><?php echo esc_html( $fee->name ); ?></th>
 			<td class="px-6 py-3 text-sm font-medium text-ats-dark text-right"><?php wc_cart_totals_fee_html( $fee ); ?></td>
 		</tr>
@@ -95,13 +110,13 @@ defined( 'ABSPATH' ) || exit;
 	<?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
 		<?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
 			<?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
-				<tr class="tax-rate tax-rate-<?php echo esc_attr( sanitize_title( $code ) ); ?>">
+				<tr class="tax-rate tax-rate-<?php echo esc_attr( sanitize_title( $code ) ); ?> border-t border-gray-100">
 					<th class="px-6 py-3 text-sm text-ats-text font-normal text-left"><?php echo esc_html( $tax->label ); ?></th>
 					<td class="px-6 py-3 text-sm font-medium text-ats-dark text-right"><?php echo wp_kses_post( $tax->formatted_amount ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 		<?php else : ?>
-			<tr class="tax-total">
+			<tr class="tax-total border-t border-gray-100">
 				<th class="px-6 py-3 text-sm text-ats-text font-normal text-left"><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></th>
 				<td class="px-6 py-3 text-sm font-medium text-ats-dark text-right"><?php wc_cart_totals_taxes_total_html(); ?></td>
 			</tr>

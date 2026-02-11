@@ -164,16 +164,25 @@ $product_id = $product->get_id();
 
                             <!-- Back in Stock Notification Form -->
                             <?php
-                            if ( ! $product->is_in_stock() ) {
+                            if ( ! $product->is_in_stock() || $product->is_type( 'variable' ) ) {
                                 wc_get_template( 'single-product/back-in-stock-form.php' );
                             }
                             ?>
 
-                            <!-- Price -->
-                            <div class="py-4" >
+                            <!-- Price + Stock Badge -->
+                            <div class="rfs-ref-price-stock-row flex items-center justify-between py-4">
                                 <p class="text-2xl font-bold text-gray-900 flex items-baseline gap-2" id="ats-product-main-price">
-                                <?php echo ats_get_product_price_html( $product ); ?>
+                                    <?php echo ats_get_product_price_html( $product ); ?>
                                 </p>
+                                <?php if ( ! $product->is_in_stock() ) : ?>
+                                    <span class="rfs-ref-out-of-stock-badge inline-flex items-center px-2.5 py-1 rounded text-[11px] font-semibold uppercase tracking-wide bg-red-700 text-white">
+                                        <?php esc_html_e( 'Out of Stock', 'woocommerce' ); ?>
+                                    </span>
+                                <?php elseif ( $product->is_type( 'variable' ) ) : ?>
+                                    <span class="rfs-ref-out-of-stock-badge inline-flex items-center px-2.5 py-1 rounded text-[11px] font-semibold uppercase tracking-wide bg-red-700 text-white hidden">
+                                        <?php esc_html_e( 'Out of Stock', 'woocommerce' ); ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Add to Cart Form -->

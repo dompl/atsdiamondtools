@@ -24,11 +24,8 @@ $has_calculated_shipping  = ! empty( $has_calculated_shipping );
 $show_shipping_calculator = ! empty( $show_shipping_calculator );
 $calculator_text          = '';
 ?>
-<tr class="woocommerce-shipping-totals shipping">
-	<th colspan="2" class="px-6 pt-3 pb-4 text-base font-bold text-ats-dark text-left"><?php echo wp_kses_post( $package_name ); ?></th>
-</tr>
-<tr class="woocommerce-shipping-totals shipping">
-	<td colspan="2" class="px-6 pb-3">
+<tr class="woocommerce-shipping-totals shipping border-t border-gray-200">
+	<td colspan="2" class="px-6 pb-4">
 		<?php if ( ! empty( $available_methods ) && is_array( $available_methods ) ) : ?>
 			<ul id="shipping_method" class="rfs-ref-shipping-methods space-y-2 text-left">
 				<?php foreach ( $available_methods as $method ) : ?>
@@ -39,7 +36,7 @@ $calculator_text          = '';
 
 						if ( 1 < count( $available_methods ) ) :
 							?>
-							<div class="rfs-ref-shipping-radio-wrapper flex items-center p-4 border border-gray-200 rounded-lg hover:border-ats-yellow transition-colors <?php echo $is_checked ? 'border-ats-yellow bg-ats-yellow/5' : ''; ?>">
+							<div class="rfs-ref-shipping-radio-wrapper flex items-center p-3 border border-gray-200 rounded-lg hover:border-ats-yellow transition-colors <?php echo $is_checked ? 'border-ats-yellow bg-ats-yellow/5' : ''; ?>">
 								<input
 									type="radio"
 									name="shipping_method[<?php echo $index; ?>]"
@@ -91,7 +88,7 @@ $calculator_text          = '';
 				echo wp_kses_post( apply_filters( 'woocommerce_shipping_may_be_available_html', __( 'Enter your address to view shipping options.', 'woocommerce' ) ) );
 			}
 		elseif ( ! is_cart() ) :
-			echo wp_kses_post( apply_filters( 'woocommerce_no_shipping_available_html', __( 'There are no shipping options available. Please ensure that your address has been entered correctly, or contact us if you need any help.', 'woocommerce' ) ) );
+			echo '<p class="text-sm text-amber-600 m-0">' . wp_kses_post( apply_filters( 'woocommerce_no_shipping_available_html', __( 'There are no shipping options available. Please ensure that your address has been entered correctly, or contact us if you need any help.', 'woocommerce' ) ) ) . '</p>';
 		else :
 			echo wp_kses_post(
 				/**

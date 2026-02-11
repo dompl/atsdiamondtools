@@ -4,7 +4,7 @@
 }
 .woocommerce-notices-wrapper {
 	.woocommerce-message {
-		@apply ats-message bg-green-700 text-white  border-green-500;
+		@apply text-green-700 text-xs bg-transparent border-0 p-0 m-0 font-normal;
 	}
 }
 

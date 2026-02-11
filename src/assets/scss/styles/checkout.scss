@@ -70,6 +70,11 @@
 		}
 	}
 
+	// Prevent double border/padding when error list is inside notice group
+	.woocommerce-NoticeGroup-checkout .woocommerce-error {
+		@apply bg-transparent border-0 p-0 mb-0 rounded-none;
+	}
+
 	// ============================================
 	// Select2 Dropdown Styling (Country/Region)
 	// ============================================
@@ -159,38 +164,29 @@
 
 .woocommerce-checkout {
 	// Target only the crafty clicks postcode fields specifically
-	// Input field (form-row-first)
+	// Input field (form-row-first) - stays in grid col 1
 	.crafty_billing.form-row-first,
 	.crafty_shipping.form-row-first {
 		@apply mb-0;
-		display: inline-block !important;
-		vertical-align: top !important;
-		width: calc(65% - 0.5rem) !important;
 		float: none #{!important};
-		margin-right: 1rem !important;
-		margin-left: 0 !important;
 
 		label {
 			@apply text-sm font-medium text-ats-dark mb-2 block;
 		}
 	}
 
-	// Button field (form-row-last)
+	// Button field (form-row-last) - aligned with input in adjacent column
 	.crafty_billing.form-row-last,
 	.crafty_shipping.form-row-last {
 		@apply mb-0;
-		display: inline-block !important;
-		vertical-align: top !important;
-		width: calc(35% - 1rem) !important;
 		float: none #{!important};
-		margin-left: 0 !important;
-		margin-right: 0 !important;
+		// Start from top, then offset by label height (text-sm line-height + mb-2)
+		align-self: start !important;
+		padding-top: 1.75rem !important; // matches label (20px) + mb-2 (8px)
 
-		// Hide the empty label but maintain spacing
+		// Hide the empty label
 		label {
-			@apply mb-2 block text-sm;
-			visibility: hidden !important;
-			height: 1.75rem !important;
+			display: none !important;
 		}
 	}
 
@@ -251,14 +247,12 @@
 		display: inline-block !important;
 	}
 
-	// Fix postcode lookup inline layout
-	// Create a wrapper div that contains both fields on the same line
+	// CraftyClicks result display - spans full width
 	.woocommerce-billing-fields__field-wrapper,
 	.woocommerce-shipping-fields__field-wrapper {
-		// Make crafty fields break out of grid and use inline-block
-		.crafty_billing,
-		.crafty_shipping {
-			grid-column: 1 / -1 !important; // Span all columns
+		.crafty_billing.form-row-wide,
+		.crafty_shipping.form-row-wide {
+			grid-column: 1 / -1 !important;
 		}
 	}
 }
@@ -272,23 +266,148 @@
  */
 .woocommerce-checkout-review-order-table {
 	width: 100% !important;
-	border-collapse: collapse !important;
-
-	tr {
-		border-bottom: 1px solid theme('colors.gray.100');
-
-		&:last-child {
-			border-bottom: none;
-		}
-
-		&.order-total {
-			border-top: 2px solid theme('colors.gray.200');
-		}
-	}
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	overflow: hidden;
 
 	th,
 	td {
 		vertical-align: top;
+	}
+
+	// Custom scrollbar for review items
+	.rfs-ref-review-items-scroll {
+		// Custom scrollbar styling
+		&::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		&::-webkit-scrollbar-track {
+			@apply bg-gray-100 rounded-lg;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			@apply bg-gray-300 rounded-lg;
+			transition: background-color 0.2s;
+
+			&:hover {
+				@apply bg-gray-400;
+			}
+		}
+
+		// Firefox scrollbar
+		scrollbar-width: thin;
+		scrollbar-color: theme('colors.gray.300') theme('colors.gray.100');
+	}
+}
+
+// Free delivery notice - aligned with other table rows (scoped to checkout table)
+.woocommerce-checkout-review-order-table {
+	.free-delivery-notice,
+	.js-free-delivery-notice {
+		border-top: 1px solid theme('colors.gray.200');
+	}
+}
+
+// ============================================
+// Payment Checkboxes (Stripe save payment, etc.)
+// ============================================
+
+.woocommerce-checkout-payment {
+	// Fix checkboxes that get appearance: none from Stripe/WC
+	input[type="checkbox"] {
+		appearance: auto !important;
+		-webkit-appearance: checkbox !important;
+		@apply w-4 h-4 border-gray-300 rounded text-ats-yellow;
+		@apply focus:ring-ats-yellow focus:ring-2;
+		cursor: pointer;
+	}
+}
+
+// ============================================
+// Terms & Conditions Modal
+// ============================================
+
+.rfs-ref-terms-modal {
+	// Modal animation
+	&:not(.hidden) {
+		animation: fadeIn 0.2s ease-out;
+	}
+
+	.rfs-ref-modal-content {
+		animation: slideUp 0.3s ease-out;
+	}
+
+	// Custom scrollbar for modal body
+	.rfs-ref-modal-body {
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			@apply bg-gray-50 rounded-lg;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			@apply bg-gray-300 rounded-lg;
+			transition: background-color 0.2s;
+
+			&:hover {
+				@apply bg-gray-400;
+			}
+		}
+
+		// Firefox scrollbar
+		scrollbar-width: thin;
+		scrollbar-color: theme('colors.gray.300') theme('colors.gray.50');
+	}
+
+	// Prose styling adjustments for better readability
+	.prose {
+		h1, h2, h3, h4, h5, h6 {
+			@apply text-ats-dark mb-3 mt-4;
+		}
+
+		h1 { @apply text-lg font-bold; }
+		h2 { @apply text-base font-semibold; }
+		h3 { @apply text-sm font-semibold; }
+
+		p {
+			@apply mb-3 text-sm leading-relaxed;
+		}
+
+		ul, ol {
+			@apply mb-3 text-sm;
+		}
+
+		li {
+			@apply mb-1;
+		}
+
+		a {
+			@apply text-blue-600 hover:text-blue-800 underline;
+		}
+	}
+}
+
+// Animations
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }
 

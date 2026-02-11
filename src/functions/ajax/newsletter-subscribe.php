@@ -153,6 +153,14 @@ function ats_subscribe_to_brevo( $email, $api_key, $list_id ) {
     }
 
     // Handle specific error codes
+    if ( $response_code === 401 ) {
+        error_log( 'ATS Newsletter: Brevo API returned 401 Unauthorized. Server IP may need to be whitelisted at https://app.brevo.com/security/authorised_ips' );
+        return new WP_Error(
+            'brevo_unauthorized',
+            __( 'Newsletter service authorization failed. Please contact the site administrator.', 'skylinewp-dev-child' )
+        );
+    }
+
     if ( $response_code === 400 && isset( $response_data['code'] ) ) {
         switch ( $response_data['code'] ) {
             case 'duplicate_parameter':

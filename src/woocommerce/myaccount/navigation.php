@@ -34,7 +34,7 @@ do_action( 'woocommerce_before_account_navigation' );
 ?>
 
 <div class="rfs-ref-account-sidebar w-full lg:w-56 flex-shrink-0">
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden sticky top-24">
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden sticky top-24">
         <div class="px-5 pt-5 pb-3">
             <h3 class="text-base font-bold text-gray-900"><?php esc_html_e( 'Navigation', 'woocommerce' ); ?></h3>
         </div>

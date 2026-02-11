@@ -32,29 +32,31 @@
 
 // Mini Cart Modal
 .js-mini-cart-modal {
+	// Show as flex when not hidden (enables justify-center/items-center)
+	&:not(.hidden) {
+		display: flex !important;
+	}
+
 	// Backdrop
 	.js-mini-cart-backdrop {
 		animation: fadeIn 0.2s ease-out;
 	}
 
-	// Modal container - slides down from top
+	// Modal container - centered vertically
 	.js-mini-cart-modal-container {
-		height: 100vh;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: 0;
 	}
 
 	// Modal content
 	.js-mini-cart-modal-content {
 		display: flex;
 		flex-direction: column;
-		max-height: 100vh;
-		height: 100%;
-
-		@media (min-width: 768px) {
-			height: auto;
-			max-height: calc(100vh - 2rem);
-		}
+		height: auto;
+		max-height: calc(100vh - 2rem);
 	}
 
 	// Modal body - scrollable area

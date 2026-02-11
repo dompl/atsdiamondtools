@@ -177,12 +177,14 @@ function ats_render_mini_cart_modal() {
                         <a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="ats-btn ats-btn-md ats-btn-yellow w-full text-center">
                             <?php esc_html_e( 'Proceed to Checkout', 'skylinewp-dev-child' ); ?>
                         </a>
-                        <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="ats-btn ats-btn-md ats-btn-outline w-full text-center">
-                            <?php esc_html_e( 'View Full Basket', 'skylinewp-dev-child' ); ?>
-                        </a>
-                        <button type="button" class="js-mini-cart-close text-sm text-ats-text hover:text-ats-dark underline" data-modal-hide="ats-mini-cart-modal">
-                            <?php esc_html_e( 'Continue Shopping', 'skylinewp-dev-child' ); ?>
-                        </button>
+                        <div class="flex gap-2">
+                            <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="ats-btn ats-btn-md w-1/2 text-center bg-ats-brand hover:bg-brand-dark text-white">
+                                <?php esc_html_e( 'View Full Basket', 'skylinewp-dev-child' ); ?>
+                            </a>
+                            <button type="button" class="js-mini-cart-close ats-btn ats-btn-md ats-btn-gray w-1/2" data-modal-hide="ats-mini-cart-modal">
+                                <?php esc_html_e( 'Continue Shopping', 'skylinewp-dev-child' ); ?>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

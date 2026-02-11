@@ -130,16 +130,16 @@ function component_hero_banner_html( string $output, string $layout ): string {
 			<?php endif; ?>
 
 			<!-- Content -->
-			<div class="rfs-ref-hero-content relative z-10 py-16 px-6 md:py-20 md:px-12 text-center">
-				<div class="max-w-4xl mx-auto">
+			<div class="rfs-ref-hero-content relative z-10 py-12 px-6 md:py-12 md:px-12 text-center">
+				<div class="max-w-10xl mx-auto">
 					<?php if ( ! empty( $heading ) ) : ?>
-						<h1 class="rfs-ref-hero-title text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+						<h1 class="rfs-ref-hero-title text-xl md:text-2xl lg:text-5xl font-bold text-white mb-6 leading-tight">
 							<?php echo esc_html( $heading ); ?>
 						</h1>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $description ) ) : ?>
-						<p class="rfs-ref-hero-description text-lg md:text-xl text-gray-200 mb-8 leading-relaxed max-w-2xl mx-auto">
+						<p class="rfs-ref-hero-description text-lg md:text-lg text-gray-200 mb-8 leading-relaxed max-w-8xl mx-auto">
 							<?php echo esc_html( $description ); ?>
 						</p>
 					<?php endif; ?>

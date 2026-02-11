@@ -1,0 +1,67 @@
+/**
+ * About Us Component Styles
+ */
+
+.rfs-ref-about-us-wrapper {
+
+	// Image placeholders
+	.rfs-ref-about-placeholder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		background-color: #f3f4f6;
+		border: 2px dashed #d1d5db;
+		border-radius: 0.5rem;
+		min-height: 350px;
+		width: 100%;
+
+		@media (min-width: 768px) {
+			min-height: 400px;
+		}
+	}
+
+	// Testimonial carousel - force visible even before JS init
+	// Splide hides .splide with visibility:hidden until is-initialized
+	.rfs-ref-testimonial-carousel.splide {
+		visibility: visible !important;
+
+		// Before Splide initializes, show slides in a horizontal scroll
+		&:not(.is-initialized) {
+			.splide__track {
+				overflow-x: auto;
+				-webkit-overflow-scrolling: touch;
+			}
+
+			.splide__list {
+				display: flex;
+				visibility: visible !important;
+			}
+
+			.splide__slide {
+				flex: 0 0 100%;
+				min-width: 0;
+				visibility: visible !important;
+			}
+		}
+
+		.splide__slide {
+			padding: 0 0.5rem;
+			display: flex;
+			align-items: center;
+		}
+	}
+
+	// Prose overrides for content sections
+	.prose {
+		a {
+			color: #594652;
+			text-decoration: underline;
+			text-underline-offset: 2px;
+
+			&:hover {
+				color: #373737;
+			}
+		}
+	}
+}

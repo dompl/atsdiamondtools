@@ -36,6 +36,7 @@ export function initCheckout() {
 			this.handleShippingToggle();
 			this.initShippingMethods();
 			this.initLoginModal();
+			this.initTermsModal();
 		},
 
 		/**
@@ -316,6 +317,96 @@ export function initCheckout() {
 			modal.classList.add('hidden');
 			modal.classList.remove('flex');
 			document.body.style.overflow = '';
+		},
+
+		/**
+		 * Initialize terms modal functionality
+		 */
+		initTermsModal() {
+			const modal = document.getElementById('terms-modal');
+			if (!modal) return;
+
+			const self = this;
+
+			// Use event delegation for opening modal
+			document.addEventListener('click', function(e) {
+				const target = e.target.closest('[data-modal-toggle="terms-modal"]');
+				if (target) {
+					e.preventDefault();
+					e.stopPropagation();
+					self.openTermsModal();
+				}
+			});
+
+			// Use event delegation for "I Understand" button (closes AND checks checkbox)
+			document.addEventListener('click', function(e) {
+				const target = e.target.closest('[data-modal-accept="terms-modal"]');
+				if (target) {
+					e.preventDefault();
+					self.acceptTermsModal();
+				}
+			});
+
+			// Use event delegation for close buttons (just closes, no checkbox)
+			document.addEventListener('click', function(e) {
+				const target = e.target.closest('[data-modal-hide="terms-modal"]');
+				if (target) {
+					e.preventDefault();
+					self.closeTermsModal();
+				}
+			});
+
+			// Close modal on backdrop click
+			document.addEventListener('click', function(e) {
+				if (e.target && e.target.id === 'terms-modal') {
+					self.closeTermsModal();
+				}
+			});
+
+			// Close modal on Escape key
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+					self.closeTermsModal();
+				}
+			});
+		},
+
+		/**
+		 * Open terms modal
+		 */
+		openTermsModal() {
+			const modal = document.getElementById('terms-modal');
+			if (!modal) return;
+
+			modal.classList.remove('hidden');
+			modal.classList.add('flex');
+			document.body.style.overflow = 'hidden';
+		},
+
+		/**
+		 * Close terms modal
+		 */
+		closeTermsModal() {
+			const modal = document.getElementById('terms-modal');
+			if (!modal) return;
+
+			modal.classList.add('hidden');
+			modal.classList.remove('flex');
+			document.body.style.overflow = '';
+		},
+
+		/**
+		 * Accept terms modal - closes modal and checks the terms checkbox
+		 */
+		acceptTermsModal() {
+			// Find and check the terms checkbox
+			const termsCheckbox = document.getElementById('terms');
+			if (termsCheckbox) {
+				termsCheckbox.checked = true;
+			}
+
+			// Close the modal
+			this.closeTermsModal();
 		},
 	};
 

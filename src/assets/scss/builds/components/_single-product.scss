@@ -1,0 +1,26 @@
+
+/* Force variation dropdown wrappers to stay visible */
+.flowbite-dropdown-wrapper,
+.flowbite-dropdown-wrapper .value,
+.flowbite-dropdown-wrapper .ats-dropdown-trigger {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.flowbite-dropdown-wrapper.hidden,
+.flowbite-dropdown-wrapper .value.hidden {
+    display: block !important;
+}
+
+/* Hide variation price - multiple selectors to ensure it works */
+.woocommerce-variation .woocommerce-variation-price,
+.woocommerce-variation-price,
+.single_variation .woocommerce-variation-price,
+div.woocommerce-variation-price {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}

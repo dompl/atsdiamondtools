@@ -81,7 +81,7 @@ if ( ! $checkout->is_registration_enabled() && $checkout->is_registration_requir
 
 					<!-- Order Review Section (Right 1/3) -->
 					<div class="rfs-ref-order-review-sidebar lg:col-span-1">
-						<div class="rfs-ref-order-review-wrapper sticky top-8">
+						<div class="rfs-ref-order-review-wrapper">
 
 							<?php do_action( 'woocommerce_checkout_before_order_review' ); ?>
 

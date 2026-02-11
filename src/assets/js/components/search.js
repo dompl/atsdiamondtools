@@ -298,6 +298,12 @@ function initSearchInstance(container) {
 	function toggleCategoryDropdown(event) {
 		event.preventDefault();
 		event.stopPropagation();
+
+		// Hide search results when opening category dropdown
+		if (categoryDropdown?.classList.contains('hidden')) {
+			hideResults();
+		}
+
 		categoryDropdown?.classList.toggle('hidden');
 	}
 

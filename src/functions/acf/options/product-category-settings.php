@@ -20,11 +20,7 @@ use Extended\ACF\Location;
 /**
  * Register the Product Category Settings field group.
  */
-add_action( 'acf/init', function () {
-    if ( ! function_exists( 'register_extended_field_group' ) ) {
-        return;
-    }
-
+if ( function_exists( 'register_extended_field_group' ) ) {
     register_extended_field_group( [
         'title'    => 'Category Banner Settings',
         'key'      => 'group_product_category_banner',
@@ -41,4 +37,4 @@ add_action( 'acf/init', function () {
         'style'    => 'default',
         'position' => 'normal',
     ] );
-} );
+}

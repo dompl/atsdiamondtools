@@ -369,7 +369,7 @@ return ob_get_clean();
  * @return string HTML output
  */
 if ( !function_exists( 'ats_render_product_compact' ) ) {
-    function ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url ) {
+    function ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock = true ) {
         // Get image URL - smaller size for compact layout
         $image_url = $image_id ? wpimage( $image_id, [140, 140], false, true, true ) : wc_placeholder_img_src( 'medium' );
 
@@ -410,7 +410,14 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
 
 			<div class="rfs-ref-product-compact-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 lg:gap-2">
 				<span class="rfs-ref-product-compact-price text-[10px] lg:text-xs font-bold text-black whitespace-nowrap"><?php echo wp_kses_post( $price_html ); ?></span>
-				<?php if ( $product->is_type( 'variable' ) ) : ?>
+				<?php if ( ! $is_in_stock ) : ?>
+					<a
+						href="<?php echo esc_url( $product_url ); ?>"
+						class="rfs-ref-product-compact-out-of-stock-btn ats-btn ats-btn-xs bg-gray-400 text-white whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
+					>
+						<?php echo esc_html( $button_text ); ?>
+					</a>
+				<?php elseif ( $product->is_type( 'variable' ) ) : ?>
 					<button
 						class="rfs-ref-product-compact-cta-btn ats-btn ats-btn-xs ats-btn-yellow ats-expand-product whitespace-nowrap text-[9px] lg:text-[11px] px-2 lg:px-3"
 						data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"

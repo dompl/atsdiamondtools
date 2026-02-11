@@ -220,7 +220,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 			<!-- Cart Totals Sidebar -->
 			<div class="rfs-ref-cart-sidebar lg:col-span-1">
-				<div class="rfs-ref-cart-totals-wrapper sticky top-8">
+				<div class="rfs-ref-cart-totals-wrapper sticky top-8 space-y-6">
 					<?php do_action( 'woocommerce_before_cart_collaterals' ); ?>
 
 					<?php
@@ -231,15 +231,15 @@ do_action( 'woocommerce_before_cart' ); ?>
 					 */
 					do_action( 'woocommerce_cart_collaterals' );
 					?>
-				</div>
 
-				<?php
-				/**
-				 * Custom action for cross-sells after cart totals
-				 * Separate container from cart totals
-				 */
-				do_action( 'ats_cart_sidebar_after_totals' );
-				?>
+					<?php
+					/**
+					 * Custom action for cross-sells after cart totals
+					 * Inside sticky wrapper to prevent overlapping on scroll
+					 */
+					do_action( 'ats_cart_sidebar_after_totals' );
+					?>
+				</div>
 			</div>
 		</div>
 

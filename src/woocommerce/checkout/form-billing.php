@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="rfs-ref-billing-fields woocommerce-billing-fields bg-white border-2 border-gray-300 rounded-lg p-6 lg:p-8">
+<div class="rfs-ref-billing-fields woocommerce-billing-fields bg-white border border-gray-300 rounded-lg p-6 lg:p-8">
 	<?php if ( wc_ship_to_billing_address_only() && WC()->cart->needs_shipping() ) : ?>
 
 		<h3 class="text-xl font-bold text-ats-dark mb-6"><?php esc_html_e( 'Billing & Shipping', 'woocommerce' ); ?></h3>
@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 </div>
 
 <?php if ( ! is_user_logged_in() && $checkout->is_registration_enabled() ) : ?>
-	<div class="rfs-ref-account-fields woocommerce-account-fields bg-white border-2 border-gray-300 rounded-lg p-6 lg:p-8 mt-6">
+	<div class="rfs-ref-account-fields woocommerce-account-fields bg-white border border-gray-300 rounded-lg p-6 lg:p-8 mt-6">
 		<?php if ( ! $checkout->is_registration_required() ) : ?>
 
 			<p class="rfs-ref-create-account-toggle form-row form-row-wide create-account mb-0">

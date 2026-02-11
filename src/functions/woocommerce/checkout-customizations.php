@@ -131,12 +131,146 @@ function ats_custom_checkout_field_args( $args, $key, $value ) {
 		$args['class'][] = 'lg:col-span-2';
 	}
 
-	// CraftyClicks postcode lookup fields - always full width
-	if ( strpos( $key, 'crafty_' ) === 0 ||
-	     $key === 'billing_postcode_lookup' ||
+	// CraftyClicks result display fields - full width
+	if ( $key === 'billing_postcode_lookup' ||
 	     $key === 'shipping_postcode_lookup' ) {
 		$args['class'][] = 'lg:col-span-2';
 	}
 
 	return $args;
 }
+
+/**
+ * Move Stripe Express Checkout (Apple Pay, Google Pay) above Place Order button
+ *
+ * Stripe hooks into 'woocommerce_checkout_before_customer_details' at priority 1,
+ * placing Express Checkout at the top of the form. We remove it and re-add to
+ * 'woocommerce_review_order_before_submit' so it appears above "Place Order".
+ *
+ * Uses wp_loaded to ensure all plugins have loaded their hooks.
+ */
+add_action( 'wp_loaded', function() {
+	// Move Express Checkout Element (newer Stripe plugin)
+	if ( function_exists( 'woocommerce_gateway_stripe' ) ) {
+		$stripe = woocommerce_gateway_stripe();
+		if ( $stripe && isset( $stripe->express_checkout_configuration ) ) {
+			$express = $stripe->express_checkout_configuration;
+			remove_action( 'woocommerce_checkout_before_customer_details', array( $express, 'display_express_checkout_button_html' ), 1 );
+			add_action( 'woocommerce_review_order_before_submit', array( $express, 'display_express_checkout_button_html' ), 1 );
+		}
+	}
+
+	// Also handle legacy Payment Request API (older Stripe versions)
+	if ( class_exists( 'WC_Stripe_Payment_Request' ) ) {
+		$payment_request = WC_Stripe_Payment_Request::instance();
+		remove_action( 'woocommerce_checkout_before_customer_details', array( $payment_request, 'display_payment_request_button_html' ), 1 );
+		add_action( 'woocommerce_review_order_before_submit', array( $payment_request, 'display_payment_request_button_html' ), 1 );
+	}
+} );
+
+/**
+ * Make Place Order button text uppercase
+ */
+add_filter( 'woocommerce_order_button_text', function( $text ) {
+	return strtoupper( $text );
+} );
+
+/**
+ * Add CSS to fix checkout layout issues
+ */
+add_action( 'wp_head', function() {
+	if ( ! is_checkout() ) {
+		return;
+	}
+	?>
+	<style>
+		/* ============================
+		   Checkout Grid Layout
+		   ============================ */
+		.rfs-ref-checkout-layout {
+			display: grid !important;
+		}
+
+		/* Prevent grid items from overflowing their columns */
+		.rfs-ref-customer-details,
+		.rfs-ref-order-review-sidebar {
+			min-width: 0;
+		}
+
+		/* Ensure payment methods stay within the order review area */
+		#order_review {
+			width: 100%;
+		}
+
+		/* Prevent order review from collapsing */
+		.woocommerce-checkout-review-order {
+			min-height: 200px;
+		}
+
+		/* ============================
+		   Express Checkout Styling
+		   ============================ */
+		#wc-stripe-express-checkout-button-separator {
+			margin: 0 !important;
+			text-align: center;
+			color: #6b7280;
+			font-size: 0.875rem;
+		}
+
+		/* ============================
+		   Dual Sticky Columns
+		   ============================ */
+		@media (min-width: 1024px) {
+			.rfs-ref-checkout-layout {
+				align-items: start;
+			}
+		}
+	</style>
+
+	<script>
+		(function() {
+			// Dual-sticky column behavior
+			// The SHORTER column should be sticky so the taller one scrolls naturally
+			function updateStickyColumns() {
+				if (window.innerWidth < 1024) return;
+
+				var left = document.querySelector('.rfs-ref-customer-details');
+				var right = document.querySelector('.rfs-ref-order-review-sidebar');
+				if (!left || !right) return;
+
+				// Reset to measure true heights
+				left.style.position = 'relative';
+				left.style.top = '';
+				right.style.position = 'relative';
+				right.style.top = '';
+
+				var leftHeight = left.offsetHeight;
+				var rightHeight = right.offsetHeight;
+				var diff = Math.abs(leftHeight - rightHeight);
+
+				// Only apply sticky if there's a meaningful height difference (>50px)
+				if (diff < 50) return;
+
+				if (leftHeight > rightHeight) {
+					// Left is taller - right sticks
+					right.style.position = 'sticky';
+					right.style.top = '2rem';
+				} else {
+					// Right is taller - left sticks
+					left.style.position = 'sticky';
+					left.style.top = '2rem';
+				}
+			}
+
+			// Run on load and checkout updates
+			document.addEventListener('DOMContentLoaded', function() {
+				updateStickyColumns();
+				window.addEventListener('resize', updateStickyColumns);
+				jQuery(document.body).on('updated_checkout', function() {
+					setTimeout(updateStickyColumns, 100);
+				});
+			});
+		})();
+	</script>
+	<?php
+}, 999 );

@@ -1,0 +1,37 @@
+// Price Manager Component
+// Minimal styles - most styling via Tailwind
+
+[data-component="price-manager"] {
+
+	// Sticky table header
+	.rfs-ref-price-manager-thead {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+
+	// Number input - remove spinner arrows for cleaner look
+	input[type="number"].js-price-input {
+		-moz-appearance: textfield;
+		appearance: textfield;
+
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	}
+
+	// Variation row indent
+	.rfs-ref-price-manager-variation-row {
+		td:first-child {
+			padding-left: 1rem;
+		}
+	}
+
+	// Duplicate variation highlight
+	.rfs-ref-price-manager-duplicate {
+		background-color: rgba(239, 68, 68, 0.05) !important;
+		border-left: 3px solid #ef4444;
+	}
+}

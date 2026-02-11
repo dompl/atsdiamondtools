@@ -23,9 +23,12 @@ import { initReviewForm } from './components/review-form.js';
 import { initCart } from './components/cart.js';
 import { initCheckout } from './components/checkout.js';
 import { initFreeDeliveryNotice } from './components/free-delivery-notice.js';
+import { initBackInStock } from './components/back-in-stock.js';
 
 // Inactive Components
 import './components/banner.js';
+import './components/about-us.js';
+import './components/price-manager.js';
 // import './components/container.js';
 // import './components/hero-slider.js';
 // import './components/icon-bar.js';
@@ -59,4 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Initialize free delivery notice updates
 	initFreeDeliveryNotice();
+
+	// Initialize back-in-stock notifications
+	initBackInStock();
 });

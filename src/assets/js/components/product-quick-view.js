@@ -308,8 +308,8 @@ import $ from 'jquery';
 					}
 				});
 
-				// Find matching variation
-				const match = variationsData.find((v) => {
+				// Find ALL matching variations (considering other selections)
+				let matches = variationsData.filter((v) => {
 					const attrVal = v.attributes[selectName];
 					if (attrVal && attrVal !== val) return false;
 
@@ -322,14 +322,36 @@ import $ from 'jquery';
 					return true;
 				});
 
-				if (match && match.price_html) {
-					let tmp = document.createElement('DIV');
-					tmp.innerHTML = match.price_html;
-					let priceText = tmp.textContent || tmp.innerText || '';
-					return priceText.trim();
+				// Fallback: if no matches with current selections, match on just this attribute
+				if (!matches.length) {
+					matches = variationsData.filter((v) => {
+						const attrVal = v.attributes[selectName];
+						return !attrVal || attrVal === val;
+					});
 				}
 
-				return null;
+				if (!matches.length) return null;
+
+				// Extract prices from matches
+				const prices = matches
+					.filter((v) => v.display_price !== undefined)
+					.map((v) => parseFloat(v.display_price));
+
+				if (!prices.length) return null;
+
+				const minPrice = Math.min(...prices);
+				const maxPrice = Math.max(...prices);
+
+				// Format price with currency symbol
+				const formatPrice = (p) => {
+					const formatted = p % 1 === 0 ? p.toFixed(0) : p.toFixed(2);
+					return '£' + formatted;
+				};
+
+				if (minPrice === maxPrice) {
+					return formatPrice(minPrice);
+				}
+				return formatPrice(minPrice) + ' - ' + formatPrice(maxPrice);
 			};
 
 			// Helper to refresh options from select

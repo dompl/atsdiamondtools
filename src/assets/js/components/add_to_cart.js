@@ -319,6 +319,12 @@
 					container.style.transform = 'scale(1)';
 				}, 10);
 			}
+
+			// Check scroll indicator after modal is visible
+			const self = this;
+			setTimeout(function () {
+				self.checkScroll();
+			}, 50);
 		},
 
 		/**
@@ -379,6 +385,12 @@
 			if (this.elements.total) {
 				this.elements.total.innerHTML = data.total;
 			}
+
+			// Check scroll indicator after content update
+			const self = this;
+			setTimeout(function () {
+				self.checkScroll();
+			}, 50);
 		},
 
 		/**

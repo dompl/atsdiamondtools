@@ -88,36 +88,36 @@ function component_product_scroller_html( string $output, string $layout ): stri
         }
     } else {
         // Get best-selling products
-        // First try with sales data
+        // Try with sales data first
         $args = [
             'post_type'      => 'product',
             'posts_per_page' => intval( $products_limit ),
             'post_status'    => 'publish',
             'fields'         => 'ids',
-            'meta_query'     => [
-                [
-                    'key'     => 'total_sales',
-                    'compare' => 'EXISTS'
-                ]
-            ],
-            'orderby'        => 'meta_value_num',
             'meta_key'       => 'total_sales',
+            'orderby'        => 'meta_value_num',
             'order'          => 'DESC'
         ];
 
         $product_ids = get_posts( $args );
 
-        // If no products with sales data, get any published products
-        if ( empty( $product_ids ) ) {
-            $args = [
+        // If not enough products with sales data, fill with newest products
+        $limit = intval( $products_limit );
+        if ( count( $product_ids ) < $limit ) {
+            $remaining = $limit - count( $product_ids );
+            $fallback_args = [
                 'post_type'      => 'product',
-                'posts_per_page' => intval( $products_limit ),
+                'posts_per_page' => $remaining,
                 'post_status'    => 'publish',
                 'fields'         => 'ids',
                 'orderby'        => 'date',
-                'order'          => 'DESC'
+                'order'          => 'DESC',
             ];
-            $product_ids = get_posts( $args );
+            if ( ! empty( $product_ids ) ) {
+                $fallback_args['post__not_in'] = $product_ids;
+            }
+            $fallback_ids  = get_posts( $fallback_args );
+            $product_ids   = array_merge( $product_ids, $fallback_ids );
         }
     }
 

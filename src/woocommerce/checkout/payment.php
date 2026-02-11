@@ -15,7 +15,7 @@ if ( ! wp_doing_ajax() ) {
 	do_action( 'woocommerce_review_order_before_payment' );
 }
 ?>
-<div id="payment" class="rfs-ref-checkout-payment woocommerce-checkout-payment bg-white border border-gray-200 rounded-lg p-6 mt-6">
+<div id="payment" class="rfs-ref-checkout-payment woocommerce-checkout-payment bg-white border border-gray-300 rounded-lg p-6 mt-6">
 
 	<h3 class="rfs-ref-payment-title text-lg font-bold text-ats-dark mb-6"><?php esc_html_e( 'Payment method', 'woocommerce' ); ?></h3>
 
@@ -51,6 +51,22 @@ if ( ! wp_doing_ajax() ) {
 		<?php do_action( 'woocommerce_review_order_before_submit' ); ?>
 
 		<?php echo apply_filters( 'woocommerce_order_button_html', '<button type="submit" class="rfs-ref-place-order-btn w-full bg-ats-yellow hover:bg-yellow-500 text-ats-dark font-bold py-4 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ats-yellow mt-4" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr( $order_button_text ) . '" data-value="' . esc_attr( $order_button_text ) . '">' . esc_html( $order_button_text ) . '</button>' ); ?>
+
+		<!-- Secure Payment Notice -->
+		<div class="rfs-ref-secure-payments mt-6 text-center">
+			<div class="flex items-center justify-center gap-2 mb-3">
+				<svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+					<path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+				</svg>
+				<span class="text-xs font-medium text-ats-text">Secure & encrypted payment</span>
+			</div>
+			<div class="rfs-ref-payment-icons flex items-center justify-center gap-3 flex-wrap opacity-70">
+				<img src="https://raw.githubusercontent.com/datatrans/payment-logos/master/assets/cards/visa.svg" alt="Visa" class="h-6" loading="lazy">
+				<img src="https://raw.githubusercontent.com/datatrans/payment-logos/master/assets/cards/mastercard.svg" alt="Mastercard" class="h-6" loading="lazy">
+				<img src="https://raw.githubusercontent.com/datatrans/payment-logos/master/assets/cards/american-express.svg" alt="American Express" class="h-6" loading="lazy">
+				<img src="https://raw.githubusercontent.com/datatrans/payment-logos/master/assets/apm/paypal.svg" alt="PayPal" class="h-6" loading="lazy">
+			</div>
+		</div>
 
 		<?php do_action( 'woocommerce_review_order_after_submit' ); ?>
 

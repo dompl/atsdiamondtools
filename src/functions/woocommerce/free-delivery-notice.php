@@ -248,8 +248,8 @@ function ats_render_checkout_notice( $message, $status, $percent ) {
 	$bar   = $status === 'qualified' ? 'bg-green-500' : 'bg-ats-brand';
 	?>
 	<tr class="free-delivery-notice js-free-delivery-notice" data-context="checkout">
-		<th><?php esc_html_e( 'Free Delivery', 'woocommerce' ); ?></th>
-		<td>
+		<th class="px-6 py-3 text-sm text-ats-text font-normal text-left"><?php esc_html_e( 'Free Delivery', 'woocommerce' ); ?></th>
+		<td class="px-6 py-3 text-right">
 			<div class="<?php echo esc_attr( $color ); ?> text-sm font-semibold js-free-delivery-message"><?php echo wp_kses_post( $message ); ?></div>
 			<div class="w-full bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
 				<div class="h-1.5 rounded-full transition-all duration-500 js-free-delivery-bar <?php echo esc_attr( $bar ); ?>" style="width: <?php echo esc_attr( $percent ); ?>%"></div>
