@@ -93,7 +93,7 @@ if ( ! function_exists( 'register_ats_settings_options' ) ) {
 
 					Number::make( 'Checkout Brevo List ID', 'ats_checkout_newsletter_list_id' )
 						->helperText( 'Numeric ID of the Brevo contact list for checkout newsletter subscribers. Find in Brevo > Contacts > Lists.' )
-						->default( 2 ),
+						->default( 3 ),
 
 					Tab::make( 'PDF Invoices' )
 						->placement( 'left' ),
