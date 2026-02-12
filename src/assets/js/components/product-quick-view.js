@@ -293,6 +293,32 @@ import $ from 'jquery';
 		initializeVariationDropdowns: function () {
 			const $form = $(this.elements.modalContent).find('.variations_form');
 			const dropdownInstances = new Map();
+			const self = this;
+
+			// Check if variation data needs to be fetched via AJAX
+			const variationsRaw = $form.data('product_variations');
+			if (variationsRaw === false || variationsRaw === 'false' || !variationsRaw) {
+				const productId = $form.data('product_id');
+				if (productId) {
+					$.ajax({
+						url: themeData.ajax_url,
+						type: 'POST',
+						data: {
+							action: 'ats_get_product_variations',
+							product_id: productId
+						},
+						success: function (response) {
+							if (response && response.success && Array.isArray(response.data)) {
+								$form.data('product_variations', response.data);
+								// Re-populate dropdowns now that we have data
+								$('.flowbite-dropdown-wrapper', self.elements.modalContent).each(function () {
+									refreshDropdown($(this));
+								});
+							}
+						}
+					});
+				}
+			}
 
 			// Helper to get price for a specific option
 			const getPriceForOption = (selectName, val, $form) => {
