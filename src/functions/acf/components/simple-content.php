@@ -7,20 +7,27 @@
  * @package SkylineWP Dev Child
  */
 
+use Extended\ACF\ConditionalLogic;
 use Extended\ACF\Fields\Layout;
 use Extended\ACF\Fields\Select;
 use Extended\ACF\Fields\Tab;
+use Extended\ACF\Fields\Text;
 use Extended\ACF\Fields\WYSIWYGEditor;
 
 function simple_content_fields() {
     return [
         Tab::make('Content', wp_unique_id())->placement('left'),
 
+        Text::make('Shortcode', 'shortcode')
+            ->helperText('Enter a shortcode to render instead of the WYSIWYG content (e.g. [my_shortcode]). HTML and shortcodes will not be escaped.'),
+
         WYSIWYGEditor::make('Content', 'content')
-            ->helperText('Add your content here')
+            ->helperText('Add your content here. This field is hidden when a shortcode is provided above.')
             ->tabs('all')
             ->toolbar('full')
-            ->required(),
+            ->conditionalLogic([
+                ConditionalLogic::where('shortcode', '==', ''),
+            ]),
 
         Tab::make('Layout Settings', wp_unique_id())->placement('left'),
 
@@ -66,6 +73,7 @@ function component_simple_content_html(string $output, string $layout): string {
 
     // Get field values
     $content = get_sub_field('content');
+    $shortcode = get_sub_field('shortcode');
     $container_width = get_sub_field('container_width') ?: 'default';
     $padding_size = get_sub_field('padding_size') ?: 'default';
     $prose_size = get_sub_field('prose_size') ?: 'default';
@@ -101,9 +109,15 @@ function component_simple_content_html(string $output, string $layout): string {
 
     <div class="rfs-ref-simple-content-wrapper <?php echo esc_attr($padding_class); ?> bg-white">
         <div class="<?php echo esc_attr($container_class); ?>">
-            <div class="rfs-ref-simple-content-inner prose <?php echo esc_attr($prose_class); ?> max-w-none">
-                <?php echo wp_kses_post($content); ?>
-            </div>
+            <?php if ( ! empty( $shortcode ) ) : ?>
+                <div class="rfs-ref-simple-content-shortcode">
+                    <?php echo do_shortcode( $shortcode ); ?>
+                </div>
+            <?php else : ?>
+                <div class="rfs-ref-simple-content-inner prose <?php echo esc_attr($prose_class); ?> max-w-none">
+                    <?php echo wp_kses_post($content); ?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
