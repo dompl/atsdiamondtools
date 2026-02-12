@@ -7,6 +7,7 @@
  * @package skylinewp-dev-child
  */
 
+use Extended\ACF\Fields\Number;
 use Extended\ACF\Fields\Tab;
 use Extended\ACF\Fields\Textarea;
 use Extended\ACF\Fields\Text;
@@ -79,6 +80,20 @@ if ( ! function_exists( 'register_ats_settings_options' ) ) {
 						->rows( 2 )
 						->newLines( 'br' )
 						->default( 'Thank you for subscribing! Check your inbox to confirm your subscription.' ),
+
+					Tab::make( 'Checkout Newsletter' )
+						->placement( 'left' ),
+
+					TrueFalse::make( 'Enable Checkout Newsletter', 'ats_checkout_newsletter_enabled' )
+						->helperText( 'When enabled, displays an opt-out newsletter checkbox on the checkout page. Customers are subscribed unless they tick the box.' ),
+
+					Text::make( 'Checkbox Label', 'ats_checkout_newsletter_label' )
+						->helperText( 'Label text displayed next to the opt-out checkbox on the checkout page.' )
+						->default( 'I do not wish to sign up for the ATS Diamond Tools newsletter' ),
+
+					Number::make( 'Checkout Brevo List ID', 'ats_checkout_newsletter_list_id' )
+						->helperText( 'Numeric ID of the Brevo contact list for checkout newsletter subscribers. Find in Brevo > Contacts > Lists.' )
+						->default( 2 ),
 
 					Tab::make( 'PDF Invoices' )
 						->placement( 'left' ),

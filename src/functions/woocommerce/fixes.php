@@ -146,6 +146,51 @@ add_filter( 'pre_count_terms', function( $value, $taxonomies, $args ) {
  * JSON data so that the frontend can switch images when variations are selected.
  */
 add_filter( 'woocommerce_available_variation', function( $data, $product, $variation ) {
+	// Fix attribute mismatch: some products have custom attributes (is_taxonomy=0)
+	// but variation meta uses the pa_ prefix (taxonomy convention). This causes
+	// WooCommerce to return empty attribute values in the JSON data.
+	if ( ! empty( $data['attributes'] ) && is_array( $data['attributes'] ) ) {
+		$variation_id  = $variation->get_id();
+		$product_attrs = $product->get_attributes();
+
+		foreach ( $data['attributes'] as $attr_key => $attr_value ) {
+			// Only fix empty values
+			if ( $attr_value !== '' ) {
+				continue;
+			}
+
+			// Extract the attribute name (remove 'attribute_' prefix)
+			$attr_name = str_replace( 'attribute_', '', $attr_key );
+
+			// Check if this is a custom (non-taxonomy) attribute
+			$product_attr = isset( $product_attrs[ $attr_name ] ) ? $product_attrs[ $attr_name ] : null;
+			if ( ! $product_attr || $product_attr->is_taxonomy() ) {
+				continue;
+			}
+
+			// Try to get the value from the pa_ prefixed meta key
+			$pa_value = get_post_meta( $variation_id, 'attribute_pa_' . $attr_name, true );
+			if ( $pa_value !== '' && $pa_value !== false ) {
+				// The pa_ value is a slug - try to match it to the original option text
+				$options = $product_attr->get_options();
+				$matched = false;
+
+				foreach ( $options as $option ) {
+					if ( sanitize_title( $option ) === $pa_value ) {
+						$data['attributes'][ $attr_key ] = $option;
+						$matched = true;
+						break;
+					}
+				}
+
+				// If no match found, use the slug value as-is
+				if ( ! $matched ) {
+					$data['attributes'][ $attr_key ] = $pa_value;
+				}
+			}
+		}
+	}
+
 	// Get the variation's own image ID
 	$variation_image_id = $variation->get_image_id();
 

@@ -325,6 +325,91 @@
 }
 
 // ============================================
+// PayPal Payment Method Styling
+// ============================================
+
+.woocommerce-checkout-payment {
+	// Constrain PayPal payment box size
+	.payment_method_ppcp-gateway,
+	.payment_method_paypal,
+	[class*="payment_method_ppcp"] {
+		// PayPal logo in the payment method label
+		label img,
+		label svg {
+			max-height: 32px !important;
+			width: auto !important;
+			height: auto !important;
+			vertical-align: middle;
+		}
+
+		// PayPal payment box container
+		.payment_box {
+			@apply p-4 bg-gray-50 rounded-lg mt-3;
+
+			// Constrain all images inside PayPal payment box
+			img {
+				max-width: 200px !important;
+				max-height: 50px !important;
+				width: auto !important;
+				height: auto !important;
+			}
+
+			// Hide "What is PayPal?" link and description text
+			a[href*="paypal.com/webapps"],
+			a[href*="what-is-paypal"],
+			.ppcp-message-description,
+			[class*="what-is"],
+			p,
+			> a {
+				@apply hidden #{!important};
+			}
+
+			// PayPal button container
+			.ppcp-messages,
+			[class*="ppcp-"],
+			[id*="ppcp-"] {
+				max-width: 100% !important;
+
+				img {
+					max-width: 200px !important;
+					max-height: 50px !important;
+				}
+			}
+
+			// PayPal smart buttons - constrain size
+			#ppc-button-ppcp-gateway,
+			[id*="ppc-button"],
+			.paypal-buttons {
+				max-width: 350px !important;
+
+				iframe {
+					max-height: 55px !important;
+				}
+			}
+		}
+
+		// Hide "What is PayPal?" link (can be outside payment_box)
+		.about_paypal {
+			@apply hidden #{!important};
+		}
+	}
+
+	// Payment method list items - consistent styling
+	.wc_payment_methods {
+		li {
+			label {
+				@apply flex items-center gap-3 cursor-pointer;
+
+				img {
+					max-height: 32px !important;
+					width: auto !important;
+				}
+			}
+		}
+	}
+}
+
+// ============================================
 // Terms & Conditions Modal
 // ============================================
 

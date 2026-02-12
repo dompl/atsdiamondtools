@@ -243,3 +243,52 @@ function ats_add_shop_filter_nonce( $scripts_localize ) {
 	return $scripts_localize;
 }
 add_filter( 'skyline_child_localizes', 'ats_add_shop_filter_nonce' );
+
+/**
+ * Register AJAX actions for getting product variations
+ */
+add_action( 'wp_ajax_ats_get_product_variations', 'ats_handle_get_product_variations' );
+add_action( 'wp_ajax_nopriv_ats_get_product_variations', 'ats_handle_get_product_variations' );
+
+/**
+ * Handle AJAX request to get all variations for a product
+ *
+ * @return void
+ */
+function ats_handle_get_product_variations() {
+	$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+
+	if ( ! $product_id ) {
+		wp_send_json_error( array( 'message' => 'Invalid product ID' ) );
+	}
+
+	$product = wc_get_product( $product_id );
+
+	if ( ! $product || ! $product->is_type( 'variable' ) ) {
+		wp_send_json_error( array( 'message' => 'Product not found or not variable' ) );
+	}
+
+	// Get all available variations
+	$available_variations = $product->get_available_variations();
+
+	// Format variations data similar to WooCommerce's format
+	$variations_data = array();
+
+	foreach ( $available_variations as $variation ) {
+		$variations_data[] = array(
+			'variation_id'          => $variation['variation_id'],
+			'attributes'            => $variation['attributes'],
+			'display_price'         => $variation['display_price'],
+			'display_regular_price' => $variation['display_regular_price'],
+			'price'                 => $variation['display_price'],
+			'price_html'            => $variation['price_html'],
+			'is_in_stock'           => $variation['is_in_stock'],
+			'is_purchasable'        => $variation['is_purchasable'],
+			'availability_html'     => $variation['availability_html'],
+			'image'                 => $variation['image'],
+			'image_id'              => $variation['image_id'],
+		);
+	}
+
+	wp_send_json_success( $variations_data );
+}

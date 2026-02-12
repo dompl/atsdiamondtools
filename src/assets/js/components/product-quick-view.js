@@ -349,9 +349,9 @@ import $ from 'jquery';
 				};
 
 				if (minPrice === maxPrice) {
-					return formatPrice(minPrice);
+					return formatPrice(minPrice) + ' +VAT';
 				}
-				return formatPrice(minPrice) + ' - ' + formatPrice(maxPrice);
+				return formatPrice(minPrice) + ' - ' + formatPrice(maxPrice) + ' +VAT';
 			};
 
 			// Helper to refresh options from select

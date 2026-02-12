@@ -109,12 +109,14 @@ function ats_handle_newsletter_subscribe() {
 /**
  * Subscribe email to Brevo list
  *
- * @param string $email   Email address to subscribe.
- * @param string $api_key Brevo API key.
- * @param int    $list_id Brevo list ID.
+ * @param string $email      Email address to subscribe.
+ * @param string $api_key    Brevo API key.
+ * @param int    $list_id    Brevo list ID.
+ * @param string $first_name Optional first name for contact attributes.
+ * @param string $last_name  Optional last name for contact attributes.
  * @return true|WP_Error True on success, WP_Error on failure.
  */
-function ats_subscribe_to_brevo( $email, $api_key, $list_id ) {
+function ats_subscribe_to_brevo( $email, $api_key, $list_id, $first_name = '', $last_name = '' ) {
     $api_url = 'https://api.brevo.com/v3/contacts';
 
     $body = array(
@@ -122,6 +124,18 @@ function ats_subscribe_to_brevo( $email, $api_key, $list_id ) {
         'listIds'          => array( (int) $list_id ),
         'updateEnabled'    => true,
     );
+
+    // Add contact attributes if name is provided
+    $attributes = array();
+    if ( ! empty( $first_name ) ) {
+        $attributes['FIRSTNAME'] = sanitize_text_field( $first_name );
+    }
+    if ( ! empty( $last_name ) ) {
+        $attributes['LASTNAME'] = sanitize_text_field( $last_name );
+    }
+    if ( ! empty( $attributes ) ) {
+        $body['attributes'] = $attributes;
+    }
 
     $args = array(
         'method'  => 'POST',

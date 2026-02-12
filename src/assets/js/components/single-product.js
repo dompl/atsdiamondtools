@@ -541,13 +541,102 @@ function initCategoryToggle() {
 function initCustomDropdowns() {
 	const $form = $('form.variations_form');
 
+	// Store for variations data (fetched via AJAX if needed)
+	let cachedVariationsData = null;
+
+	// Helper to get variations data (handles AJAX loading when data-product_variations is false)
+	const getVariationsData = (callback) => {
+		// Return cached data if available
+		if (cachedVariationsData !== null) {
+			callback(cachedVariationsData);
+			return;
+		}
+
+		// Get variations data from form
+		let variationsData = $form.data('product_variations');
+
+		// If it's false or not an array, we need to fetch via AJAX
+		if (variationsData === false || variationsData === 'false' || !variationsData) {
+			const productId = $form.data('product_id');
+
+			if (!productId) {
+				cachedVariationsData = [];
+				callback([]);
+				return;
+			}
+
+			// Fetch variations via custom AJAX endpoint
+			$.ajax({
+				url: window.location.origin + '/wp-admin/admin-ajax.php',
+				type: 'POST',
+				data: {
+					action: 'ats_get_product_variations',
+					product_id: productId
+				},
+				success: function(response) {
+					if (response && response.success && Array.isArray(response.data)) {
+						cachedVariationsData = response.data;
+						// Also store in form data for other scripts
+						$form.data('product_variations', response.data);
+						callback(response.data);
+					} else {
+						cachedVariationsData = [];
+						callback([]);
+					}
+				},
+				error: function() {
+					cachedVariationsData = [];
+					callback([]);
+				}
+			});
+			return;
+		}
+
+		// If it's a string (JSON), parse it
+		if (typeof variationsData === 'string') {
+			try {
+				variationsData = JSON.parse(variationsData);
+			} catch (e) {
+				variationsData = [];
+			}
+		}
+
+		// Ensure it's an array
+		if (!Array.isArray(variationsData)) {
+			variationsData = [];
+		}
+
+		cachedVariationsData = variationsData;
+		callback(variationsData);
+	};
+
+	// Mark dropdown menus with a dedicated class for reliable targeting
+	$('.flowbite-dropdown-wrapper .dropdown-options-list').each(function () {
+		$(this).closest('div[id^="dropdown_"]').addClass('ats-dropdown-menu');
+	});
+
+	// Helper to close all dropdown menus (NOT the trigger buttons)
+	const closeAllDropdownMenus = () => {
+		$('.flowbite-dropdown-wrapper .ats-dropdown-menu').addClass('hidden');
+		$('.flowbite-dropdown-wrapper .ats-dropdown-trigger').attr('aria-expanded', 'false');
+	};
+
+	// Helper to ensure trigger buttons stay visible
+	const ensureTriggersVisible = () => {
+		$('.flowbite-dropdown-wrapper').each(function () {
+			const $wrapper = $(this);
+			$wrapper.removeClass('hidden').css({ 'visibility': 'visible', 'opacity': '1' });
+			$wrapper.find('.value').removeClass('hidden').css('visibility', 'visible');
+			$wrapper.find('.ats-dropdown-trigger').removeClass('hidden').css({ 'display': '', 'visibility': 'visible' });
+		});
+	};
+
 	// Helper to refresh options from select
-	const refreshDropdown = ($wrapper) => {
+	const refreshDropdown = ($wrapper, variationsData) => {
 		const $select = $wrapper.find('select');
 		const $list = $wrapper.find('.dropdown-options-list');
 		const $btnText = $wrapper.find('.dropdown-selected-text');
 		const selectName = $select.data('attribute_name') || $select.attr('name');
-		const variationsData = $form.data('product_variations') || [];
 
 		$list.empty();
 
@@ -566,43 +655,41 @@ function initCustomDropdowns() {
 		const getPriceForOption = (val) => {
 			if (!variationsData.length) return null;
 
-			// Get other selections
-			const currentSelections = {};
-			$form.find('select').each(function () {
-				const name = $(this).data('attribute_name') || $(this).attr('name');
-				if (name && name !== selectName) {
-					currentSelections[name] = $(this).val();
+			// Helper to get attribute value from variation (handles different key formats)
+			const getAttrValue = (variation, attrName) => {
+				// Try exact match first
+				if (variation.attributes[attrName] !== undefined) {
+					return variation.attributes[attrName];
 				}
+				// Try with 'attribute_' prefix
+				if (variation.attributes['attribute_' + attrName] !== undefined) {
+					return variation.attributes['attribute_' + attrName];
+				}
+				// Try without 'attribute_' prefix
+				const withoutPrefix = attrName.replace('attribute_', '');
+				if (variation.attributes[withoutPrefix] !== undefined) {
+					return variation.attributes[withoutPrefix];
+				}
+				return undefined;
+			};
+
+			// Find variations with EXACT attribute match (not empty "Any" values)
+			const exactMatches = variationsData.filter((v) => {
+				const attrVal = getAttrValue(v, selectName);
+				// Must have an exact match - skip empty values (WooCommerce "Any")
+				return attrVal && attrVal !== '' && attrVal === val;
 			});
 
-			// Find ALL matching variations (considering other selections)
-			let matches = variationsData.filter((v) => {
-				const attrVal = v.attributes[selectName];
-				if (attrVal && attrVal !== val) return false;
+			// If no exact matches found, don't show price
+			if (!exactMatches.length) return null;
 
-				for (const key in currentSelections) {
-					const otherVal = currentSelections[key];
-					if (otherVal && v.attributes[key] && v.attributes[key] !== otherVal) {
-						return false;
-					}
-				}
-				return true;
-			});
-
-			// Fallback: if no matches with current selections, match on just this attribute
-			if (!matches.length) {
-				matches = variationsData.filter((v) => {
-					const attrVal = v.attributes[selectName];
-					return !attrVal || attrVal === val;
-				});
-			}
-
-			if (!matches.length) return null;
-
-			// Extract prices from matches
-			const prices = matches
-				.filter((v) => v.display_price !== undefined)
-				.map((v) => parseFloat(v.display_price));
+			// Extract prices from exact matches only
+			const prices = exactMatches
+				.map((v) => {
+					const price = v.display_price ?? v.price ?? v.display_regular_price ?? null;
+					return price !== null && price !== '' ? parseFloat(price) : null;
+				})
+				.filter((p) => p !== null && !isNaN(p) && p > 0);
 
 			if (!prices.length) return null;
 
@@ -615,10 +702,12 @@ function initCustomDropdowns() {
 				return '£' + formatted;
 			};
 
+			// Only show single price if all exact matches have the same price
 			if (minPrice === maxPrice) {
-				return formatPrice(minPrice);
+				return formatPrice(minPrice) + ' +VAT';
 			}
-			return formatPrice(minPrice) + ' - ' + formatPrice(maxPrice);
+			// If there's a range (multiple variations match same option), show range
+			return formatPrice(minPrice) + ' - ' + formatPrice(maxPrice) + ' +VAT';
 		};
 
 		// Rebuild list
@@ -629,7 +718,7 @@ function initCustomDropdowns() {
 
 			if (!value) return; // Skip placeholder
 
-			// Append Price
+			// Append Price with VAT
 			const price = getPriceForOption(value);
 			if (price) {
 				text += ` (${price})`;
@@ -650,106 +739,96 @@ function initCustomDropdowns() {
 		});
 	};
 
-	// Initial Population
-	$('.flowbite-dropdown-wrapper').each(function () {
-		refreshDropdown($(this));
+	// Initial Population - fetch variations data first, then populate all dropdowns
+	getVariationsData(function(variationsData) {
+		$('.flowbite-dropdown-wrapper').each(function () {
+			refreshDropdown($(this), variationsData);
+		});
 	});
 
 	// Remove Flowbite's data-dropdown-toggle to prevent auto-initialization conflicts
-	// We'll handle the dropdown manually
+	// Store target ID as a DOM attribute (not just jQuery data) for reliable access
 	$('.flowbite-dropdown-wrapper [data-dropdown-toggle]').each(function() {
 		const $btn = $(this);
 		const targetId = $btn.attr('data-dropdown-toggle');
 
-		// Store the target ID for later use
-		$btn.data('manual-dropdown-target', targetId);
+		// Store the target ID as a DOM attribute for reliable delegated event access
+		$btn.attr('data-manual-dropdown-target', targetId);
 
-		// Remove Flowbite's trigger attribute
+		// Remove Flowbite's trigger attribute to prevent conflicts
 		$btn.removeAttr('data-dropdown-toggle');
+	});
 
-		// Add manual click handler for button
-		$btn.on('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
+	// Use delegated event handler for dropdown buttons
+	$(document).on('click', '.ats-dropdown-trigger', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 
-			const target = $btn.data('manual-dropdown-target');
-			const $menu = $('#' + target);
-			const isHidden = $menu.hasClass('hidden');
+		const $btn = $(this);
+		const targetId = $btn.attr('data-manual-dropdown-target');
 
-			// Close all other dropdowns first
-			$('.flowbite-dropdown-wrapper [id^="dropdown_"]').each(function() {
-				$(this).addClass('hidden');
-			});
+		if (!targetId) return;
 
-			// Toggle this dropdown
-			if (isHidden) {
-				$menu.removeClass('hidden');
-				$btn.attr('aria-expanded', 'true');
-			} else {
-				$menu.addClass('hidden');
-				$btn.attr('aria-expanded', 'false');
-			}
-		});
+		const $menu = $('#' + targetId);
+		const isCurrentlyHidden = $menu.hasClass('hidden');
+
+		// Close all dropdown menus first (NOT the trigger buttons)
+		closeAllDropdownMenus();
+
+		// If this dropdown was hidden, open it
+		if (isCurrentlyHidden) {
+			$menu.removeClass('hidden');
+			$btn.attr('aria-expanded', 'true');
+		}
 	});
 
 	// Listen for WC updates
 	$form.on('woocommerce_update_variation_values', function () {
-		$('.flowbite-dropdown-wrapper').each(function () {
-			// Ensure wrapper stays visible
-			$(this).show().css('display', '').removeClass('hidden').css('visibility', 'visible').css('opacity', '1');
-			$(this).find('.value').show().css('display', '').removeClass('hidden');
-			refreshDropdown($(this));
+		getVariationsData(function(variationsData) {
+			$('.flowbite-dropdown-wrapper').each(function () {
+				refreshDropdown($(this), variationsData);
+			});
 		});
+		ensureTriggersVisible();
 	});
 
-	// Prevent WooCommerce from hiding the dropdown wrappers - more aggressive
+	// Prevent WooCommerce from hiding the dropdown wrappers
 	$form.on('found_variation reset_data woocommerce_variation_select_change', function() {
-		// Use multiple timeouts to catch all WooCommerce updates
 		[10, 50, 100, 200].forEach(function(delay) {
-			setTimeout(function() {
-				$('.flowbite-dropdown-wrapper').each(function () {
-					const $wrapper = $(this);
-					$wrapper.show().css({
-						'display': '',
-						'visibility': 'visible',
-						'opacity': '1'
-					}).removeClass('hidden');
-					$wrapper.find('.value').show().css({
-						'display': '',
-						'visibility': 'visible'
-					}).removeClass('hidden');
-					$wrapper.find('.ats-dropdown-trigger').show().css({
-						'display': '',
-						'visibility': 'visible'
-					}).removeClass('hidden');
-				});
-			}, delay);
+			setTimeout(ensureTriggersVisible, delay);
 		});
 	});
 
-	// Mutation observer to catch any DOM changes that hide the wrapper
+	// Mutation observer to catch any DOM changes that hide the wrapper or trigger
 	const observer = new MutationObserver(function(mutations) {
 		mutations.forEach(function(mutation) {
 			if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
 				const $target = $(mutation.target);
+
+				// If the target is a trigger button that got hidden, show it
+				if ($target.hasClass('ats-dropdown-trigger') && $target.hasClass('hidden')) {
+					$target.removeClass('hidden').css({ 'display': '', 'visibility': 'visible' });
+					return;
+				}
+
+				// If the target is a wrapper or inside a wrapper
 				if ($target.hasClass('flowbite-dropdown-wrapper') || $target.closest('.flowbite-dropdown-wrapper').length) {
 					const $wrapper = $target.hasClass('flowbite-dropdown-wrapper') ? $target : $target.closest('.flowbite-dropdown-wrapper');
+					// Only restore wrapper/value visibility, not the dropdown menu
 					if ($wrapper.is(':hidden') || $wrapper.hasClass('hidden')) {
-						$wrapper.show().css({
-							'display': '',
-							'visibility': 'visible',
-							'opacity': '1'
-						}).removeClass('hidden');
+						$wrapper.removeClass('hidden').css({ 'visibility': 'visible', 'opacity': '1' });
 					}
+					$wrapper.find('.ats-dropdown-trigger').removeClass('hidden').css({ 'display': '', 'visibility': 'visible' });
 				}
 			}
 		});
 	});
 
-	// Observe all dropdown wrappers
+	// Observe all dropdown wrappers and their children
 	$('.flowbite-dropdown-wrapper').each(function() {
 		observer.observe(this, {
 			attributes: true,
+			subtree: true,
 			attributeFilter: ['style', 'class']
 		});
 	});
@@ -763,14 +842,13 @@ function initCustomDropdowns() {
 		const value = $option.data('value');
 		const $wrapper = $option.closest('.flowbite-dropdown-wrapper');
 		const $select = $wrapper.find('select');
-		const $menu = $wrapper.find('[id^="dropdown_"]');
-		const $button = $wrapper.find('button[data-manual-dropdown-target]');
+		const $menu = $wrapper.find('.ats-dropdown-menu');
 
-		// Hide the dropdown
+		// Hide only the dropdown menu
 		$menu.addClass('hidden');
 
 		// Update button aria
-		$button.attr('aria-expanded', 'false');
+		$wrapper.find('.ats-dropdown-trigger').attr('aria-expanded', 'false');
 
 		// Update the select value
 		$select.val(value).trigger('change');
@@ -779,14 +857,15 @@ function initCustomDropdowns() {
 	// Close dropdown when clicking outside
 	$(document).on('click', function(e) {
 		if (!$(e.target).closest('.flowbite-dropdown-wrapper').length) {
-			$('.flowbite-dropdown-wrapper [id^="dropdown_"]').addClass('hidden');
-			$('.flowbite-dropdown-wrapper button[data-manual-dropdown-target]').attr('aria-expanded', 'false');
+			closeAllDropdownMenus();
 		}
 	});
 
 	// Sync if select changes elsewhere (e.g. reset)
 	$('.flowbite-dropdown-wrapper select').on('change', function () {
 		const $wrapper = $(this).closest('.flowbite-dropdown-wrapper');
-		refreshDropdown($wrapper);
+		getVariationsData(function(variationsData) {
+			refreshDropdown($wrapper, variationsData);
+		});
 	});
 }
