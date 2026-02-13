@@ -187,9 +187,9 @@ if ( !function_exists( 'ats_get_star_rating_html' ) ) {
  */
 if ( !function_exists( 'ats_render_product_card' ) ) {
     function ats_render_product_card( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock = true ) {
-        // Get image URLs - 224x224 matches the w-56 h-56 CSS container, with 2x retina srcset
-        $img_1x = $image_id ? wpimage( image: $image_id, size: [224, 224], quality: 85 ) : wc_placeholder_img_src( 'large' );
-        $img_2x = $image_id ? wpimage( image: $image_id, size: [224, 224], retina: true, quality: 85 ) : '';
+        // Get image URLs - 224x224 square crop for consistent grid layout, with 2x retina srcset
+        $img_1x = $image_id ? wpimage( image: $image_id, size: [224, 224], preserve_aspect_ratio: false, quality: 85 ) : wc_placeholder_img_src( 'large' );
+        $img_2x = $image_id ? wpimage( image: $image_id, size: [224, 224], retina: true, preserve_aspect_ratio: false, quality: 85 ) : '';
 
         ob_start();
         ?>
@@ -206,7 +206,7 @@ if ( !function_exists( 'ats_render_product_card' ) ) {
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
 				alt="<?php echo esc_attr( $product_title ); ?>"
 				width="224" height="224"
-				class="rfs-ref-product-image w-56 h-56 object-contain"
+				class="rfs-ref-product-image w-56 h-56 object-cover"
 				loading="lazy"
 			/>
 		</a>
@@ -278,10 +278,10 @@ return ob_get_clean();
  */
 if ( !function_exists( 'ats_render_product_list' ) ) {
     function ats_render_product_list( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock = true ) {
-        // Get image URLs - 120x120 matches the lg container, with 2x retina srcset
+        // Get image URLs - 120x120 square crop for consistent list layout, with 2x retina srcset
         $image_size = 120;
-        $img_1x = $image_id ? wpimage( image: $image_id, size: [$image_size, $image_size], quality: 85 ) : wc_placeholder_img_src( 'medium' );
-        $img_2x = $image_id ? wpimage( image: $image_id, size: [$image_size, $image_size], retina: true, quality: 85 ) : '';
+        $img_1x = $image_id ? wpimage( image: $image_id, size: [$image_size, $image_size], preserve_aspect_ratio: false, quality: 85 ) : wc_placeholder_img_src( 'medium' );
+        $img_2x = $image_id ? wpimage( image: $image_id, size: [$image_size, $image_size], retina: true, preserve_aspect_ratio: false, quality: 85 ) : '';
 
         ob_start();
         ?>
@@ -298,7 +298,7 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
 				alt="<?php echo esc_attr( $product_title ); ?>"
 				width="<?php echo esc_attr( $image_size ); ?>" height="<?php echo esc_attr( $image_size ); ?>"
-				class="rfs-ref-product-list-image w-24 h-24 lg:w-[<?php echo $image_size ?>px] lg:h-[<?php echo $image_size ?>px] object-contain"
+				class="rfs-ref-product-list-image w-24 h-24 lg:w-[<?php echo $image_size ?>px] lg:h-[<?php echo $image_size ?>px] object-cover"
 				loading="lazy"
 			/>
 		</a>
@@ -374,9 +374,9 @@ return ob_get_clean();
  */
 if ( !function_exists( 'ats_render_product_compact' ) ) {
     function ats_render_product_compact( $product, $image_id, $category_text, $product_title, $rating_html, $price_html, $button_text, $product_url, $is_in_stock = true ) {
-        // Get image URLs - 96x96 matches the lg:w-24 lg:h-24 container, with 2x retina srcset
-        $img_1x = $image_id ? wpimage( image: $image_id, size: [96, 96], quality: 85 ) : wc_placeholder_img_src( 'medium' );
-        $img_2x = $image_id ? wpimage( image: $image_id, size: [96, 96], retina: true, quality: 85 ) : '';
+        // Get image URLs - 96x96 square crop for consistent compact layout, with 2x retina srcset
+        $img_1x = $image_id ? wpimage( image: $image_id, size: [96, 96], preserve_aspect_ratio: false, quality: 85 ) : wc_placeholder_img_src( 'medium' );
+        $img_2x = $image_id ? wpimage( image: $image_id, size: [96, 96], retina: true, preserve_aspect_ratio: false, quality: 85 ) : '';
 
         ob_start();
         ?>
@@ -390,7 +390,7 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
 				alt="<?php echo esc_attr( $product_title ); ?>"
 				width="96" height="96"
-				class="rfs-ref-product-compact-image w-20 h-20 lg:w-24 lg:h-24 object-contain"
+				class="rfs-ref-product-compact-image w-20 h-20 lg:w-24 lg:h-24 object-cover"
 				loading="lazy"
 			/>
 		</a>
