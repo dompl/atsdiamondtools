@@ -2,11 +2,7 @@
 // window.jQuery = $;
 // window.$ = $;
 // prettier-ignore
-import { initDropdowns } from 'flowbite/lib/esm/components/dropdown';
-import { initModals } from 'flowbite/lib/esm/components/modal';
-import { initDrawers } from 'flowbite/lib/esm/components/drawer';
-import { initTabs } from 'flowbite/lib/esm/components/tabs';
-import { initDismisses } from 'flowbite/lib/esm/components/dismiss';
+import 'flowbite';
 
 // Active Components
 import './components/add_to_cart.js';
@@ -32,7 +28,7 @@ import { initBackInStock } from './components/back-in-stock.js';
 // Inactive Components
 import './components/banner.js';
 import './components/about-us.js';
-// import './components/price-manager.js'; // Admin-only tool, removed from frontend bundle
+import './components/price-manager.js';
 // import './components/container.js';
 // import './components/hero-slider.js';
 // import './components/icon-bar.js';
@@ -69,12 +65,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Initialize back-in-stock notifications
 	initBackInStock();
-
-	// Initialize Flowbite AFTER custom inits — initSingleProduct() removes
-	// data-dropdown-toggle attrs to prevent conflicts with custom dropdowns
-	initDropdowns();
-	initModals();
-	initDrawers();
-	initTabs();
-	initDismisses();
 });

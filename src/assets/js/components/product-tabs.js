@@ -4,7 +4,7 @@
  * Initialize Flowbite tabs for WooCommerce product tabs
  */
 
-import Tabs from 'flowbite/lib/esm/components/tabs';
+import { Tabs } from 'flowbite';
 
 export function initProductTabs() {
 	// Only run on single product pages

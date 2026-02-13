@@ -6,8 +6,7 @@
  * @package SkylineWP Dev Child
  */
 
-import Modal from 'flowbite/lib/esm/components/modal';
-import Dropdown from 'flowbite/lib/esm/components/dropdown';
+import { Modal, Dropdown } from 'flowbite';
 import Splide from '@splidejs/splide';
 import $ from 'jquery';
 
