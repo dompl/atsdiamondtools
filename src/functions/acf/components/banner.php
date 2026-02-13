@@ -115,8 +115,10 @@ return ob_get_clean();
 				<div class="rfs-ref-carousel-slides absolute inset-0 w-full h-full">
 					<?php foreach ( $slides as $index => $slide ):
         $image     = $slide['image'];
-        $image_url = is_array( $image ) ? $image['url'] : wp_get_attachment_image_url( $image, 'full' );
-        $image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ): get_post_meta( $image, '_wp_attachment_image_alt', true );
+        $image_id  = is_array( $image ) ? $image['id'] : $image;
+        $img_1x    = wpimage( image: $image_id, size: [1200, 500], quality: 85 );
+        $img_2x    = wpimage( image: $image_id, size: [1200, 500], retina: true, quality: 85 );
+        $image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ) : get_post_meta( $image, '_wp_attachment_image_alt', true );
 
         $button        = $slide['button'];
         $button_url    = '';
@@ -131,7 +133,11 @@ return ob_get_clean();
         ?>
 											<div class="rfs-ref-slide-item absolute inset-0 transition-opacity duration-1000 ease-in-out <?php echo $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'; ?>">
 												<div class="absolute inset-0">
-													<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" class="w-full h-full object-cover" />
+													<img src="<?php echo esc_url( $img_1x ); ?>"
+													 srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"
+													 alt="<?php echo esc_attr( $image_alt ); ?>"
+													 class="w-full h-full object-cover"
+													 <?php echo $index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'; ?> />
 													<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
 												</div>
 												<div class="absolute inset-0 flex flex-col justify-center p-8 lg:p-16 max-w-2xl">

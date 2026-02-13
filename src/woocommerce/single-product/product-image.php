@@ -68,7 +68,7 @@ if (empty($attachment_ids)) {
                             <img src="<?php echo esc_url($img_1x); ?>"
                                  srcset="<?php echo esc_url($img_1x); ?> 1x, <?php echo esc_url($img_2x); ?> 2x"
                                  alt="<?php echo esc_attr($alt_text); ?>"
-                                 loading="lazy"
+                                 <?php echo ($attachment_id === $attachment_ids[0]) ? 'fetchpriority="high"' : 'loading="lazy"'; ?>
                                  class="<?php echo esc_attr($img_class); ?>">
                         </a>
                     </li>

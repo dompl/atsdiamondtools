@@ -69,6 +69,7 @@ add_action( 'wp_enqueue_scripts', function () {
     }
 
     wp_enqueue_script( 'child-bundle', $bundle_js_uri, ['jquery'], $bundle_js_version, true );
+    wp_script_add_data( 'child-bundle', 'strategy', 'defer' );
 
     // Localise script to add dynamic data to bundle.js.
     $scripts_localize = [
@@ -133,3 +134,12 @@ function skyline_admin_body_class( $classes ) {
     return $classes;
 }
 add_filter( 'admin_body_class', 'skyline_admin_body_class' );
+
+// Preload critical fonts to avoid FOUT/FOIT.
+add_action( 'wp_head', function () {
+    $font_dir = get_stylesheet_directory_uri() . '/assets/fonts/';
+    $fonts    = ['Open_Sans-normal-400.woff', 'Open_Sans-normal-600.woff', 'Open_Sans-normal-700.woff'];
+    foreach ( $fonts as $font ) {
+        echo '<link rel="preload" href="' . esc_url( $font_dir . $font ) . '" as="font" type="font/woff" crossorigin>' . "\n";
+    }
+}, 1 );
