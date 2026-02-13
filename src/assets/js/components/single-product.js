@@ -45,8 +45,7 @@ function initProductGallery() {
 			type: 'fade', // Fade transition for main image
 			rewind: true,
 			pagination: false,
-			arrows: false, // No arrows on main image
-			heightRatio: 0.8, // Fallback aspect ratio
+			arrows: true,
 			classes: {
 				pagination: 'splide__pagination bottom-4',
 				page: 'splide__pagination__page w-2 h-2 bg-gray-300 rounded-full mx-1 opacity-100 [&.is-active]:bg-primary-600 [&.is-active]:scale-125 transition-all',
@@ -85,18 +84,8 @@ function initProductGallery() {
 		mainSplide = new Splide(mainSliderEl, {
 			type: 'slide',
 			perPage: 1,
-			arrows: true,
-			pagination: true,
-			heightRatio: 0.8, // Fallback aspect ratio
-			autoHeight: true, // Adapt to image height
-			classes: {
-				arrows: 'splide__arrows absolute top-1/2 w-full flex justify-between px-4 z-10 -translate-y-1/2',
-				arrow: 'splide__arrow w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center transition-colors',
-				prev: 'splide__arrow--prev',
-				next: 'splide__arrow--next',
-				pagination: 'splide__pagination bottom-4',
-				page: 'splide__pagination__page w-2 h-2 bg-gray-300 rounded-full mx-1 opacity-100 [&.is-active]:bg-primary-600 [&.is-active]:scale-125 transition-all',
-			},
+			arrows: false,
+			pagination: false,
 		}).mount();
 	}
 
