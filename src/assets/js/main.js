@@ -50,13 +50,6 @@ import './components/about-us.js';
 
 // Initialize modules when the document is ready.
 document.addEventListener('DOMContentLoaded', function () {
-	// Initialize Flowbite components
-	initDropdowns();
-	initModals();
-	initDrawers();
-	initTabs();
-	initDismisses();
-
 	initATSSearch();
 	initWooCommerceAccount();
 	initSingleProduct();
@@ -76,4 +69,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Initialize back-in-stock notifications
 	initBackInStock();
+
+	// Initialize Flowbite AFTER custom inits — initSingleProduct() removes
+	// data-dropdown-toggle attrs to prevent conflicts with custom dropdowns
+	initDropdowns();
+	initModals();
+	initDrawers();
+	initTabs();
+	initDismisses();
 });
