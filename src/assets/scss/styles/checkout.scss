@@ -310,17 +310,43 @@
 }
 
 // ============================================
-// Payment Checkboxes (Stripe save payment, etc.)
+// Custom Checkout Checkboxes (green)
 // ============================================
 
-.woocommerce-checkout-payment {
-	// Fix checkboxes that get appearance: none from Stripe/WC
+.woocommerce-checkout {
 	input[type="checkbox"] {
-		appearance: auto !important;
-		-webkit-appearance: checkbox !important;
-		@apply w-4 h-4 border-gray-300 rounded text-ats-yellow;
-		@apply focus:ring-ats-yellow focus:ring-2;
-		cursor: pointer;
+		appearance: none !important;
+		-webkit-appearance: none !important;
+		@apply w-5 h-5 border-2 border-gray-300 rounded cursor-pointer flex-shrink-0;
+		@apply transition-all duration-200;
+		background-color: white !important;
+		position: relative;
+
+		&:hover {
+			@apply border-green-400;
+		}
+
+		&:focus {
+			@apply ring-2 ring-green-500 ring-offset-1 border-green-500;
+			outline: none !important;
+		}
+
+		&:checked {
+			@apply border-green-500;
+			background-color: #22c55e !important; // green-500
+
+			&::after {
+				content: '';
+				position: absolute;
+				top: 2px;
+				left: 6px;
+				width: 5px;
+				height: 10px;
+				border: solid white;
+				border-width: 0 2px 2px 0;
+				transform: rotate(45deg);
+			}
+		}
 	}
 }
 
