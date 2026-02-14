@@ -140,7 +140,7 @@ function initSearchInstance(container) {
 					<h4 class="text-sm font-semibold text-neutral-900 mb-0.5 line-clamp-1">
 						${product.title}
 					</h4>
-					<p class="text-xs text-neutral-500 mb-1 line-clamp-2">
+					<p class="text-xs text-neutral-700 mb-1 line-clamp-2">
 						${product.short_description}
 					</p>
 					<span class="text-xs font-bold text-neutral-900">

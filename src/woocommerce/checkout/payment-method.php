@@ -22,7 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			name="payment_method"
 			value="<?php echo esc_attr( $gateway->id ); ?>"
 			<?php checked( $gateway->chosen, true ); ?>
-			data-order_button_text="<?php echo esc_attr( $gateway->order_button_text ); ?>"
 		/>
 		<span class="rfs-ref-payment-method-title flex-grow text-sm font-medium text-ats-dark">
 			<?php echo $gateway->get_title(); /* phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped */ ?>

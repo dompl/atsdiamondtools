@@ -162,10 +162,11 @@ function ats_ajax_get_mini_cart() {
         // Get product image
         $image_id  = $product->get_image_id();
         $image_url = '';
+        $image_url_2x = '';
         if ( $image_id ) {
-            // Use wpimage if available, fallback to standard
             if ( function_exists( 'wpimage' ) ) {
-                $image_url = wpimage( $image_id, array( 80, 80 ), false, true, true );
+                $image_url    = wpimage( image: $image_id, size: [80, 80], quality: 85 );
+                $image_url_2x = wpimage( image: $image_id, size: [80, 80], retina: true, quality: 85 );
             } else {
                 $image_src = wp_get_attachment_image_src( $image_id, array( 80, 80 ) );
                 $image_url = $image_src ? $image_src[0] : wc_placeholder_img_src();
@@ -186,6 +187,7 @@ function ats_ajax_get_mini_cart() {
             'subtotal'     => $item_subtotal,
             'subtotal_raw' => $cart_item['line_subtotal'],
             'image'        => $image_url,
+            'image_2x'     => $image_url_2x,
             'permalink'    => $product->get_permalink(),
             'max_qty'      => $product->get_stock_quantity() ? $product->get_stock_quantity() : 999,
             'sold_individually' => $product->is_sold_individually(),
@@ -234,28 +236,31 @@ function ats_get_cart_items_html( $cart_items ) {
     ?>
     <div class="rfs-ref-mini-cart-items-list js-mini-cart-items-list space-y-4">
         <?php foreach ( $cart_items as $item ) : ?>
-				<div class="rfs-ref-mini-cart-item js-mini-cart-item grid grid-cols-12 gap-1 pb-4 border-b border-ats-gray last:border-0" data-cart-key="<?php echo esc_attr( $item['key'] ); ?>">
-					<!-- Product Image (col-span-3) -->
-					<div class="col-span-2 flex items-center">
+				<div class="rfs-ref-mini-cart-item js-mini-cart-item grid grid-cols-12 gap-3 pb-4 border-b border-ats-gray last:border-0" data-cart-key="<?php echo esc_attr( $item['key'] ); ?>">
+					<!-- Product Image -->
+					<div class="col-span-2 flex items-start">
 						<a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-image js-mini-cart-item-image flex-shrink-0">
 							<img src="<?php echo esc_url( $item['image'] ); ?>"
+								 <?php if ( ! empty( $item['image_2x'] ) ) : ?>
+								 srcset="<?php echo esc_url( $item['image'] ); ?> 1x, <?php echo esc_url( $item['image_2x'] ); ?> 2x"
+								 <?php endif; ?>
 								 alt="<?php echo esc_attr( $item['name'] ); ?>"
-								 class="w-16 h-16 object-cover rounded border border-ats-gray">
+								 class="w-16 h-16 object-cover rounded-lg">
 						</a>
 					</div>
 
-					<!-- Product Details & Controls (col-span-6) -->
+					<!-- Product Details & Controls -->
 					<div class="rfs-ref-mini-cart-item-details flex flex-col min-w-0 col-span-8">
 						<a href="<?php echo esc_url( $item['permalink'] ); ?>" class="rfs-ref-mini-cart-item-name text-sm font-medium text-ats-dark hover:text-ats-yellow transition-colors line-clamp-2">
 							<?php echo esc_html( $item['name'] ); ?>
 						</a>
 
-						<div class="rfs-ref-mini-cart-item-price text-xs text-ats-text mt-2 mb-1">
+						<div class="rfs-ref-mini-cart-item-price text-xs text-ats-text mt-1">
 							<?php echo wp_kses_post( $item['price'] ); ?> <?php esc_html_e( 'each', 'skylinewp-dev-child' ); ?>
 						</div>
 
 						<!-- Quantity Controls -->
-						<div class="rfs-ref-mini-cart-item-qty flex items-center gap-2 mt-2">
+						<div class="rfs-ref-mini-cart-item-qty flex items-center gap-2 mt-1">
 							<?php if ( ! $item['sold_individually'] ) : ?>
 								<div class="flex items-center border border-ats-gray rounded">
 									<button type="button"
@@ -294,8 +299,8 @@ function ats_get_cart_items_html( $cart_items ) {
 						</div>
 					</div>
 
-					<!-- Item Subtotal (col-span-3) -->
-					<div class="rfs-ref-mini-cart-item-subtotal text-right flex  justify-end col-span-2">
+					<!-- Item Subtotal -->
+					<div class="rfs-ref-mini-cart-item-subtotal text-right flex items-start justify-end col-span-2">
 						<span class="text-sm font-semibold text-ats-dark"><?php echo wp_kses_post( $item['subtotal'] ); ?></span>
 					</div>
 				</div>
@@ -426,9 +431,11 @@ function ats_get_updated_cart_data() {
         // Get product image
         $image_id  = $product->get_image_id();
         $image_url = '';
+        $image_url_2x = '';
         if ( $image_id ) {
             if ( function_exists( 'wpimage' ) ) {
-                $image_url = wpimage( $image_id, array( 80, 80 ), false, true, true );
+                $image_url    = wpimage( image: $image_id, size: [80, 80], quality: 85 );
+                $image_url_2x = wpimage( image: $image_id, size: [80, 80], retina: true, quality: 85 );
             } else {
                 $image_src = wp_get_attachment_image_src( $image_id, array( 80, 80 ) );
                 $image_url = $image_src ? $image_src[0] : wc_placeholder_img_src();
@@ -448,6 +455,7 @@ function ats_get_updated_cart_data() {
             'subtotal'     => $item_subtotal,
             'subtotal_raw' => $cart_item['line_subtotal'],
             'image'        => $image_url,
+            'image_2x'     => $image_url_2x,
             'permalink'    => $product->get_permalink(),
             'max_qty'      => $product->get_stock_quantity() ? $product->get_stock_quantity() : 999,
             'sold_individually' => $product->is_sold_individually(),

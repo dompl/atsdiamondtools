@@ -115,9 +115,17 @@ function ats_render_mini_cart_modal() {
                 <!-- Modal header -->
                 <div class="rfs-ref-mini-cart-modal-header flex items-center justify-between p-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-ats-dark flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#373737">
-                            <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/>
-                        </svg>
+                        <?php
+                        $mini_cart_logo = get_field( 'ats_header_logo', 'option' );
+                        if ( $mini_cart_logo ) :
+                            $logo_id = is_array( $mini_cart_logo ) ? $mini_cart_logo['id'] : $mini_cart_logo;
+                        ?>
+                            <img src="<?php echo esc_url( wpimage( image: $logo_id, size: [28, 28], quality: 90 ) ); ?>"
+                                 srcset="<?php echo esc_url( wpimage( image: $logo_id, size: [28, 28], quality: 90 ) ); ?> 1x, <?php echo esc_url( wpimage( image: $logo_id, size: [28, 28], retina: true, quality: 90 ) ); ?> 2x"
+                                 alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+                                 width="28" height="28"
+                                 class="flex-shrink-0">
+                        <?php endif; ?>
                         <?php esc_html_e( 'Your Basket', 'skylinewp-dev-child' ); ?>
                         <span class="text-sm font-normal text-ats-text js-modal-item-count">(0 items)</span>
                     </h3>

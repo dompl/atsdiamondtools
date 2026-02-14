@@ -172,7 +172,7 @@ add_action( 'wp_loaded', function() {
  * Make Place Order button text uppercase
  */
 add_filter( 'woocommerce_order_button_text', function( $text ) {
-	return strtoupper( $text );
+	return strtoupper( __( 'Place Order', 'woocommerce' ) );
 } );
 
 /**
@@ -205,6 +205,11 @@ add_action( 'wp_head', function() {
 		/* Prevent order review from collapsing */
 		.woocommerce-checkout-review-order {
 			min-height: 200px;
+		}
+
+		/* Hide PayPal payment description box entirely */
+		.rfs-ref-payment-box.payment_method_paypal {
+			display: none !important;
 		}
 
 		/* ============================
