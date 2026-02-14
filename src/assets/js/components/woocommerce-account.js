@@ -78,34 +78,6 @@ function initFormValidation() {
 }
 
 /**
- * Social Login Button Handlers
- * Placeholder handlers for social login buttons
- */
-function initSocialLogins() {
-	const googleBtn = document.querySelector('.rfs-ref-google-login');
-	const facebookBtn = document.querySelector('.rfs-ref-facebook-login');
-	const appleBtn = document.querySelector('.rfs-ref-apple-login');
-
-	if (googleBtn) {
-		googleBtn.addEventListener('click', function () {
-			// This will be handled by the social login plugin
-		});
-	}
-
-	if (facebookBtn) {
-		facebookBtn.addEventListener('click', function () {
-			// This will be handled by the social login plugin
-		});
-	}
-
-	if (appleBtn) {
-		appleBtn.addEventListener('click', function () {
-			// This will be handled by the social login plugin
-		});
-	}
-}
-
-/**
  * Address Selection
  * Highlight selected address for editing
  */
@@ -371,7 +343,6 @@ export function initWooCommerceAccount() {
 
 	initPasswordToggle();
 	initFormValidation();
-	initSocialLogins();
 	initAddressSelection();
 	initOrderFilters();
 	initProfilePictureUpload();

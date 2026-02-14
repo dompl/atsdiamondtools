@@ -7,6 +7,8 @@
  * @package skylinewp-dev-child
  */
 
+use Extended\ACF\Fields\Accordion;
+use Extended\ACF\Fields\Message;
 use Extended\ACF\Fields\Number;
 use Extended\ACF\Fields\Tab;
 use Extended\ACF\Fields\Textarea;
@@ -16,6 +18,8 @@ use Extended\ACF\Location;
 
 if ( ! function_exists( 'register_ats_settings_options' ) ) {
 	function register_ats_settings_options() {
+		$redirect_base = home_url( '/ats-auth/' );
+
 		register_extended_field_group(
 			[
 				'title'    => 'ATS Settings',
@@ -100,6 +104,97 @@ if ( ! function_exists( 'register_ats_settings_options' ) ) {
 
 					TrueFalse::make( 'Enable New Subtotal Calculation', 'enable_new_subtotal_calculation' )
 						->helperText( 'When enabled, adds shipping cost to subtotal on PDF invoices and moves shipping line to the top.' ),
+
+					// ── Social Logins ──
+					Tab::make( 'Social Logins' )
+						->placement( 'left' ),
+
+					// Google Login
+					Accordion::make( 'Google Login' )
+						->open()
+						->multiExpand(),
+
+					TrueFalse::make( 'Enable Google Login', 'ats_social_google_enabled' )
+						->helperText( 'Show the "Sign in with Google" button on the login/register page.' ),
+
+					Text::make( 'Google Client ID', 'ats_social_google_client_id' )
+						->helperText( 'OAuth 2.0 Client ID from Google Cloud Console.' ),
+
+					Text::make( 'Google Client Secret', 'ats_social_google_client_secret' )
+						->helperText( 'OAuth 2.0 Client Secret from Google Cloud Console.' ),
+
+					Message::make( 'Google Setup Instructions', 'ats_social_google_instructions' )
+						->body(
+							"**How to set up Google Login:**\n\n" .
+							"1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)\n" .
+							"2. Create a new project (or select existing)\n" .
+							"3. Go to **APIs & Services > Credentials**\n" .
+							"4. Click **Create Credentials > OAuth 2.0 Client ID**\n" .
+							"5. Application type: **Web application**\n" .
+							"6. Add Authorized redirect URI: `{$redirect_base}google/callback`\n" .
+							"7. Copy the **Client ID** and **Client Secret** into the fields above\n" .
+							"8. Make sure the **Google People API** is enabled in your project"
+						),
+
+					// Facebook Login
+					Accordion::make( 'Facebook Login' )
+						->multiExpand(),
+
+					TrueFalse::make( 'Enable Facebook Login', 'ats_social_facebook_enabled' )
+						->helperText( 'Show the "Sign in with Facebook" button on the login/register page.' ),
+
+					Text::make( 'Facebook App ID', 'ats_social_facebook_app_id' )
+						->helperText( 'App ID from Facebook Developer portal.' ),
+
+					Text::make( 'Facebook App Secret', 'ats_social_facebook_app_secret' )
+						->helperText( 'App Secret from Facebook Developer portal.' ),
+
+					Message::make( 'Facebook Setup Instructions', 'ats_social_facebook_instructions' )
+						->body(
+							"**How to set up Facebook Login:**\n\n" .
+							"1. Go to [Facebook Developers](https://developers.facebook.com/apps/)\n" .
+							"2. Create a new app (type: **Consumer**)\n" .
+							"3. Add the **Facebook Login** product\n" .
+							"4. In **Settings > Basic**, copy the **App ID** and **App Secret**\n" .
+							"5. In **Facebook Login > Settings**, add Valid OAuth Redirect URI: `{$redirect_base}facebook/callback`\n" .
+							"6. Switch the app from **Development** to **Live** mode\n" .
+							"7. Paste credentials into the fields above"
+						),
+
+					// Apple Login
+					Accordion::make( 'Apple Login' )
+						->multiExpand(),
+
+					TrueFalse::make( 'Enable Apple Login', 'ats_social_apple_enabled' )
+						->helperText( 'Show the "Sign in with Apple" button on the login/register page.' ),
+
+					Text::make( 'Apple Service ID', 'ats_social_apple_service_id' )
+						->helperText( 'Services ID identifier from Apple Developer portal.' ),
+
+					Text::make( 'Apple Team ID', 'ats_social_apple_team_id' )
+						->helperText( '10-character Team ID from Apple Developer account.' ),
+
+					Text::make( 'Apple Key ID', 'ats_social_apple_key_id' )
+						->helperText( 'Key ID of the private key created for Sign in with Apple.' ),
+
+					Textarea::make( 'Apple Private Key', 'ats_social_apple_private_key' )
+						->helperText( 'Paste the full contents of your .p8 private key file here (including BEGIN/END lines).' )
+						->rows( 6 ),
+
+					Message::make( 'Apple Setup Instructions', 'ats_social_apple_instructions' )
+						->body(
+							"**How to set up Apple Login:**\n\n" .
+							"1. Go to [Apple Developer - Identifiers](https://developer.apple.com/account/resources/identifiers/list/serviceId)\n" .
+							"2. Create a new **Services ID** and enable **Sign in with Apple**\n" .
+							"3. Configure the service: add your domain and return URL: `{$redirect_base}apple/callback`\n" .
+							"4. Go to **Keys** and create a new key with **Sign in with Apple** enabled\n" .
+							"5. Download the `.p8` key file and paste its contents into the **Private Key** field above\n" .
+							"6. Note your **Team ID** (top-right of Apple Developer portal) and **Key ID** (shown on the key page)\n" .
+							"7. The **Service ID** is the identifier you created in step 2"
+						),
+
+					Accordion::make( 'Social Logins Endpoint' )
+						->endpoint(),
 				],
 				'location' => [
 					Location::where( 'options_page', '==', 'ats-settings' ),
