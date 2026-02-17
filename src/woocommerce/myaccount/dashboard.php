@@ -22,12 +22,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $current_user = wp_get_current_user();
-$customer_orders = wc_get_orders( [
-    'customer' => get_current_user_id(),
-    'limit' => 3,
-    'orderby' => 'date',
-    'order' => 'DESC',
+$user_id    = get_current_user_id();
+$user_email = $current_user->user_email;
+
+$orders_by_id = wc_get_orders( [
+    'customer' => $user_id,
+    'limit'    => -1,
+    'orderby'  => 'date',
+    'order'    => 'DESC',
+    'return'   => 'ids',
 ] );
+
+$orders_by_email = wc_get_orders( [
+    'billing_email' => $user_email,
+    'limit'         => -1,
+    'orderby'       => 'date',
+    'order'         => 'DESC',
+    'return'        => 'ids',
+] );
+
+$all_order_ids   = array_unique( array_merge( $orders_by_id, $orders_by_email ) );
+$customer_orders = array_map( 'wc_get_order', $all_order_ids );
+$customer_orders = array_filter( $customer_orders );
+usort( $customer_orders, fn( $a, $b ) => $b->get_date_created()->getTimestamp() - $a->get_date_created()->getTimestamp() );
+$customer_orders = array_slice( $customer_orders, 0, 3 );
 
 // Get default address
 $billing_first_name = get_user_meta( get_current_user_id(), 'billing_first_name', true );
