@@ -4,7 +4,7 @@ module.exports = {
     "description": "ATS Diamond Tools WordPress Theme",
     "name": "ATS Diamond Tools WordPress Theme",
     "url": "http://skyline.rfsdev.co.uk",
-    "version": "0.0.60"
+    "version": "0.0.61"
   },
   "project": {
     "name": "atsdiamondtools",
