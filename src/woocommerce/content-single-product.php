@@ -204,10 +204,15 @@ $product_id = $product->get_id();
             <!-- Right Column: Related Products (Col 3, spans full height) -->
             <div class="lg:col-span-3 xl:col-span-3 hidden lg:block border-l border-gray-100 pl-8">
                 <?php
-                // Get related products
-                $related_ids = wc_get_related_products( $product_id, 3 );
+                // Priority 1: Manually-linked upsell products
+                $related_ids = array_slice( $product->get_upsell_ids(), 0, 3 );
 
-                // Fallback: If no related products found, get 3 from current category
+                // Priority 2: Automatic category/tag related products
+                if ( empty( $related_ids ) ) {
+                    $related_ids = wc_get_related_products( $product_id, 3 );
+                }
+
+                // Priority 3: Random products from same category
                 if ( empty( $related_ids ) ) {
                     $terms = get_the_terms( $product_id, 'product_cat' );
                     if ( $terms && ! is_wp_error( $terms ) ) {
