@@ -516,6 +516,8 @@ import $ from 'jquery';
 		 */
 		initializeVariationPriceAndImage: function ($form) {
 			const $priceHtml = $(this.elements.modalContent).find('.rfs-ref-quick-view-price p');
+			const $qtyInput = $form.find('input[name="quantity"]');
+			const originalMax = $qtyInput.attr('max') || '';
 
 			// Store original data
 			if ($priceHtml.length) {
@@ -524,6 +526,14 @@ import $ from 'jquery';
 
 			// Listen for show_variation event (this is what WooCommerce uses)
 			$form.on('show_variation', (event, variation) => {
+				// Update quantity input max based on variation stock
+				if ($qtyInput.length && variation.max_qty) {
+					$qtyInput.attr('max', variation.max_qty);
+					const currentVal = parseFloat($qtyInput.val()) || 1;
+					if (currentVal > variation.max_qty) {
+						$qtyInput.val(variation.max_qty).trigger('change');
+					}
+				}
 				// Update price
 				if (variation.price_html && $priceHtml.length) {
 					let priceHtml = variation.price_html;
@@ -572,6 +582,20 @@ import $ from 'jquery';
 
 			// Also listen for hide_variation
 			$form.on('hide_variation', () => {
+				// Restore original quantity max
+				if ($qtyInput.length) {
+					if (originalMax) {
+						$qtyInput.attr('max', originalMax);
+					} else {
+						$qtyInput.removeAttr('max');
+					}
+					const min = parseFloat($qtyInput.attr('min')) || 1;
+					const currentVal = parseFloat($qtyInput.val()) || 1;
+					if (currentVal < min) {
+						$qtyInput.val(min);
+					}
+				}
+
 				// Reset price
 				if ($priceHtml.length && $priceHtml.data('original-html')) {
 					$priceHtml.html($priceHtml.data('original-html'));
@@ -593,6 +617,20 @@ import $ from 'jquery';
 			});
 
 			$form.on('reset_data', () => {
+				// Restore original quantity max
+				if ($qtyInput.length) {
+					if (originalMax) {
+						$qtyInput.attr('max', originalMax);
+					} else {
+						$qtyInput.removeAttr('max');
+					}
+					const min = parseFloat($qtyInput.attr('min')) || 1;
+					const currentVal = parseFloat($qtyInput.val()) || 1;
+					if (currentVal < min) {
+						$qtyInput.val(min);
+					}
+				}
+
 				// Reset price
 				if ($priceHtml.length && $priceHtml.data('original-html')) {
 					$priceHtml.html($priceHtml.data('original-html'));

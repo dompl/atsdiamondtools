@@ -165,6 +165,41 @@ function showAddToCartToast(productName) {
 }
 
 /**
+ * Show error toast notification when add to cart fails
+ * @param {string} message - Error message to display
+ */
+function showAddToCartErrorToast(message) {
+	// Remove any existing toast first
+	$('.rfs-ref-cart-toast').remove();
+
+	const $toast = $(`
+		<div class="rfs-ref-cart-toast" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; max-width: 400px; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 25px -3px rgba(0,0,0,0.2); background-color: #dc2626; border: 1px solid #dc2626; color: #ffffff; animation: slideInRight 0.4s ease-out; display: flex; align-items: center; gap: 12px;">
+			<svg style="width: 24px; height: 24px; flex-shrink: 0; color: #ffffff;" fill="currentColor" viewBox="0 0 20 20">
+				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+			</svg>
+			<div style="flex: 1;">
+				<p style="font-weight: 600; font-size: 14px; margin: 0; color: #ffffff;">Could not add to basket</p>
+				<p style="font-size: 13px; margin: 0; opacity: 0.95; color: #ffffff;">${message}</p>
+			</div>
+		</div>
+	`);
+
+	$('body').append($toast);
+
+	// Auto-remove after 6 seconds
+	setTimeout(() => {
+		$toast.css({
+			animation: 'slideOutRight 0.4s ease-in',
+			opacity: '0',
+			transform: 'translateX(100%)'
+		});
+		setTimeout(() => {
+			$toast.remove();
+		}, 400);
+	}, 6000);
+}
+
+/**
  * AJAX Add to Cart for Single Product with Enhanced Loading UI
  * Exported so it can be initialized globally on all pages
  */
@@ -273,11 +308,12 @@ export function initAjaxAddToCart() {
 			data: ajaxData,
 			success: function (response) {
 
-				// Check if response has error
-				if (response && response.error) {
+				// Check if response indicates failure (wp_send_json_error sets success: false)
+				if (response && response.success === false) {
 					removeLoadingOverlay();
 					$btn.removeClass('loading').prop('disabled', false);
-					alert(response.error || 'Failed to add product to cart.');
+					const errorMsg = (response.data && response.data.error) || 'Failed to add product to cart.';
+					showAddToCartErrorToast(errorMsg);
 					return;
 				}
 
@@ -314,7 +350,7 @@ export function initAjaxAddToCart() {
 			error: function (xhr, status, error) {
 				removeLoadingOverlay();
 				$btn.removeClass('loading').prop('disabled', false);
-				alert('Failed to add product to cart. Please try again.');
+				showAddToCartErrorToast('Failed to add product to cart. Please try again.');
 			},
 		});
 
@@ -357,6 +393,25 @@ export function initQuantityButtons() {
 
 		$input.val(newVal).trigger('change');
 	});
+
+	// Clamp manually typed values to min/max bounds
+	$(document).on('change', '.ats-quantity input[type="number"], .quantity input.qty', function () {
+		const $input = $(this);
+		let val = parseFloat($input.val());
+		const min = parseFloat($input.attr('min')) || 1;
+		const max = parseFloat($input.attr('max'));
+
+		if (isNaN(val) || val < min) {
+			val = min;
+		} else if (!isNaN(max) && val > max) {
+			val = max;
+		}
+
+		// Only update if the value actually changed to avoid infinite loop
+		if (parseFloat($input.val()) !== val) {
+			$input.val(val);
+		}
+	});
 }
 
 /**
@@ -370,9 +425,24 @@ function initVariationLogic() {
 	const $mainImg = $('#product-main-splide .splide__slide').first().find('img');
 	const $mainLink = $mainImg.closest('a');
 
+	// Quantity input reference and original max for variation clamping
+	const $qtyInput = $form.find('input[name="quantity"]');
+	const originalMax = $qtyInput.attr('max') || '';
+
+	// Availability and SKU elements
+	const $availability = $('#ats-product-availability');
+	const $sku = $('#ats-product-sku');
+
 	// Store original data
 	if ($priceHtml.length) {
 		$priceHtml.data('original-html', $priceHtml.html());
+	}
+	if ($availability.length) {
+		$availability.data('original-html', $availability.html());
+		$availability.data('original-class', $availability.attr('class'));
+	}
+	if ($sku.length) {
+		$sku.data('original-html', $sku.html());
 	}
 	if ($mainImg.length) {
 		$mainImg.data('original-src', $mainImg.attr('src'));
@@ -387,6 +457,34 @@ function initVariationLogic() {
 	if ($form.length === 0) return;
 
 	$form.on('found_variation', function (event, variation) {
+		// Update quantity input max based on variation stock
+		if ($qtyInput.length && variation.max_qty) {
+			$qtyInput.attr('max', variation.max_qty);
+			// Clamp current value if it exceeds the new max
+			const currentVal = parseFloat($qtyInput.val()) || 1;
+			if (currentVal > variation.max_qty) {
+				$qtyInput.val(variation.max_qty).trigger('change');
+			}
+		}
+
+		// Update availability display
+		if ($availability.length) {
+			if (variation.is_in_stock) {
+				const stockQty = variation.max_qty;
+				const stockText = stockQty ? stockQty + ' in stock' : 'In Stock';
+				$availability.text(stockText);
+				$availability.removeClass('text-red-600').addClass('text-green-600');
+			} else {
+				$availability.text('Out of Stock');
+				$availability.removeClass('text-green-600').addClass('text-red-600');
+			}
+		}
+
+		// Update SKU display
+		if ($sku.length && variation.sku) {
+			$sku.text(variation.sku);
+		}
+
 		if (variation.price_html) {
 			// Update the main price and add VAT suffix if needed
 			let priceHtml = variation.price_html;
@@ -487,6 +585,32 @@ function initVariationLogic() {
 	});
 
 	$form.on('reset_data', function () {
+		// Restore original quantity max
+		if ($qtyInput.length) {
+			if (originalMax) {
+				$qtyInput.attr('max', originalMax);
+			} else {
+				$qtyInput.removeAttr('max');
+			}
+			// Ensure value is at least min
+			const min = parseFloat($qtyInput.attr('min')) || 1;
+			const currentVal = parseFloat($qtyInput.val()) || 1;
+			if (currentVal < min) {
+				$qtyInput.val(min);
+			}
+		}
+
+		// Restore original availability
+		if ($availability.length && $availability.data('original-html')) {
+			$availability.html($availability.data('original-html'));
+			$availability.attr('class', $availability.data('original-class'));
+		}
+
+		// Restore original SKU
+		if ($sku.length && $sku.data('original-html')) {
+			$sku.html($sku.data('original-html'));
+		}
+
 		// Reset to variable price range
 		if ($priceHtml.length && $priceHtml.data('original-html')) {
 			$priceHtml.html($priceHtml.data('original-html'));

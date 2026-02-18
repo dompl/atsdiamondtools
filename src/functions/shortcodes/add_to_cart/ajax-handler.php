@@ -76,7 +76,20 @@ function ats_ajax_add_to_cart() {
 	$cart_item_key = WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation );
 
 	if ( ! $cart_item_key ) {
-		wp_send_json_error( array( 'error' => __( 'Failed to add product to cart.', 'skylinewp-dev-child' ) ) );
+		// Capture WooCommerce's actual error notices (e.g., stock messages)
+		$error_message = __( 'Failed to add product to cart.', 'skylinewp-dev-child' );
+		$wc_notices = wc_get_notices( 'error' );
+		if ( ! empty( $wc_notices ) ) {
+			$notice_messages = array();
+			foreach ( $wc_notices as $notice ) {
+				$notice_messages[] = isset( $notice['notice'] ) ? wp_strip_all_tags( $notice['notice'] ) : wp_strip_all_tags( $notice );
+			}
+			if ( ! empty( $notice_messages ) ) {
+				$error_message = implode( ' ', $notice_messages );
+			}
+		}
+		wc_clear_notices();
+		wp_send_json_error( array( 'error' => $error_message ) );
 	}
 
 	// Calculate cart totals

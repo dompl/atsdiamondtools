@@ -92,7 +92,7 @@ $product_id = $product->get_id();
                                 <!-- Availability -->
                                 <div class="flex flex-col gap-1">
                                     <span><?php esc_html_e( 'Availability:', 'woocommerce' ); ?></span>
-                                    <span class="font-bold <?php echo $product->is_in_stock() ? 'text-green-600' : 'text-red-600'; ?>">
+                                    <span id="ats-product-availability" class="font-bold <?php echo $product->is_in_stock() ? 'text-green-600' : 'text-red-600'; ?>">
                                         <?php
                                         if ( $product->is_in_stock() ) {
                                             $stock_quantity = $product->get_stock_quantity();
@@ -126,7 +126,7 @@ $product_id = $product->get_id();
                                 <!-- SKU -->
                                 <div class="flex flex-col gap-1">
                                     <span><?php esc_html_e( 'SKU:', 'woocommerce' ); ?></span>
-                                    <span class="font-bold text-gray-900"><?php echo ( $sku = $product->get_sku() ) ? $sku : esc_html__( 'Per Variation', 'woocommerce' ); ?></span>
+                                    <span id="ats-product-sku" class="font-bold text-gray-900"><?php echo ( $sku = $product->get_sku() ) ? $sku : esc_html__( 'Per Variation', 'woocommerce' ); ?></span>
                                 </div>
                             </div>
 
