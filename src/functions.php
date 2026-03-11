@@ -85,9 +85,3 @@ require_once get_stylesheet_directory() . '/functions/template-parts/newsletter-
  */
 remove_action( 'woocommerce_register_form', 'wc_registration_privacy_policy_text', 20 );
 
-/**
- * Disable WooCommerce Order Attribution tracking
- * This prevents the <wc-order-attribution-inputs> element from being added to forms
- * and disables tracking of marketing attribution data
- */
-add_filter( 'wc_order_attribution_allow_tracking', '__return_false' );

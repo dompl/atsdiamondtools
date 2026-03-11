@@ -36,6 +36,9 @@ auth.json
 capture-screenshot.js
 CLAUDE.md
 
+# Playwright MCP
+.playwright-mcp/
+
 # Font files
 src/assets/fonts/*.woff
 src/assets/fonts/*.woff2
