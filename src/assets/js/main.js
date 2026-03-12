@@ -14,6 +14,7 @@ import './components/favorites.js';
 import './components/blog.js';
 import './components/shop-filter.js';
 import './components/contact-form.js';
+import './components/ga4-events.js';
 import './components/admin-quick-order.js';
 import { initATSSearch } from './components/search.js';
 import { initSingleProduct, initQuantityButtons, initAjaxAddToCart } from './components/single-product.js';
