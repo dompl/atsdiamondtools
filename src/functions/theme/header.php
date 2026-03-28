@@ -116,9 +116,9 @@ function heading_data( $selected = false, $mobile = false ) {
         $data['navigation_mobile'] = false;
     }
 
-    if ( $selected && array_key_exists( $selected, $data ) ) {
-        return $data[$selected];
-    } else {
-        return $data;
+    if ( $selected ) {
+        return array_key_exists( $selected, $data ) ? $data[$selected] : '';
     }
+
+    return $data;
 }
