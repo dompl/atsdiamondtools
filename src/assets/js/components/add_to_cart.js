@@ -334,6 +334,12 @@
 			const self = this;
 			if (!this.elements.modal) return;
 
+			// Fade out backdrop
+			if (this.elements.backdrop) {
+				this.elements.backdrop.style.transition = 'opacity 0.2s ease-out';
+				this.elements.backdrop.style.opacity = '0';
+			}
+
 			// Animate modal out
 			if (this.elements.container) {
 				this.elements.container.style.opacity = '0';
@@ -344,6 +350,11 @@
 					self.elements.modal.setAttribute('aria-hidden', 'true');
 					document.body.classList.remove('overflow-hidden');
 					self.elements.container.style.transition = '';
+					// Reset backdrop inline styles
+					if (self.elements.backdrop) {
+						self.elements.backdrop.style.transition = '';
+						self.elements.backdrop.style.opacity = '';
+					}
 					self.isOpen = false;
 				}, 200);
 			} else {
@@ -351,6 +362,10 @@
 				this.elements.modal.classList.remove('flex');
 				this.elements.modal.setAttribute('aria-hidden', 'true');
 				document.body.classList.remove('overflow-hidden');
+				if (this.elements.backdrop) {
+					this.elements.backdrop.style.transition = '';
+					this.elements.backdrop.style.opacity = '';
+				}
 				this.isOpen = false;
 			}
 		},
@@ -628,10 +643,26 @@
 			if (self.isLoading) return;
 			self.isLoading = true;
 
+			var animationStart = Date.now();
+
 			// Animate out
 			itemEl.style.transition = 'opacity 0.3s, transform 0.3s';
 			itemEl.style.opacity = '0';
 			itemEl.style.transform = 'translateX(20px)';
+
+			// After slide-out animation, hide item and show spinner if it was the last one
+			setTimeout(function () {
+				itemEl.classList.add('js-mini-cart-item-removed');
+				itemEl.style.display = 'none';
+				var allItems = MiniCartModal.elements.items.querySelectorAll('.js-mini-cart-item');
+				var removedItems = MiniCartModal.elements.items.querySelectorAll('.js-mini-cart-item-removed');
+				if (allItems.length === removedItems.length) {
+					var spinnerDiv = document.createElement('div');
+					spinnerDiv.className = 'js-mini-cart-removing-spinner flex items-center justify-center py-8';
+					spinnerDiv.innerHTML = '<svg class="animate-spin h-8 w-8 text-ats-yellow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+					MiniCartModal.elements.items.appendChild(spinnerDiv);
+				}
+			}, 300);
 
 			$.ajax({
 				url: themeData.ajax_url,
@@ -643,30 +674,39 @@
 				},
 				success: function (response) {
 					if (response.success) {
-						// Wait for animation to complete before updating UI
-						setTimeout(function() {
-							// Close modal first if cart is empty
+						// Only wait if the slide-out animation hasn't finished yet
+						var elapsed = Date.now() - animationStart;
+						var remaining = Math.max(0, 350 - elapsed);
+
+						setTimeout(function () {
+							// Remove loading spinner
+							var spinner = MiniCartModal.elements.items.querySelector('.js-mini-cart-removing-spinner');
+							if (spinner) spinner.remove();
+
 							if (response.data.is_empty) {
 								MiniCartModal.close();
-								// Update all instances to show empty state
 								self.updateAllInstances(response.data);
 								self.isLoading = false;
 							} else {
-								// Reset loading flag before reloading cart
 								self.isLoading = false;
-								// Reload the entire cart to ensure fresh data
 								self.loadCart();
 							}
-						}, 300);
+						}, remaining);
 					} else {
-						// Restore item visibility
+						// Remove spinner and restore item visibility
+						var spinner = MiniCartModal.elements.items.querySelector('.js-mini-cart-removing-spinner');
+						if (spinner) spinner.remove();
+						itemEl.style.display = '';
 						itemEl.style.opacity = '1';
 						itemEl.style.transform = 'translateX(0)';
 						self.isLoading = false;
 					}
 				},
 				error: function (xhr, status, error) {
-					// Restore item visibility
+					// Remove spinner and restore item visibility
+					var spinner = MiniCartModal.elements.items.querySelector('.js-mini-cart-removing-spinner');
+					if (spinner) spinner.remove();
+					itemEl.style.display = '';
 					itemEl.style.opacity = '1';
 					itemEl.style.transform = 'translateX(0)';
 					self.isLoading = false;

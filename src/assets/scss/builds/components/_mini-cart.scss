@@ -40,6 +40,8 @@
 	// Backdrop
 	.js-mini-cart-backdrop {
 		animation: fadeIn 0.2s ease-out;
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
 	}
 
 	// Modal container - centered vertically

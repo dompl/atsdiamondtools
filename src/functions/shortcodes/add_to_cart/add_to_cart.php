@@ -56,9 +56,7 @@ function ats_mini_cart_shortcode() {
         <!-- Cart Has Items State -->
         <div class="rfs-ref-mini-cart-filled js-mini-cart-filled" style="display: none;">
             <button type="button"
-                    class="rfs-ref-mini-cart-toggle js-mini-cart-toggle flex items-center gap-2 lg:gap-6 cursor-pointer"
-                    data-modal-target="ats-mini-cart-modal"
-                    data-modal-toggle="ats-mini-cart-modal">
+                    class="rfs-ref-mini-cart-toggle js-mini-cart-toggle flex items-center gap-2 lg:gap-6 cursor-pointer">
                 <!-- Cart Icon with Badge -->
                 <div class="rfs-ref-mini-cart-icon relative">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="text-ats-text">
@@ -129,7 +127,7 @@ function ats_render_mini_cart_modal() {
                         <?php esc_html_e( 'Your Basket', 'skylinewp-dev-child' ); ?>
                         <span class="text-sm font-normal text-ats-text js-modal-item-count">(0 items)</span>
                     </h3>
-                    <button type="button" class="rfs-ref-mini-cart-modal-close js-mini-cart-close text-ats-text bg-transparent hover:bg-ats-gray hover:text-ats-dark rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center" data-modal-hide="ats-mini-cart-modal">
+                    <button type="button" class="rfs-ref-mini-cart-modal-close js-mini-cart-close text-ats-text bg-transparent hover:bg-ats-gray hover:text-ats-dark rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -189,7 +187,7 @@ function ats_render_mini_cart_modal() {
                             <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="ats-btn ats-btn-md w-1/2 text-center bg-ats-brand hover:bg-brand-dark text-white">
                                 <?php esc_html_e( 'View Full Basket', 'skylinewp-dev-child' ); ?>
                             </a>
-                            <button type="button" class="js-mini-cart-close ats-btn ats-btn-md ats-btn-gray w-1/2" data-modal-hide="ats-mini-cart-modal">
+                            <button type="button" class="js-mini-cart-close ats-btn ats-btn-md ats-btn-gray w-1/2">
                                 <?php esc_html_e( 'Continue Shopping', 'skylinewp-dev-child' ); ?>
                             </button>
                         </div>
