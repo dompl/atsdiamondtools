@@ -39,6 +39,19 @@ function ats_create_back_in_stock_table() {
 add_action( 'after_switch_theme', 'ats_create_back_in_stock_table' );
 
 /**
+ * Ensure the back-in-stock table schema is up to date.
+ * Runs dbDelta when the schema version changes.
+ */
+function ats_maybe_update_back_in_stock_table() {
+	$current_version = '1.1';
+	if ( get_option( 'ats_back_in_stock_db_version' ) !== $current_version ) {
+		ats_create_back_in_stock_table();
+		update_option( 'ats_back_in_stock_db_version', $current_version );
+	}
+}
+add_action( 'admin_init', 'ats_maybe_update_back_in_stock_table' );
+
+/**
  * Subscribe user/email to back-in-stock notifications
  */
 function ats_ajax_subscribe_back_in_stock() {
@@ -103,12 +116,16 @@ add_action( 'wp_ajax_nopriv_ats_subscribe_back_in_stock', 'ats_ajax_subscribe_ba
 /**
  * Send back-in-stock notifications when product stock changes
  */
-function ats_check_stock_change( $product_id ) {
-	$product = wc_get_product( $product_id );
+function ats_check_stock_change( $product ) {
+	if ( is_numeric( $product ) ) {
+		$product = wc_get_product( $product );
+	}
 
 	if ( ! $product || ! $product->is_in_stock() ) {
 		return;
 	}
+
+	$product_id = $product->get_id();
 
 	global $wpdb;
 	$table_name = $wpdb->prefix . 'ats_back_in_stock';
@@ -152,11 +169,15 @@ function ats_check_stock_change( $product_id ) {
 			$user_name = 'Customer';
 		}
 
-		// Replace variables
-		$subject = str_replace( '{product_name}', $product_name, $subject_template );
+		// Replace variables (support both {product_name} and {productname} formats)
+		$subject = str_replace(
+			array( '{product_name}', '{productname}' ),
+			array( $product_name, $product_name ),
+			$subject_template
+		);
 		$message = str_replace(
-			array( '{user_name}', '{product_name}', '{product_link}' ),
-			array( $user_name, $product_name, $product_link ),
+			array( '{user_name}', '{username}', '{product_name}', '{productname}', '{product_link}', '{productlink}' ),
+			array( $user_name, $user_name, $product_name, $product_name, $product_link, $product_link ),
 			$message_template
 		);
 
