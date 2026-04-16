@@ -17,7 +17,7 @@ function ats_create_back_in_stock_table() {
 	$table_name      = $wpdb->prefix . 'ats_back_in_stock';
 	$charset_collate = $wpdb->get_charset_collate();
 
-	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE $table_name (
 		id bigint(20) NOT NULL AUTO_INCREMENT,
 		product_id bigint(20) NOT NULL,
 		variation_id bigint(20) DEFAULT 0,
