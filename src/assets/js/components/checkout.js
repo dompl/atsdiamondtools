@@ -6,9 +6,13 @@
  * - Shipping address toggle animation
  * - Error scrolling
  * - Loading states
+ * - AJAX coupon apply (avoids nesting a coupon <form> inside the main checkout <form>,
+ *   which would cause the browser to submit the outer form and skip to payment).
  *
  * @package SkylineWP Dev Child
  */
+
+import $ from 'jquery';
 
 export function initCheckout() {
 
@@ -72,6 +76,19 @@ export function initCheckout() {
 				});
 			});
 
+			// Apply coupon via AJAX (delegated so it survives WC checkout fragment refreshes)
+			jQuery(document).on('click', '.ats-checkout-apply-coupon', function (e) {
+				e.preventDefault();
+				self.applyCoupon();
+			});
+
+			jQuery(document).on('keypress', '.ats-checkout-coupon-input', function (e) {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					self.applyCoupon();
+				}
+			});
+
 			// Ship to different address toggle
 			if (this.elements.shipToDifferentCheckbox) {
 				this.elements.shipToDifferentCheckbox.addEventListener('change', function () {
@@ -97,6 +114,80 @@ export function initCheckout() {
 				jQuery(document.body).on('checkout_error', function () {
 					self.scrollToError();
 				});
+			}
+		},
+
+		/**
+		 * Apply coupon via AJAX so we don't submit the outer checkout <form>.
+		 * Mirrors the cart-page pattern; reuses the ats_apply_coupon endpoint.
+		 */
+		applyCoupon() {
+			const self = this;
+			const $input = jQuery('.ats-checkout-coupon-input');
+			const $button = jQuery('.ats-checkout-apply-coupon');
+
+			if (!$input.length) return;
+
+			const couponCode = $input.val().trim();
+			if (!couponCode) {
+				self.showCouponMessage('Please enter a coupon code', 'error');
+				return;
+			}
+
+			if (self.isApplyingCoupon) return;
+			self.isApplyingCoupon = true;
+
+			const originalText = $button.text();
+			$button.prop('disabled', true).text('Applying...');
+
+			$.ajax({
+				url: window.themeData?.ajax_url || '/wp-admin/admin-ajax.php',
+				type: 'POST',
+				data: {
+					action: 'ats_apply_coupon',
+					nonce: window.themeData?.cart_nonce || '',
+					coupon_code: couponCode,
+				},
+				success(response) {
+					if (response.success) {
+						self.showCouponMessage(response.data?.message || 'Coupon applied', 'success');
+						$input.val('');
+						// Trigger WooCommerce's standard event to refresh the order review sidebar
+						jQuery(document.body).trigger('update_checkout');
+					} else {
+						self.showCouponMessage(response.data?.message || 'Invalid coupon code', 'error');
+					}
+				},
+				error() {
+					self.showCouponMessage('Failed to apply coupon. Please try again.', 'error');
+				},
+				complete() {
+					self.isApplyingCoupon = false;
+					$button.prop('disabled', false).text(originalText);
+				},
+			});
+		},
+
+		/**
+		 * Show inline coupon feedback message
+		 * @param {string} message
+		 * @param {'success'|'error'} type
+		 */
+		showCouponMessage(message, type) {
+			const $message = jQuery('.ats-checkout-coupon-message');
+			if (!$message.length) return;
+
+			$message
+				.removeClass('hidden text-green-700 text-red-700 bg-green-50 bg-red-50 border-green-200 border-red-200 border rounded p-2')
+				.addClass('border rounded p-2 ' + (type === 'success'
+					? 'text-green-700 bg-green-50 border-green-200'
+					: 'text-red-700 bg-red-50 border-red-200'))
+				.text(message);
+
+			if (type === 'success') {
+				setTimeout(function () {
+					$message.addClass('hidden');
+				}, 4000);
 			}
 		},
 

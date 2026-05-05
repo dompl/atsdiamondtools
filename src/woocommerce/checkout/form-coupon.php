@@ -28,18 +28,19 @@ if ( ! wc_coupons_enabled() ) {
 </div>
 
 <div class="rfs-ref-checkout-coupon-wrapper" style="display: none;" id="woocommerce-checkout-form-coupon">
-	<form class="checkout_coupon woocommerce-form-coupon bg-white border border-gray-200 rounded-lg p-6 mb-6" method="post">
+	<div class="checkout_coupon woocommerce-form-coupon bg-white border border-gray-200 rounded-lg p-6 mb-6">
 		<div class="flex gap-3">
 			<div class="flex-grow">
 				<label for="coupon_code" class="screen-reader-text hidden"><?php esc_html_e( 'Coupon:', 'woocommerce' ); ?></label>
-				<input type="text" name="coupon_code" class="input-text w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow text-sm text-ats-dark" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>" id="coupon_code" value="" />
+				<input type="text" name="coupon_code" class="ats-checkout-coupon-input input-text w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow text-sm text-ats-dark" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>" id="coupon_code" value="" />
 			</div>
 
 			<div class="flex-shrink-0">
-				<button type="submit" class="button inline-flex items-center px-6 py-3 bg-ats-yellow hover:bg-yellow-500 text-ats-dark font-bold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ats-yellow whitespace-nowrap h-full" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'woocommerce' ); ?>">
+				<button type="button" class="ats-checkout-apply-coupon button inline-flex items-center px-6 py-3 bg-ats-yellow hover:bg-yellow-500 text-ats-dark font-bold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ats-yellow whitespace-nowrap h-full" name="apply_coupon">
 					<?php esc_html_e( 'Apply coupon', 'woocommerce' ); ?>
 				</button>
 			</div>
 		</div>
-	</form>
+		<div class="ats-checkout-coupon-message mt-3 hidden text-sm"></div>
+	</div>
 </div>
