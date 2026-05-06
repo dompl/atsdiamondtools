@@ -85,30 +85,18 @@ add_filter( 'woocommerce_get_checkout_payment_url', 'ats_wcvt_filter_checkout_pa
  * requiring admin to retroactively run the wcvt action on each affected order.
  */
 function ats_wcvt_redirect_pay_for_order_endpoint() {
-	// DEBUG: emit headers to trace which branch the hook took. Remove once stable.
-	$debug = function ( $stage ) {
-		if ( ! headers_sent() ) {
-			header( 'X-Wcvt-Override: ' . $stage, true );
-		}
-	};
-
-	$debug( 'hook-fired' );
-
 	if ( ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-pay' ) ) {
-		$debug( 'not-order-pay-endpoint' );
 		return;
 	}
 
 	global $wp;
 	$order_id = isset( $wp->query_vars['order-pay'] ) ? absint( $wp->query_vars['order-pay'] ) : 0;
 	if ( ! $order_id ) {
-		$debug( 'no-order-id' );
 		return;
 	}
 
 	$order = wc_get_order( $order_id );
 	if ( ! $order ) {
-		$debug( 'order-not-found' );
 		return;
 	}
 
@@ -116,45 +104,33 @@ function ats_wcvt_redirect_pay_for_order_endpoint() {
 	// WC itself would reject.
 	$order_key = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
-		$debug( 'key-mismatch' );
 		return;
 	}
 
-	// Only intervene on orders that genuinely need payment. Already-paid /
-	// refunded / cancelled orders fall through to WC, which renders an
-	// informative status message (no login wall).
-	if ( $order->is_paid() || ! $order->needs_payment() ) {
-		$debug(
-			'order-does-not-need-payment status=' . $order->get_status()
-			. ' total=' . $order->get_total()
-			. ' is_paid=' . ( $order->is_paid() ? '1' : '0' )
-			. ' needs_payment=' . ( $order->needs_payment() ? '1' : '0' )
-		);
-		return;
+	// If the order doesn't need payment (already paid, on-hold, refunded,
+	// cancelled), bypass WC's login wall and send the customer to the
+	// order-received "thank you" page where they can read the order status.
+	// Without this, WC's pay-for-order shortcode renders a login form for
+	// guests *before* it checks payment status — leaving customers with old
+	// invoice links staring at a login prompt for orders that are already done.
+	if ( ! $order->needs_payment() ) {
+		wp_redirect( $order->get_checkout_order_received_url(), 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		exit;
 	}
 
 	// 1) Existing pending token — redirect straight away.
 	$wcvt_url = ats_wcvt_resolve_payment_url( $order );
-	if ( $wcvt_url ) {
-		$debug( 'redirect-existing-token' );
-	}
 
 	// 2) No usable token yet — try to generate one on-the-fly.
-	if ( ! $wcvt_url ) {
-		if ( ! class_exists( 'WCVT_Invoice_Integration' ) ) {
-			$debug( 'integration-class-missing' );
-			return;
-		}
+	if ( ! $wcvt_url && class_exists( 'WCVT_Invoice_Integration' ) ) {
 		$generated = WCVT_Invoice_Integration::instance()->create_payment_link_for_order( $order );
 		if ( is_string( $generated ) && '' !== $generated ) {
 			$wcvt_url = $generated;
-			$debug( 'redirect-newly-created-token' );
-		} else {
-			$name  = trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
-			$email = $order->get_billing_email();
-			$debug( 'create-failed name=' . ( $name ? 'yes' : 'NO' ) . ' email=' . ( $email ? 'yes' : 'NO' ) . ' total=' . $order->get_total() );
-			return;
 		}
+	}
+
+	if ( ! $wcvt_url ) {
+		return;
 	}
 
 	// wp_redirect (not wp_safe_redirect) because the wcvt plugin may be configured
@@ -163,3 +139,11 @@ function ats_wcvt_redirect_pay_for_order_endpoint() {
 	exit;
 }
 add_action( 'template_redirect', 'ats_wcvt_redirect_pay_for_order_endpoint', 5 );
+
+/**
+ * Disable WC's "verify known shoppers" gate on the order-received page so
+ * customers who land there via a token-authenticated invoice link aren't
+ * asked to log in again. Authentication is already handled by the order key
+ * in the URL — restoring WC's pre-2024 behaviour for our token-based flow.
+ */
+add_filter( 'woocommerce_order_received_verify_known_shoppers', '__return_false' );
