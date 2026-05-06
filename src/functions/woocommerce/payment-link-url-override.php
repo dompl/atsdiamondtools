@@ -124,7 +124,12 @@ function ats_wcvt_redirect_pay_for_order_endpoint() {
 	// refunded / cancelled orders fall through to WC, which renders an
 	// informative status message (no login wall).
 	if ( $order->is_paid() || ! $order->needs_payment() ) {
-		$debug( 'order-does-not-need-payment' );
+		$debug(
+			'order-does-not-need-payment status=' . $order->get_status()
+			. ' total=' . $order->get_total()
+			. ' is_paid=' . ( $order->is_paid() ? '1' : '0' )
+			. ' needs_payment=' . ( $order->needs_payment() ? '1' : '0' )
+		);
 		return;
 	}
 
