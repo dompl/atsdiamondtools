@@ -607,3 +607,118 @@
 		}
 	}
 }
+
+// ============================================
+// Pay-for-order & Order-received endpoints
+// ============================================
+// /checkout/order-pay/ and /checkout/order-received/ render inside a bare
+// <main> with no theme container, so any notice or form spans the full
+// viewport. Constrain the width and style the WC notice variants so these
+// pages read as part of the site rather than raw browser output.
+
+body.woocommerce-order-pay,
+body.woocommerce-order-received {
+	main {
+		@apply max-w-3xl mx-auto px-4 sm:px-6 py-10;
+	}
+
+	.woocommerce {
+		@apply space-y-4;
+	}
+
+	// Info notice (e.g. "Please log in to your account…")
+	.woocommerce-info {
+		@apply bg-blue-50 border border-blue-200 text-blue-900 rounded-lg p-4 text-sm leading-relaxed;
+
+		a {
+			@apply text-blue-700 hover:text-blue-900 underline font-medium;
+		}
+	}
+
+	// Success message
+	.woocommerce-message {
+		@apply bg-green-50 border border-green-200 text-green-900 rounded-lg p-4 text-sm leading-relaxed;
+
+		a {
+			@apply text-green-700 hover:text-green-900 underline font-medium;
+		}
+	}
+
+	// Error notice (e.g. "This order cannot be paid for…")
+	.woocommerce-error {
+		@apply bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-sm leading-relaxed list-none;
+
+		li {
+			@apply text-sm list-none;
+		}
+
+		a {
+			@apply text-red-700 hover:text-red-900 underline font-medium;
+		}
+	}
+
+	// Login form rendered inside the pay-for-order page
+	.woocommerce-form-login {
+		@apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-4;
+
+		.form-row {
+			@apply mb-0;
+		}
+
+		label {
+			@apply block text-sm font-medium text-ats-dark mb-2;
+		}
+
+		input.input-text,
+		input[type="text"],
+		input[type="password"] {
+			@apply w-full px-4 py-3 border border-gray-300 rounded-lg text-sm text-ats-dark;
+			@apply focus:ring-2 focus:ring-ats-yellow focus:border-ats-yellow transition-colors duration-200;
+		}
+
+		.password-input {
+			@apply relative block;
+
+			input {
+				@apply pr-10;
+			}
+
+			.show-password-input {
+				@apply absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer;
+			}
+		}
+
+		button.woocommerce-button,
+		button[type="submit"] {
+			@apply px-6 py-3 bg-ats-dark text-white text-sm font-semibold rounded-lg cursor-pointer border-0;
+			@apply hover:bg-primary-700 transition-colors duration-200;
+		}
+
+		.woocommerce-form-login__rememberme {
+			@apply inline-flex items-center gap-2 text-sm text-ats-text mr-4;
+		}
+
+		.lost_password,
+		.woocommerce-LostPassword {
+			@apply mt-2 text-sm;
+
+			a {
+				@apply text-ats-text underline hover:text-ats-dark transition-colors;
+			}
+		}
+	}
+
+	// Order details table when WC renders the pay-for-order summary
+	.order_details {
+		@apply bg-white border border-gray-200 rounded-lg p-4;
+
+		thead {
+			@apply text-left text-xs uppercase tracking-wide text-ats-text;
+		}
+
+		td,
+		th {
+			@apply py-2 px-3;
+		}
+	}
+}
