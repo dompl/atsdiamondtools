@@ -141,9 +141,16 @@ function ats_wcvt_redirect_pay_for_order_endpoint() {
 add_action( 'template_redirect', 'ats_wcvt_redirect_pay_for_order_endpoint', 5 );
 
 /**
- * Disable WC's "verify known shoppers" gate on the order-received page so
+ * Disable WC's two guest-verification gates on the order-received page so
  * customers who land there via a token-authenticated invoice link aren't
- * asked to log in again. Authentication is already handled by the order key
- * in the URL — restoring WC's pre-2024 behaviour for our token-based flow.
+ * asked to log in or verify their email again. Authentication is already
+ * handled by the order key in the URL — restoring WC's pre-2024 behaviour
+ * for our token-based flow.
+ *
+ * - woocommerce_order_received_verify_known_shoppers: forces login for
+ *   orders attached to a registered customer.
+ * - woocommerce_order_email_verification_required: forces an email-verify
+ *   form for guest orders.
  */
 add_filter( 'woocommerce_order_received_verify_known_shoppers', '__return_false' );
+add_filter( 'woocommerce_order_email_verification_required', '__return_false' );
