@@ -72,11 +72,17 @@ function ats_wcvt_filter_checkout_payment_url( $pay_url, $order ) {
 add_filter( 'woocommerce_get_checkout_payment_url', 'ats_wcvt_filter_checkout_payment_url', 20, 2 );
 
 /**
- * Defensive 302 redirect: if a visitor lands on /checkout/order-pay/ for an
- * order that has an active wcvt payment link, send them to the wcvt page.
+ * Self-healing 302 redirect: when a visitor lands on /checkout/order-pay/ for
+ * an unpaid order with a valid order key, send them to the wcvt token page.
  *
- * Catches stale links from old emails or admin clicks generated before the
- * URL filter was in place.
+ * If the order already has a pending wcvt token, redirect to it. If the order
+ * has no token yet (e.g. invoice was sent via the standard WC "Email invoice"
+ * action, or admin shared the pay URL directly), generate one on-the-fly via
+ * WCVT_Invoice_Integration::create_payment_link_for_order() — the same method
+ * the "Send invoice with payment link" order action uses — and redirect.
+ *
+ * This makes every WC "Pay for this order" URL bypass the login form without
+ * requiring admin to retroactively run the wcvt action on each affected order.
  */
 function ats_wcvt_redirect_pay_for_order_endpoint() {
 	if ( ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-pay' ) ) {
@@ -101,7 +107,24 @@ function ats_wcvt_redirect_pay_for_order_endpoint() {
 		return;
 	}
 
+	// Only intervene on orders that genuinely need payment. Already-paid /
+	// refunded / cancelled orders fall through to WC, which renders an
+	// informative status message (no login wall).
+	if ( $order->is_paid() || ! $order->needs_payment() ) {
+		return;
+	}
+
+	// 1) Existing pending token — redirect straight away.
 	$wcvt_url = ats_wcvt_resolve_payment_url( $order );
+
+	// 2) No usable token yet — try to generate one on-the-fly.
+	if ( ! $wcvt_url && class_exists( 'WCVT_Invoice_Integration' ) ) {
+		$generated = WCVT_Invoice_Integration::instance()->create_payment_link_for_order( $order );
+		if ( is_string( $generated ) && '' !== $generated ) {
+			$wcvt_url = $generated;
+		}
+	}
+
 	if ( ! $wcvt_url ) {
 		return;
 	}
