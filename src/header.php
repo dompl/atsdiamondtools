@@ -41,6 +41,7 @@
     <body <?php body_class( 'text-brand_text font-body' ); ?>>
         <?php wp_body_open(); ?>
         <?php do_action( 'skyline_after_body' ); ?>
+        <?php get_template_part( 'functions/template-parts/clearance-bar' ); ?>
 		  <?php if ( current_user_can( 'manage_options' ) ) : ?>
 		  	<?php get_template_part( 'functions/template-parts/colours' ); ?>
 		  <?php endif; ?>

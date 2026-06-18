@@ -1,10 +1,11 @@
 /**
- * Clearance Pop-up
+ * Clearance campaign — pop-up + top bar.
  *
- * Shows the site-wide clearance announcement modal after a configurable delay,
- * capped by sessionStorage (once per session) or localStorage (once every N
- * days). Markup + eligibility live in
- * functions/template-parts/clearance-popup-modal.php.
+ * Pop-up shows after a configurable delay, capped per session / per N days.
+ * Closing the pop-up reveals a persistent top announcement bar; visitors who
+ * don't get the pop-up (already capped) get the bar straight away. The bar has
+ * its own (separate, longer-lived) dismissal. Markup + eligibility live in
+ * functions/template-parts/clearance-popup-modal.php and clearance-bar.php.
  *
  * @package skylinewp-dev-child
  */
@@ -14,52 +15,99 @@ import { Modal } from 'flowbite';
 (function () {
 	'use strict';
 
-	const ROOT_ID = 'ats-clearance-popup';
+	const POPUP_ID = 'ats-clearance-popup';
+	const BAR_ID = 'ats-clearance-bar';
+
+	function storageGet(type, key) {
+		try {
+			return window[type].getItem(key);
+		} catch (e) {
+			return null;
+		}
+	}
+	function storageSet(type, key, val) {
+		try {
+			window[type].setItem(key, val);
+		} catch (e) {
+			// Storage unavailable (private mode etc.) — ignore.
+		}
+	}
 
 	/**
 	 * Whether the pop-up was already shown within the capping window.
 	 */
-	function isCapped(key, mode, days) {
-		try {
-			if (mode === 'days') {
-				const stored = parseInt(window.localStorage.getItem(key), 10);
-				if (!stored) return false;
-				const windowMs = Math.max(1, days) * 86400000;
-				return Date.now() - stored < windowMs;
-			}
-			return window.sessionStorage.getItem(key) === '1';
-		} catch (e) {
-			// Storage unavailable (private mode etc.) — fail open.
-			return false;
+	function popupCapped(key, mode, days) {
+		if (mode === 'days') {
+			const stored = parseInt(storageGet('localStorage', key), 10);
+			if (!stored) return false;
+			return Date.now() - stored < Math.max(1, days) * 86400000;
+		}
+		return storageGet('sessionStorage', key) === '1';
+	}
+
+	function popupMarkSeen(key, mode) {
+		if (mode === 'days') {
+			storageSet('localStorage', key, String(Date.now()));
+		} else {
+			storageSet('sessionStorage', key, '1');
 		}
 	}
 
 	/**
-	 * Persist the "seen" flag according to the capping mode.
+	 * Wire up the top bar. Returns a controller with reveal(), or null if the
+	 * bar isn't on the page / has been dismissed.
 	 */
-	function markSeen(key, mode) {
-		try {
-			if (mode === 'days') {
-				window.localStorage.setItem(key, String(Date.now()));
-			} else {
-				window.sessionStorage.setItem(key, '1');
-			}
-		} catch (e) {
-			// Ignore storage failures.
+	function setupBar() {
+		const bar = document.getElementById(BAR_ID);
+		if (!bar) return null;
+
+		const dismissKey = bar.dataset.storageKey || 'ats_clearance_bar_dismissed';
+		if (storageGet('localStorage', dismissKey) === '1') return null;
+
+		const closeBtn = bar.querySelector('.ats-clearance-bar__close');
+		if (closeBtn) {
+			closeBtn.addEventListener('click', function () {
+				bar.classList.remove('is-visible');
+				storageSet('localStorage', dismissKey, '1');
+				// Remove from layout once the collapse transition finishes.
+				window.setTimeout(function () {
+					bar.hidden = true;
+				}, 450);
+			});
 		}
+
+		return {
+			reveal: function () {
+				if (bar.classList.contains('is-visible')) return;
+				bar.hidden = false;
+				// Force reflow so the max-height transition runs from 0.
+				void bar.offsetHeight;
+				bar.classList.add('is-visible');
+			},
+		};
 	}
 
 	function init() {
 		try {
-			const root = document.getElementById(ROOT_ID);
-			if (!root) return;
+			const bar = setupBar();
+			const root = document.getElementById(POPUP_ID);
+
+			// No pop-up on this page — show the bar straight away (if eligible).
+			if (!root) {
+				if (bar) bar.reveal();
+				return;
+			}
 
 			const key = root.dataset.storageKey || 'ats_clearance_popup_dismissed';
 			const mode = root.dataset.frequencyMode || 'session';
 			const days = parseInt(root.dataset.frequencyDays, 10) || 30;
 			const delayMs = (parseInt(root.dataset.delay, 10) || 0) * 1000;
 
-			if (isCapped(key, mode, days)) return;
+			// Already saw the pop-up this window — skip it, show the bar.
+			if (popupCapped(key, mode, days)) {
+				if (bar) bar.reveal();
+				return;
+			}
 
 			let lastFocused = null;
 
@@ -69,14 +117,15 @@ import { Modal } from 'flowbite';
 				backdropClasses: 'bg-black/60 fixed inset-0 z-40',
 				closable: true,
 				onHide: function () {
-					markSeen(key, mode);
+					popupMarkSeen(key, mode);
 					if (lastFocused && typeof lastFocused.focus === 'function') {
 						lastFocused.focus();
 					}
+					// Closing the pop-up reveals the persistent bar.
+					if (bar) bar.reveal();
 				},
 			});
 
-			// Close button (Flowbite doesn't auto-bind for programmatic instances).
 			const closeBtn = root.querySelector('[data-modal-hide]');
 			if (closeBtn) {
 				closeBtn.addEventListener('click', function (e) {
@@ -85,7 +134,6 @@ import { Modal } from 'flowbite';
 				});
 			}
 
-			// Close when the overlay (not the panel) is clicked.
 			root.addEventListener('click', function (e) {
 				if (e.target === root) {
 					modal.hide();
@@ -97,7 +145,7 @@ import { Modal } from 'flowbite';
 				modal.show();
 			}, delayMs);
 		} catch (e) {
-			// Never break the page over an announcement modal.
+			// Never break the page over an announcement.
 		}
 	}
 

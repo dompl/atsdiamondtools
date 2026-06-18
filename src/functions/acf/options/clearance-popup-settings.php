@@ -93,6 +93,18 @@ if ( ! function_exists( 'register_ats_clearance_popup_options' ) ) {
 								ConditionalLogic::where( 'clearance_popup_frequency_mode', '==', 'days' ),
 							]
 						),
+
+					Text::make( 'Top Bar Text', 'clearance_bar_text' )
+						->helperText( 'Message shown in the full-width top announcement bar (appears after the pop-up is closed).' )
+						->default( 'Clearance Sale now on — limited stock while it lasts.' ),
+
+					Text::make( 'Top Bar Button Label', 'clearance_bar_button_label' )
+						->helperText( 'Label for the link button in the top announcement bar.' )
+						->default( 'Shop Clearance' ),
+
+					Text::make( 'Nav Badge Text', 'clearance_nav_badge_text' )
+						->helperText( 'Small badge shown on the Clearance item in the category navigation.' )
+						->default( 'Limited stock' ),
 				],
 				'location' => [
 					Location::where( 'options_page', '==', 'clearance-popup-settings' ),

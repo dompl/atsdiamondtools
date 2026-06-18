@@ -1,5 +1,8 @@
-// Clearance announcement pop-up — "premium industrial flash sale".
+// Clearance campaign — pop-up, top announcement bar, and nav badge.
+// "premium industrial flash sale" aesthetic.
 // Markup:    functions/template-parts/clearance-popup-modal.php
+//            functions/template-parts/clearance-bar.php
+//            functions/shortcodes/category_navigation.php (Clearance item)
 // Behaviour: assets/js/components/clearance-popup.js
 
 $cp-mauve: #594652; // brand — CTA
@@ -9,6 +12,9 @@ $cp-yellow: #ffd902; // accent / energy
 $cp-body: #5f5862; // body copy
 $cp-border: #ece8ea;
 
+// =======================================================================
+// Pop-up
+// =======================================================================
 .ats-clearance-popup-overlay {
 	position: fixed;
 	inset: 0;
@@ -32,7 +38,6 @@ $cp-border: #ece8ea;
 		0 35px 80px -25px rgba(40, 28, 42, 0.65),
 		0 8px 24px -12px rgba(40, 28, 42, 0.35);
 
-	// ---- Close ----------------------------------------------------------
 	&__close {
 		position: absolute;
 		top: 14px;
@@ -66,7 +71,6 @@ $cp-border: #ece8ea;
 		height: 14px;
 	}
 
-	// ---- Image ----------------------------------------------------------
 	&__media {
 		position: relative;
 		flex: 0 0 46%;
@@ -80,7 +84,6 @@ $cp-border: #ece8ea;
 			object-fit: cover;
 		}
 
-		// Depth scrim along the bottom of the product shot.
 		&::after {
 			content: "";
 			position: absolute;
@@ -90,7 +93,6 @@ $cp-border: #ece8ea;
 		}
 	}
 
-	// ---- Content --------------------------------------------------------
 	&__content {
 		position: relative;
 		display: flex;
@@ -101,7 +103,6 @@ $cp-border: #ece8ea;
 		padding: 42px 40px;
 		overflow-y: auto;
 
-		// Soft yellow glow in the top-right corner of the white panel.
 		&::before {
 			content: "";
 			position: absolute;
@@ -115,7 +116,6 @@ $cp-border: #ece8ea;
 		}
 	}
 
-	// ---- Tag (pill + pulsing dot) --------------------------------------
 	&__tag {
 		position: relative;
 		align-self: flex-start;
@@ -142,7 +142,6 @@ $cp-border: #ece8ea;
 		}
 	}
 
-	// ---- Heading (+ accent bar) ----------------------------------------
 	&__heading {
 		margin: 0;
 		font-size: clamp(26px, 4vw, 34px);
@@ -173,7 +172,6 @@ $cp-border: #ece8ea;
 		}
 	}
 
-	// ---- CTA (brand button + yellow chevron) ---------------------------
 	&__cta {
 		align-self: flex-start;
 		display: inline-flex;
@@ -221,7 +219,6 @@ $cp-border: #ece8ea;
 		}
 	}
 
-	// ---- No-image variant ----------------------------------------------
 	&--no-image &__content {
 		flex-basis: 100%;
 		align-items: center;
@@ -243,7 +240,6 @@ $cp-border: #ece8ea;
 	}
 }
 
-// ---- Orchestrated entrance (Flowbite adds .flex on show) --------------
 @keyframes ats-cp-panel {
 	from {
 		opacity: 0;
@@ -308,7 +304,6 @@ $cp-border: #ece8ea;
 	}
 }
 
-// ---- Mobile: stack, banner image, full-width button -------------------
 @media (max-width: 600px) {
 	.ats-clearance-popup {
 		flex-direction: column;
@@ -335,7 +330,178 @@ $cp-border: #ece8ea;
 	}
 }
 
-// ---- Reduced motion ---------------------------------------------------
+// =======================================================================
+// Top announcement bar
+// =======================================================================
+.ats-clearance-bar {
+	position: relative;
+	z-index: 60;
+	max-height: 0;
+	overflow: hidden;
+	color: #fff;
+	background: linear-gradient(90deg, $cp-mauve 0%, $cp-plum 100%);
+	transition: max-height 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+	&[hidden] {
+		display: none;
+	}
+
+	&.is-visible {
+		max-height: 120px;
+	}
+
+	&__inner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 14px;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 11px 52px 11px 20px;
+		font-size: 14px;
+		font-weight: 600;
+		text-align: center;
+	}
+
+	&__flash {
+		color: $cp-yellow;
+		font-size: 16px;
+		line-height: 1;
+	}
+
+	&__text {
+		letter-spacing: 0.01em;
+	}
+
+	&__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		flex-shrink: 0;
+		padding: 6px 15px;
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		text-decoration: none;
+		white-space: nowrap;
+		color: $cp-ink;
+		background: $cp-yellow;
+		border-radius: 999px;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+		&::after {
+			content: "";
+			width: 6px;
+			height: 6px;
+			border-top: 2px solid $cp-ink;
+			border-right: 2px solid $cp-ink;
+			transform: rotate(45deg);
+			transition: transform 0.2s ease;
+		}
+
+		&:hover {
+			color: $cp-ink;
+			transform: translateY(-1px);
+			box-shadow: 0 6px 16px -6px rgba(255, 217, 2, 0.9);
+
+			&::after {
+				transform: rotate(45deg) translateX(2px);
+			}
+		}
+	}
+
+	&__close {
+		position: absolute;
+		top: 50%;
+		right: 12px;
+		transform: translateY(-50%);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		color: #fff;
+		background: rgba(255, 255, 255, 0.14);
+		border: 0;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.3);
+		}
+
+		&:focus-visible {
+			outline: 2px solid $cp-yellow;
+			outline-offset: 2px;
+		}
+	}
+
+	&__close-icon {
+		width: 11px;
+		height: 11px;
+	}
+}
+
+@media (max-width: 600px) {
+	.ats-clearance-bar {
+		&.is-visible {
+			max-height: 170px;
+		}
+
+		&__inner {
+			flex-direction: column;
+			gap: 8px;
+			padding: 10px 44px;
+			font-size: 13px;
+		}
+	}
+}
+
+// =======================================================================
+// Category-nav highlight (Clearance item in the dark "Shop by Category")
+// =======================================================================
+.rfs-ref-category-item.ats-cat-clearance {
+	border-left-color: $cp-yellow !important;
+	background: rgba(255, 217, 2, 0.06);
+
+	h3 {
+		color: $cp-yellow;
+	}
+
+	&:hover {
+		background: rgba(255, 217, 2, 0.12);
+	}
+}
+
+.ats-cat-clearance__badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 5px;
+	padding: 2px 9px;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: $cp-ink;
+	background: $cp-yellow;
+	border-radius: 999px;
+
+	&::before {
+		content: "";
+		width: 5px;
+		height: 5px;
+		border-radius: 50%;
+		background: $cp-mauve;
+		animation: ats-cp-pulse 1.8s ease-in-out infinite;
+	}
+}
+
+// =======================================================================
+// Reduced motion
+// =======================================================================
 @media (prefers-reduced-motion: reduce) {
 	.ats-clearance-popup-overlay.flex {
 		.ats-clearance-popup,
@@ -348,11 +514,13 @@ $cp-border: #ece8ea;
 		}
 	}
 
-	.ats-clearance-popup__tag::before {
+	.ats-clearance-popup__tag::before,
+	.ats-cat-clearance__badge::before {
 		animation: none;
 	}
 
-	.ats-clearance-popup__cta {
+	.ats-clearance-popup__cta,
+	.ats-clearance-bar {
 		transition: none;
 	}
 }

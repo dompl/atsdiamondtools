@@ -86,10 +86,28 @@ function shortcode_category_navigation( $atts ) {
 							// Ensure ACF plugin is active or use fallback
 							$short_description = function_exists('get_field') ? get_field( 'category_nav_short_description', $category ) : '';
 							?>
-							<a href="<?php echo esc_url( $category_link ); ?>" class="rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]">
+							<?php
+							$ats_is_clearance   = ( 'clearance' === $category->slug );
+							$ats_clearance_on   = function_exists( 'get_field' ) && get_field( 'clearance_popup_enabled', 'option' );
+							$ats_show_cat_badge = $ats_is_clearance && $ats_clearance_on;
+							$ats_cat_class      = 'rfs-ref-category-item group px-6 py-3 hover:bg-white/10 cursor-pointer transition-colors duration-200 border-l-4 border-transparent hover:border-[#fbbf24]';
+							if ( $ats_show_cat_badge ) {
+								$ats_cat_class .= ' ats-cat-clearance';
+							}
+							?>
+							<a href="<?php echo esc_url( $category_link ); ?>" class="<?php echo esc_attr( $ats_cat_class ); ?>">
 								<h3 class="text-[13px] font-bold uppercase tracking-wider text-white mb-0.5 group-hover:text-[#fbbf24] transition-colors">
 									<?php echo esc_html( $category->name ); ?>
 								</h3>
+								<?php if ( $ats_show_cat_badge ) : ?>
+									<?php
+									$ats_badge_text = function_exists( 'get_field' ) ? (string) get_field( 'clearance_nav_badge_text', 'option' ) : '';
+									if ( '' === $ats_badge_text ) {
+										$ats_badge_text = 'Limited stock';
+									}
+									?>
+									<span class="ats-cat-clearance__badge"><?php echo esc_html( $ats_badge_text ); ?></span>
+								<?php endif; ?>
 								<?php if ( $short_description ) : ?>
 									<p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
 										<?php echo esc_html( $short_description ); ?>
