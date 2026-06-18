@@ -10,6 +10,7 @@ import './components/ajax-add-to-cart.js';
 import './components/newsletter.js';
 import './components/product-scroller.js';
 import './components/product-quick-view.js';
+import './components/clearance-popup.js';
 import './components/favorites.js';
 import './components/blog.js';
 import './components/shop-filter.js';
