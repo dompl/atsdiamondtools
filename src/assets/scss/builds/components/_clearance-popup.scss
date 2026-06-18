@@ -1,0 +1,174 @@
+// Clearance announcement pop-up (split-card modal).
+// Markup:    functions/template-parts/clearance-popup-modal.php
+// Behaviour: assets/js/components/clearance-popup.js
+
+$ats-cp-yellow: #ffd902;
+$ats-cp-heading: #57434e;
+$ats-cp-body: #444;
+$ats-cp-border: #e5e5e5;
+
+.ats-clearance-popup-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	// `display` is controlled by Flowbite via .hidden / .flex utilities.
+}
+
+.ats-clearance-popup {
+	position: relative;
+	display: flex;
+	width: 100%;
+	max-width: 720px;
+	max-height: 90vh;
+	overflow: hidden;
+	background: #fff;
+	border: 1px solid $ats-cp-border;
+	border-radius: 4px;
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+
+	&__close {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		z-index: 2;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		color: #1a1a1a;
+		background: rgba(255, 255, 255, 0.85);
+		border: 0;
+		border-radius: 9999px;
+		cursor: pointer;
+		transition: background-color 0.15s ease, color 0.15s ease;
+
+		&:hover {
+			background: #fff;
+			color: #000;
+		}
+
+		&:focus-visible {
+			outline: 2px solid $ats-cp-heading;
+			outline-offset: 2px;
+		}
+	}
+
+	&__close-icon {
+		width: 14px;
+		height: 14px;
+	}
+
+	&__media {
+		flex: 0 0 45%;
+
+		img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__content {
+		display: flex;
+		flex: 1 1 55%;
+		flex-direction: column;
+		padding: 32px;
+		overflow-y: auto;
+	}
+
+	&--no-image &__content {
+		flex-basis: 100%;
+		text-align: center;
+		align-items: center;
+	}
+
+	&__tag {
+		display: inline-block;
+		margin-bottom: 12px;
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: $ats-cp-heading;
+	}
+
+	&__heading {
+		margin: 0 0 12px;
+		font-size: 28px;
+		line-height: 1.15;
+		font-weight: 700;
+		color: $ats-cp-heading;
+	}
+
+	&__description {
+		margin: 0 0 20px;
+		font-size: 16px;
+		line-height: 1.55;
+		color: $ats-cp-body;
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	&__cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		align-self: flex-start;
+		padding: 12px 28px;
+		font-size: 16px;
+		font-weight: 700;
+		color: #000;
+		text-decoration: none;
+		background: $ats-cp-yellow;
+		border-radius: 4px;
+		transition: filter 0.15s ease;
+
+		&:hover {
+			color: #000;
+			filter: brightness(0.92);
+		}
+
+		&:focus-visible {
+			outline: 2px solid #000;
+			outline-offset: 2px;
+		}
+	}
+
+	&--no-image &__cta {
+		align-self: center;
+	}
+}
+
+// Stack on small screens; keep the CTA visible without page scroll.
+@media (max-width: 600px) {
+	.ats-clearance-popup {
+		flex-direction: column;
+		max-height: 88vh;
+
+		&__media {
+			flex: 0 0 auto;
+			height: 140px;
+		}
+
+		&__content {
+			padding: 24px;
+		}
+
+		&__heading {
+			font-size: 22px;
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ats-clearance-popup {
+		transition: none;
+	}
+}
