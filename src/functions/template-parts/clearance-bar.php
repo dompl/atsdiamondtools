@@ -4,10 +4,10 @@
  *
  * Full-width announcement strip rendered as the very first element inside
  * <body> (hooked via header.php after `skyline_after_body`), so it pushes the
- * page down rather than overlaying the header. Collapsed by default; revealed
- * by assets/js/components/clearance-popup.js once the pop-up is closed (or
- * immediately for visitors who don't get the pop-up). Own dismissal, separate
- * from the pop-up.
+ * page down rather than overlaying the header. A persistent stripe: revealed
+ * immediately on load by assets/js/components/clearance-popup.js (independent
+ * of the pop-up), with its own dismissal. Suppressed only during the purchase
+ * flow (cart / checkout / account).
  *
  * @package skylinewp-dev-child
  */
@@ -16,16 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Eligibility — mirrors the pop-up's exclusions (kept self-contained because
-// this renders before the pop-up template part loads).
 $ats_bar_ok = function_exists( 'get_field' ) && get_field( 'clearance_popup_enabled', 'option' );
 if ( $ats_bar_ok && function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_account_page() ) ) {
-	$ats_bar_ok = false;
-}
-if ( $ats_bar_ok && function_exists( 'is_product_category' ) && is_product_category( 'clearance' ) ) {
-	$ats_bar_ok = false;
-}
-if ( $ats_bar_ok && function_exists( 'is_product' ) && is_product() && has_term( 'clearance', 'product_cat', get_the_ID() ) ) {
 	$ats_bar_ok = false;
 }
 

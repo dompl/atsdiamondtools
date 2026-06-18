@@ -213,12 +213,21 @@ if ( $products_per_page <= 0 ) {
 									</button>
 								</li>
 
-								<?php foreach ( $categories as $category ) : ?>
+								<?php
+									$ats_clearance_on   = function_exists( 'get_field' ) && get_field( 'clearance_popup_enabled', 'option' );
+									$ats_clearance_term = $ats_clearance_on ? get_term_by( 'slug', 'clearance', 'product_cat' ) : false;
+									$ats_clearance_tid  = ( $ats_clearance_term && ! is_wp_error( $ats_clearance_term ) ) ? (int) $ats_clearance_term->term_id : 0;
+									$ats_nav_badge_text = function_exists( 'get_field' ) ? (string) get_field( 'clearance_nav_badge_text', 'option' ) : '';
+									if ( '' === $ats_nav_badge_text ) {
+										$ats_nav_badge_text = 'Limited stock';
+									}
+									?>
+									<?php foreach ( $categories as $category ) : ?>
 									<li class="rfs-ref-category-item">
 										<button type="button"
-										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $category['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?>"
+										   class="rfs-ref-category-link w-full text-left flex items-center justify-between py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm transition-colors duration-200 hover:bg-primary-600 hover:text-white <?php echo $category['is_current'] ? 'bg-primary-600 text-white font-bold' : 'text-gray-700'; ?> <?php echo ( $ats_clearance_tid && (int) $category['id'] === $ats_clearance_tid ) ? 'ats-cat-clearance-archive' : ''; ?>"
 										   data-category-id="<?php echo esc_attr( $category['id'] ); ?>">
-											<span class="rfs-ref-category-name"><?php echo esc_html( $category['name'] ); ?></span>
+											<span class="rfs-ref-category-name flex items-center gap-2"><?php echo esc_html( $category['name'] ); ?><?php if ( $ats_clearance_tid && (int) $category['id'] === $ats_clearance_tid ) : ?><span class="ats-cat-clearance__badge"><?php echo esc_html( $ats_nav_badge_text ); ?></span><?php endif; ?></span>
 											<span class="rfs-ref-category-count text-[10px] lg:text-xs <?php echo $category['is_current'] ? 'text-white opacity-80' : 'text-gray-500'; ?>">(<?php echo esc_html( $category['count'] ); ?>)</span>
 										</button>
 

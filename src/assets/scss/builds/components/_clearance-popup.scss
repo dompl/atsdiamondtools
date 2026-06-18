@@ -335,7 +335,7 @@ $cp-border: #ece8ea;
 // =======================================================================
 .ats-clearance-bar {
 	position: relative;
-	z-index: 60;
+	z-index: 30; // below the pop-up backdrop (z-40) so it dims while the pop-up is open
 	max-height: 0;
 	overflow: hidden;
 	color: #fff;
@@ -475,11 +475,28 @@ $cp-border: #ece8ea;
 	}
 }
 
+// Archive (shop/category) sidebar — light-background highlight for Clearance.
+.rfs-ref-category-link.ats-cat-clearance-archive {
+	background: rgba(255, 217, 2, 0.14) !important;
+	color: $cp-plum !important;
+	font-weight: 700;
+	box-shadow: inset 3px 0 0 $cp-yellow;
+
+	&:hover {
+		background: rgba(255, 217, 2, 0.22) !important;
+		color: $cp-plum !important;
+	}
+
+	.rfs-ref-category-count {
+		color: $cp-plum !important;
+	}
+}
+
 .ats-cat-clearance__badge {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	margin-top: 5px;
+	flex-shrink: 0;
 	padding: 2px 9px;
 	font-size: 9px;
 	font-weight: 800;
@@ -496,6 +513,35 @@ $cp-border: #ece8ea;
 		border-radius: 50%;
 		background: $cp-mauve;
 		animation: ats-cp-pulse 1.8s ease-in-out infinite;
+	}
+}
+
+// =======================================================================
+// Product card "Clearance" listing badge
+// =======================================================================
+.ats-clearance-product-badge {
+	position: absolute;
+	bottom: 8px;
+	left: 8px;
+	z-index: 5;
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 9px;
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: $cp-ink;
+	background: $cp-yellow;
+	border-radius: 4px;
+	box-shadow: 0 3px 8px -2px rgba(40, 28, 42, 0.35);
+	pointer-events: none;
+
+	&--sm {
+		bottom: 6px;
+		left: 6px;
+		padding: 2px 7px;
+		font-size: 9px;
 	}
 }
 

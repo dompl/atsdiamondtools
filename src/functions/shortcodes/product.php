@@ -11,6 +11,23 @@ if ( !defined( 'ABSPATH' ) ) {
     exit;
 }
 
+if ( ! function_exists( 'ats_is_clearance_product' ) ) {
+    /**
+     * Whether a product should show the "Clearance" listing badge.
+     * Gated on the clearance campaign master switch.
+     *
+     * @param int $product_id Product ID.
+     * @return bool
+     */
+    function ats_is_clearance_product( $product_id ) {
+        static $on = null;
+        if ( null === $on ) {
+            $on = function_exists( 'get_field' ) && (bool) get_field( 'clearance_popup_enabled', 'option' );
+        }
+        return $on && has_term( 'clearance', 'product_cat', $product_id );
+    }
+}
+
 /**
  * Register the ats_product shortcode
  *
@@ -201,6 +218,7 @@ if ( !function_exists( 'ats_render_product_card' ) ) {
 			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
 		</div>
 		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-image-link relative mb-4 flex justify-center">
+			<?php if ( ats_is_clearance_product( $product->get_id() ) ) : ?><span class="ats-clearance-product-badge">Clearance</span><?php endif; ?>
 			<img
 				src="<?php echo esc_url( $img_1x ); ?>"
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
@@ -292,7 +310,8 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 		<div class="rfs-ref-product-list-favorite-heart absolute top-2 left-2 z-10">
 			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
 		</div>
-		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-image-link flex-shrink-0 flex items-center">
+		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-image-link flex-shrink-0 flex items-center relative">
+			<?php if ( ats_is_clearance_product( $product->get_id() ) ) : ?><span class="ats-clearance-product-badge ats-clearance-product-badge--sm">Clearance</span><?php endif; ?>
 			<img
 				src="<?php echo esc_url( $img_1x ); ?>"
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
@@ -384,7 +403,8 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
 		<div class="rfs-ref-product-compact-favorite-heart absolute top-1.5 left-1.5 lg:top-2 lg:left-2 z-10">
 			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
 		</div>
-		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-compact-image-link flex-shrink-0">
+		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-compact-image-link flex-shrink-0 relative">
+			<?php if ( ats_is_clearance_product( $product->get_id() ) ) : ?><span class="ats-clearance-product-badge ats-clearance-product-badge--sm">Clearance</span><?php endif; ?>
 			<img
 				src="<?php echo esc_url( $img_1x ); ?>"
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>

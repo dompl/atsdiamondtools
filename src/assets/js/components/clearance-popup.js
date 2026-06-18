@@ -90,6 +90,9 @@ import { Modal } from 'flowbite';
 	function init() {
 		try {
 			const bar = setupBar();
+			// Persistent stripe: show the bar immediately on every page (if not dismissed),
+			// independent of the pop-up.
+			if (bar) bar.reveal();
 			const root = document.getElementById(POPUP_ID);
 
 			// No pop-up on this page — show the bar straight away (if eligible).
