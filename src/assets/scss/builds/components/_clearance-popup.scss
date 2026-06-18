@@ -1,11 +1,13 @@
-// Clearance announcement pop-up (split-card modal).
+// Clearance announcement pop-up — "premium industrial flash sale".
 // Markup:    functions/template-parts/clearance-popup-modal.php
 // Behaviour: assets/js/components/clearance-popup.js
 
-$ats-cp-yellow: #ffd902;
-$ats-cp-heading: #57434e;
-$ats-cp-body: #444;
-$ats-cp-border: #e5e5e5;
+$cp-mauve: #594652; // brand — CTA
+$cp-plum: #57434e; // heading
+$cp-ink: #2c2530; // deepest text
+$cp-yellow: #ffd902; // accent / energy
+$cp-body: #5f5862; // body copy
+$cp-border: #ece8ea;
 
 .ats-clearance-popup-overlay {
 	position: fixed;
@@ -14,45 +16,47 @@ $ats-cp-border: #e5e5e5;
 	align-items: center;
 	justify-content: center;
 	padding: 1rem;
-	// `display` is controlled by Flowbite via .hidden / .flex utilities.
+	// `display` is controlled by Flowbite via the .hidden / .flex utilities.
 }
 
 .ats-clearance-popup {
 	position: relative;
 	display: flex;
 	width: 100%;
-	max-width: 720px;
+	max-width: 760px;
 	max-height: 90vh;
 	overflow: hidden;
 	background: #fff;
-	border: 1px solid $ats-cp-border;
-	border-radius: 4px;
-	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+	border-radius: 10px;
+	box-shadow:
+		0 35px 80px -25px rgba(40, 28, 42, 0.65),
+		0 8px 24px -12px rgba(40, 28, 42, 0.35);
 
+	// ---- Close ----------------------------------------------------------
 	&__close {
 		position: absolute;
-		top: 10px;
-		right: 10px;
-		z-index: 2;
+		top: 14px;
+		right: 14px;
+		z-index: 3;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 32px;
-		height: 32px;
-		color: #1a1a1a;
-		background: rgba(255, 255, 255, 0.85);
+		width: 36px;
+		height: 36px;
+		color: $cp-plum;
+		background: rgba(89, 70, 82, 0.08);
 		border: 0;
-		border-radius: 9999px;
+		border-radius: 50%;
 		cursor: pointer;
-		transition: background-color 0.15s ease, color 0.15s ease;
+		transition: background-color 0.2s ease, transform 0.2s ease;
 
 		&:hover {
-			background: #fff;
-			color: #000;
+			background: rgba(89, 70, 82, 0.18);
+			transform: rotate(90deg);
 		}
 
 		&:focus-visible {
-			outline: 2px solid $ats-cp-heading;
+			outline: 3px solid $cp-yellow;
 			outline-offset: 2px;
 		}
 	}
@@ -62,8 +66,12 @@ $ats-cp-border: #e5e5e5;
 		height: 14px;
 	}
 
+	// ---- Image ----------------------------------------------------------
 	&__media {
-		flex: 0 0 45%;
+		position: relative;
+		flex: 0 0 46%;
+		overflow: hidden;
+		background: $cp-plum;
 
 		img {
 			display: block;
@@ -71,104 +79,280 @@ $ats-cp-border: #e5e5e5;
 			height: 100%;
 			object-fit: cover;
 		}
+
+		// Depth scrim along the bottom of the product shot.
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(180deg, transparent 52%, rgba(40, 28, 42, 0.38) 100%);
+			pointer-events: none;
+		}
 	}
 
+	// ---- Content --------------------------------------------------------
 	&__content {
+		position: relative;
 		display: flex;
-		flex: 1 1 55%;
+		flex: 1 1 54%;
 		flex-direction: column;
-		padding: 32px;
+		justify-content: center;
+		gap: 14px;
+		padding: 42px 40px;
 		overflow-y: auto;
+
+		// Soft yellow glow in the top-right corner of the white panel.
+		&::before {
+			content: "";
+			position: absolute;
+			top: -50px;
+			right: -50px;
+			width: 160px;
+			height: 160px;
+			border-radius: 50%;
+			background: radial-gradient(circle at 32% 32%, rgba(255, 217, 2, 0.22), transparent 70%);
+			pointer-events: none;
+		}
 	}
 
-	&--no-image &__content {
-		flex-basis: 100%;
-		text-align: center;
-		align-items: center;
-	}
-
+	// ---- Tag (pill + pulsing dot) --------------------------------------
 	&__tag {
-		display: inline-block;
-		margin-bottom: 12px;
-		font-size: 12px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
+		position: relative;
+		align-self: flex-start;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 13px;
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
-		color: $ats-cp-heading;
+		color: $cp-ink;
+		background: $cp-yellow;
+		border-radius: 999px;
+		box-shadow: 0 5px 14px -5px rgba(255, 217, 2, 0.85);
+
+		&::before {
+			content: "";
+			width: 7px;
+			height: 7px;
+			border-radius: 50%;
+			background: $cp-mauve;
+			animation: ats-cp-pulse 1.8s ease-in-out infinite;
+		}
 	}
 
+	// ---- Heading (+ accent bar) ----------------------------------------
 	&__heading {
-		margin: 0 0 12px;
-		font-size: 28px;
-		line-height: 1.15;
-		font-weight: 700;
-		color: $ats-cp-heading;
+		margin: 0;
+		font-size: clamp(26px, 4vw, 34px);
+		line-height: 1.08;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		color: $cp-plum;
+
+		&::after {
+			content: "";
+			display: block;
+			width: 54px;
+			height: 4px;
+			margin-top: 16px;
+			background: $cp-yellow;
+			border-radius: 2px;
+		}
 	}
 
 	&__description {
-		margin: 0 0 20px;
+		margin: 0;
 		font-size: 16px;
-		line-height: 1.55;
-		color: $ats-cp-body;
+		line-height: 1.6;
+		color: $cp-body;
 
 		p:last-child {
 			margin-bottom: 0;
 		}
 	}
 
+	// ---- CTA (brand button + yellow chevron) ---------------------------
 	&__cta {
+		align-self: flex-start;
 		display: inline-flex;
 		align-items: center;
-		justify-content: center;
-		align-self: flex-start;
-		padding: 12px 28px;
-		font-size: 16px;
-		font-weight: 700;
-		color: #000;
+		gap: 12px;
+		margin-top: 6px;
+		padding: 15px 30px;
+		font-size: 15px;
+		font-weight: 800;
+		letter-spacing: 0.02em;
+		color: #fff;
 		text-decoration: none;
-		background: $ats-cp-yellow;
-		border-radius: 4px;
-		transition: filter 0.15s ease;
+		background: $cp-mauve;
+		border-radius: 8px;
+		box-shadow: 0 12px 26px -10px rgba(89, 70, 82, 0.85);
+		transition:
+			transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+			box-shadow 0.22s ease,
+			background-color 0.22s ease;
+
+		&::after {
+			content: "";
+			width: 9px;
+			height: 9px;
+			border-top: 2.5px solid $cp-yellow;
+			border-right: 2.5px solid $cp-yellow;
+			transform: rotate(45deg);
+			transition: transform 0.22s ease;
+		}
 
 		&:hover {
-			color: #000;
-			filter: brightness(0.92);
+			color: #fff;
+			background: $cp-plum;
+			transform: translateY(-3px);
+			box-shadow: 0 18px 36px -10px rgba(89, 70, 82, 0.95);
+
+			&::after {
+				transform: rotate(45deg) translate(2px, -2px);
+			}
 		}
 
 		&:focus-visible {
-			outline: 2px solid #000;
-			outline-offset: 2px;
+			outline: 3px solid $cp-yellow;
+			outline-offset: 3px;
 		}
 	}
 
+	// ---- No-image variant ----------------------------------------------
+	&--no-image &__content {
+		flex-basis: 100%;
+		align-items: center;
+		text-align: center;
+	}
+
+	&--no-image &__content::before {
+		display: none;
+	}
+
+	&--no-image &__tag,
 	&--no-image &__cta {
 		align-self: center;
 	}
+
+	&--no-image &__heading::after {
+		margin-right: auto;
+		margin-left: auto;
+	}
 }
 
-// Stack on small screens; keep the CTA visible without page scroll.
+// ---- Orchestrated entrance (Flowbite adds .flex on show) --------------
+@keyframes ats-cp-panel {
+	from {
+		opacity: 0;
+		transform: translateY(22px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes ats-cp-rise {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes ats-cp-zoom {
+	from {
+		transform: scale(1.1);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@keyframes ats-cp-pulse {
+	0%,
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	50% {
+		transform: scale(1.6);
+		opacity: 0.45;
+	}
+}
+
+.ats-clearance-popup-overlay.flex {
+	.ats-clearance-popup {
+		animation: ats-cp-panel 0.45s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+	}
+	.ats-clearance-popup__media img {
+		animation: ats-cp-zoom 7s ease-out both;
+	}
+	.ats-clearance-popup__tag {
+		animation: ats-cp-rise 0.55s 0.18s both;
+	}
+	.ats-clearance-popup__heading {
+		animation: ats-cp-rise 0.55s 0.26s both;
+	}
+	.ats-clearance-popup__description {
+		animation: ats-cp-rise 0.55s 0.34s both;
+	}
+	.ats-clearance-popup__cta {
+		animation: ats-cp-rise 0.55s 0.42s both;
+	}
+}
+
+// ---- Mobile: stack, banner image, full-width button -------------------
 @media (max-width: 600px) {
 	.ats-clearance-popup {
 		flex-direction: column;
-		max-height: 88vh;
+		max-height: 90vh;
 
 		&__media {
 			flex: 0 0 auto;
-			height: 140px;
+			height: 150px;
 		}
 
 		&__content {
-			padding: 24px;
+			justify-content: flex-start;
+			padding: 28px 22px 30px;
 		}
 
 		&__heading {
-			font-size: 22px;
+			font-size: 24px;
+		}
+
+		&__cta {
+			align-self: stretch;
+			justify-content: center;
 		}
 	}
 }
 
+// ---- Reduced motion ---------------------------------------------------
 @media (prefers-reduced-motion: reduce) {
-	.ats-clearance-popup {
+	.ats-clearance-popup-overlay.flex {
+		.ats-clearance-popup,
+		.ats-clearance-popup__media img,
+		.ats-clearance-popup__tag,
+		.ats-clearance-popup__heading,
+		.ats-clearance-popup__description,
+		.ats-clearance-popup__cta {
+			animation: none;
+		}
+	}
+
+	.ats-clearance-popup__tag::before {
+		animation: none;
+	}
+
+	.ats-clearance-popup__cta {
 		transition: none;
 	}
 }
