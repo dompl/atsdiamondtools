@@ -546,6 +546,65 @@ $cp-border: #ece8ea;
 }
 
 // =======================================================================
+// Staging-only preview reset button (bottom-right)
+// =======================================================================
+.ats-preview-reset {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	z-index: 9999; // above the pop-up so it stays clickable while previewing
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	color: #fff;
+	background: $cp-mauve;
+	border: 2px solid $cp-yellow;
+	border-radius: 999px;
+	box-shadow: 0 8px 24px -8px rgba(40, 28, 42, 0.6);
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 30px -8px rgba(40, 28, 42, 0.7);
+	}
+
+	&.is-busy {
+		opacity: 0.6;
+		pointer-events: none;
+	}
+
+	&.is-busy .ats-preview-reset__icon {
+		animation: ats-cp-spin 0.8s linear infinite;
+	}
+
+	&__icon {
+		width: 16px;
+		height: 16px;
+		color: $cp-yellow;
+	}
+}
+
+@keyframes ats-cp-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 600px) {
+	.ats-preview-reset {
+		padding: 12px;
+	}
+	.ats-preview-reset__label {
+		display: none;
+	}
+}
+
+// =======================================================================
 // Reduced motion
 // =======================================================================
 @media (prefers-reduced-motion: reduce) {
