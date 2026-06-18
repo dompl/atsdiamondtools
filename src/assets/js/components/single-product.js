@@ -473,10 +473,10 @@ function initVariationLogic() {
 				const stockQty = variation.max_qty;
 				const stockText = stockQty ? stockQty + ' in stock' : 'In Stock';
 				$availability.text(stockText);
-				$availability.removeClass('text-red-600').addClass('text-green-600');
+				$availability.removeClass('text-red-600 text-gray-500').addClass('text-green-600');
 			} else {
 				$availability.text('Out of Stock');
-				$availability.removeClass('text-green-600').addClass('text-red-600');
+				$availability.removeClass('text-green-600 text-gray-500').addClass('text-red-600');
 			}
 		}
 
@@ -823,6 +823,31 @@ function initCustomDropdowns() {
 			return formatPrice(minPrice) + ' - ' + formatPrice(maxPrice) + ' +VAT';
 		};
 
+		// Helper: get the attribute value for an option from a variation,
+		// tolerating the different key formats WooCommerce uses.
+		const getAttrValue = (variation, attrName, val) => {
+			const attrs = variation.attributes || {};
+			if (attrs[attrName] !== undefined) return attrs[attrName];
+			if (attrs['attribute_' + attrName] !== undefined) return attrs['attribute_' + attrName];
+			const withoutPrefix = attrName.replace('attribute_', '');
+			if (attrs[withoutPrefix] !== undefined) return attrs[withoutPrefix];
+			return undefined;
+		};
+
+		// Helper: an option is "out of stock" only when it maps to one or more
+		// concrete variations AND every one of them is out of stock. Options with
+		// no exact match (e.g. WooCommerce "Any") are never disabled, so we don't
+		// block valid multi-attribute combinations.
+		const isOptionOutOfStock = (val) => {
+			if (!variationsData.length) return false;
+			const matches = variationsData.filter((v) => {
+				const attrVal = getAttrValue(v, selectName, val);
+				return attrVal && attrVal === val;
+			});
+			if (!matches.length) return false;
+			return matches.every((v) => v.is_in_stock === false);
+		};
+
 		// Rebuild list
 		$select.find('option').each(function () {
 			const $opt = $(this);
@@ -831,20 +856,35 @@ function initCustomDropdowns() {
 
 			if (!value) return; // Skip placeholder
 
-			// Append Price with VAT
-			const price = getPriceForOption(value);
-			if (price) {
-				text += ` (${price})`;
+			const outOfStock = isOptionOutOfStock(value);
+
+			if (outOfStock) {
+				// Don't show a price for a dead-end option — flag it instead.
+				text += ' — Out of stock';
+			} else {
+				// Append Price with VAT
+				const price = getPriceForOption(value);
+				if (price) {
+					text += ` (${price})`;
+				}
 			}
 
 			const li = $('<li>');
-			const btn = $('<button type="button">').addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-1 hover:bg-brand-dark transition-colors duration-150').data('value', value).text(text);
+			const btn = $('<button type="button">').addClass('ats-dropdown-option w-full text-left inline-flex px-4 py-1 transition-colors duration-150').data('value', value).text(text);
 
-			// Active state
-			if (currentVal === value) {
-				btn.addClass('bg-gray-100 text-primary-600 font-bold');
+			if (outOfStock) {
+				// Disabled, non-selectable dead end.
+				btn.addClass('ats-dropdown-option-disabled text-gray-500 opacity-50 cursor-not-allowed')
+					.attr('aria-disabled', 'true')
+					.prop('disabled', true);
 			} else {
-				btn.addClass('text-white');
+				btn.addClass('hover:bg-brand-dark');
+				// Active state
+				if (currentVal === value) {
+					btn.addClass('bg-gray-100 text-primary-600 font-bold');
+				} else {
+					btn.addClass('text-white');
+				}
 			}
 
 			li.append(btn);
@@ -952,6 +992,12 @@ function initCustomDropdowns() {
 		e.stopPropagation();
 
 		const $option = $(this);
+
+		// Ignore clicks on out-of-stock (dead-end) options.
+		if ($option.hasClass('ats-dropdown-option-disabled')) {
+			return;
+		}
+
 		const value = $option.data('value');
 		const $wrapper = $option.closest('.flowbite-dropdown-wrapper');
 		const $select = $wrapper.find('select');

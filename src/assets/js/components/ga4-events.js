@@ -56,22 +56,27 @@
 	 * after any successful AJAX add to cart.
 	 */
 	function initAddToCart() {
-		// WooCommerce AJAX add to cart (archive pages, cross-sells, quick view)
+		// WooCommerce AJAX add to cart (archive pages, cross-sells, quick view, single product)
 		$(document.body).on('added_to_cart', function (e, fragments, cart_hash, $button) {
-			if (!$button || !$button.length) return;
+			$button = $button && $button.length ? $button : $();
 
 			var productId = $button.data('product-id') || $button.data('product_id');
-			if (!productId) return;
 
-			var item = getProductById(productId);
+			var item = productId ? getProductById(productId) : null;
 
-			// If we have the single product data (single product page)
+			// Single product page: the themed add-to-cart button carries no
+			// product-id, so fall back to the server-provided current-product
+			// data and reflect the selected variation's displayed price.
 			if (!item && themeData.ga4.product) {
-				item = themeData.ga4.product;
+				item = Object.assign({}, themeData.ga4.product);
+				var shownPrice = parseFloat(($('#ats-product-main-price').text() || '').replace(/[^0-9.]/g, ''));
+				if (shownPrice > 0) {
+					item.price = shownPrice;
+				}
 			}
 
-			// Fallback: build minimal item from button data
-			if (!item) {
+			// Fallback: build minimal item from button data (archive cards).
+			if (!item && productId) {
 				item = {
 					item_id: String(productId),
 					item_name: $button.closest('.product, [data-product-name]').find('.woocommerce-loop-product__title, [data-product-name]').first().text() || 'Product ' + productId,
@@ -80,6 +85,8 @@
 					item_brand: 'ATS Diamond Tools',
 				};
 			}
+
+			if (!item) return;
 
 			// Get quantity (default 1 for archive, check input for single)
 			var qty = parseInt($button.closest('form').find('input[name="quantity"]').val()) || item.quantity || 1;

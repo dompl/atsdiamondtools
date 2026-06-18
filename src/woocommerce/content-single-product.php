@@ -92,20 +92,32 @@ $product_id = $product->get_id();
                                 <!-- Availability -->
                                 <div class="flex flex-col gap-1">
                                     <span><?php esc_html_e( 'Availability:', 'woocommerce' ); ?></span>
-                                    <span id="ats-product-availability" class="font-bold <?php echo $product->is_in_stock() ? 'text-green-600' : 'text-red-600'; ?>">
+                                    <?php if ( $product->is_type( 'variable' ) ) : ?>
                                         <?php
-                                        if ( $product->is_in_stock() ) {
-                                            $stock_quantity = $product->get_stock_quantity();
-                                            if ( $stock_quantity ) {
-                                                echo sprintf( esc_html__( '%s in stock', 'woocommerce' ), $stock_quantity );
-                                            } else {
-                                                esc_html_e( 'In Stock', 'woocommerce' );
-                                            }
-                                        } else {
-                                            esc_html_e( 'Out of Stock', 'woocommerce' );
-                                        }
+                                        // For variable products the per-variation stock isn't known until a
+                                        // variation is selected. Show a neutral prompt instead of a misleading
+                                        // top-level "In Stock"; JS (single-product.js) swaps this to the
+                                        // selected variation's real stock on `found_variation`.
                                         ?>
-                                    </span>
+                                        <span id="ats-product-availability" class="font-bold text-gray-500">
+                                            <?php esc_html_e( 'Select an option', 'woocommerce' ); ?>
+                                        </span>
+                                    <?php else : ?>
+                                        <span id="ats-product-availability" class="font-bold <?php echo $product->is_in_stock() ? 'text-green-600' : 'text-red-600'; ?>">
+                                            <?php
+                                            if ( $product->is_in_stock() ) {
+                                                $stock_quantity = $product->get_stock_quantity();
+                                                if ( $stock_quantity ) {
+                                                    echo sprintf( esc_html__( '%s in stock', 'woocommerce' ), esc_html( $stock_quantity ) );
+                                                } else {
+                                                    esc_html_e( 'In Stock', 'woocommerce' );
+                                                }
+                                            } else {
+                                                esc_html_e( 'Out of Stock', 'woocommerce' );
+                                            }
+                                            ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
 
                                 <!-- Brand -->

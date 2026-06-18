@@ -20,6 +20,28 @@ if ( ! defined( 'ATS_GA4_MEASUREMENT_ID' ) || empty( ATS_GA4_MEASUREMENT_ID ) ) 
 }
 
 /**
+ * Whether the current session should be excluded from analytics.
+ *
+ * Logged-in staff (anyone who can edit content or manage the store) shouldn't
+ * pollute GA4 with internal traffic. Page cache is bypassed for logged-in
+ * users, so this per-request capability check is safe. Filterable so the
+ * exclusion can be widened/narrowed without touching the tracking code.
+ *
+ * @return bool True if analytics should be suppressed for this user.
+ */
+function ats_ga4_is_excluded_user() {
+    $excluded = is_user_logged_in()
+        && ( current_user_can( 'edit_posts' ) || current_user_can( 'manage_woocommerce' ) );
+
+    /**
+     * Filter whether the current user is excluded from analytics tracking.
+     *
+     * @param bool $excluded Whether the user is excluded.
+     */
+    return (bool) apply_filters( 'ats_ga4_exclude_user', $excluded );
+}
+
+/**
  * Build a GA4 item array from a WC_Product.
  *
  * @param WC_Product $product  WooCommerce product object.
@@ -457,6 +479,11 @@ function ats_ga4_signup_event() {
  * @param array  $params     Event parameters.
  */
 function ats_ga4_push_event( $event_name, $params = [] ) {
+    // Suppress all server-side events for excluded internal/staff traffic.
+    if ( ats_ga4_is_excluded_user() ) {
+        return;
+    }
+
     $json = wp_json_encode( $params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
     ?>
     <script>

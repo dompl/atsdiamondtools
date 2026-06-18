@@ -216,6 +216,10 @@ function ats_handle_filter_products() {
 		}
 	}
 
+	// Price range for the current category so the sidebar slider can resync
+	// after a category change.
+	$price_range = ats_get_price_range_for_products( $category );
+
 	// Send success response.
 	wp_send_json_success(
 		array(
@@ -228,6 +232,7 @@ function ats_handle_filter_products() {
 			'has_prev'       => $current_page > 1,
 			'has_next'       => $current_page < $max_pages,
 			'banner_data'    => $banner_data,
+			'price_range'    => $price_range,
 		)
 	);
 }

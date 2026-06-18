@@ -58,6 +58,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	const productsContainerEl = document.querySelector('.rfs-ref-products-container');
 	const initialCategory = productsContainerEl ? parseInt(productsContainerEl.dataset.currentCategory) || 0 : 0;
 
+	// Read per_page from the server-rendered container so AJAX requests stay
+	// in sync with the initial render and don't refetch already-visible products.
+	const initialPerPage = productsContainerEl && productsContainerEl.dataset.perPage
+		? parseInt(productsContainerEl.dataset.perPage) || 12
+		: 12;
+
 	// Get saved view mode from localStorage or default to grid
 	const savedViewMode = localStorage.getItem('ats_product_view_mode') || 'grid';
 
@@ -72,6 +78,39 @@ document.addEventListener('DOMContentLoaded', function() {
 		favourites_only: false,
 		view_mode: savedViewMode
 	};
+
+	/**
+	 * Sync the dual range slider to a new min/max range (used when the category
+	 * changes and the price range of the visible products shifts).
+	 */
+	function syncPriceSliderRange(newMin, newMax) {
+		if (!priceSliderMin || !priceSliderMax) return;
+
+		const min = parseInt(newMin);
+		const max = parseInt(newMax);
+		if (isNaN(min) || isNaN(max) || max <= min) return;
+
+		priceSliderMin.min = min;
+		priceSliderMin.max = max;
+		priceSliderMin.value = min;
+
+		priceSliderMax.min = min;
+		priceSliderMax.max = max;
+		priceSliderMax.value = max;
+
+		if (priceMinValue) priceMinValue.textContent = '£' + min;
+		if (priceMaxValue) priceMaxValue.textContent = '£' + max;
+
+		if (priceSliderTrack) {
+			priceSliderTrack.style.left = '0%';
+			priceSliderTrack.style.width = '100%';
+		}
+
+		// Reset the active filter range so subsequent AJAX calls use the
+		// new bounds (otherwise stale min/max from the old category persist).
+		currentFilters.min_price = min;
+		currentFilters.max_price = max;
+	}
 
 	/**
 	 * Show loading state
@@ -334,8 +373,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 
-		// Use consistent per_page value to prevent pagination offset issues
-		formData.append('per_page', 12);
+		// Use the server-rendered per_page so AJAX pagination offsets line up
+		// with the products that were already rendered on initial page load.
+		formData.append('per_page', initialPerPage);
 
 		try {
 			const response = await fetch(themeData.ajax_url, {
@@ -355,6 +395,12 @@ document.addEventListener('DOMContentLoaded', function() {
 				// Update banner if data is provided (only on filter change, not on infinite scroll)
 				if (!loadMore && data.data.banner_data) {
 					updateCategoryBanner(data.data.banner_data);
+				}
+
+				// Resync the price slider when the category just changed so the
+				// min/max reflect the new category's price range.
+				if (!loadMore && newFilters && Object.prototype.hasOwnProperty.call(newFilters, 'category') && data.data.price_range) {
+					syncPriceSliderRange(data.data.price_range.min, data.data.price_range.max);
 				}
 
 				// Update max pages from response
@@ -406,8 +452,10 @@ document.addEventListener('DOMContentLoaded', function() {
 				this.classList.remove('text-gray-700');
 				this.classList.add('bg-primary-600', 'text-white', 'font-bold');
 
-				// Filter by category
-				filterProducts({ category: categoryId });
+				// Filter by category. Clear the price filter so a previously
+				// narrowed slider can't filter out products in the new category;
+				// the slider will resync to the new range when the response arrives.
+				filterProducts({ category: categoryId, min_price: 0, max_price: 0 });
 			});
 		});
 	}

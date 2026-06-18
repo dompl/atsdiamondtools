@@ -38,8 +38,12 @@ $price_range = ats_get_price_range_for_products( $current_category );
 $sorting_options    = ats_get_sorting_options();
 $current_sort_label = ats_get_current_sorting_label( $current_orderby );
 
-// Get products per page - will load 8 initially, then 4 at a time on scroll.
-$products_per_page = 8;
+// Use the actual per_page value applied to the main query so AJAX pagination
+// stays in sync. Falls back to the WooCommerce default if not yet set.
+$products_per_page = (int) $GLOBALS['wp_query']->get( 'posts_per_page' );
+if ( $products_per_page <= 0 ) {
+	$products_per_page = (int) apply_filters( 'loop_shop_per_page', wc_get_default_products_per_row() * wc_get_default_product_rows_per_page() );
+}
 ?>
 
 <div class="rfs-ref-shop-page bg-white min-h-screen">
@@ -471,7 +475,7 @@ $products_per_page = 8;
 				</div>
 
 				<!-- Products Grid Container -->
-				<div class="rfs-ref-products-container relative" data-current-category="<?php echo esc_attr( $current_category ); ?>">
+				<div class="rfs-ref-products-container relative" data-current-category="<?php echo esc_attr( $current_category ); ?>" data-per-page="<?php echo esc_attr( $products_per_page ); ?>">
 
 					<!-- Loading Overlay (covers products during AJAX) -->
 					<div class="rfs-ref-loading-overlay hidden absolute inset-0 z-10 flex items-center justify-center bg-white/70">
