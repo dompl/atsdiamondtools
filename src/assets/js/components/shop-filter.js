@@ -251,79 +251,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
-	 * Update or hide category banner
-	 * @param {object} bannerData - Banner data from Ajax response
+	 * Replace the category banner region with server-rendered markup.
+	 * PHP (ats_get_category_banner_html) is the single source of truth, so the
+	 * AJAX banner is identical to a full page load: breadcrumb, ACF blurb and
+	 * the full-description band all update together.
+	 * @param {string} html - Rendered .rfs-ref-category-banner-region markup
 	 */
-	function updateCategoryBanner(bannerData) {
-		let bannerContainer = document.querySelector('.rfs-ref-shop-container');
-		let existingBanner = document.querySelector('.rfs-ref-category-banner');
+	function updateCategoryBanner(html) {
+		if (typeof html !== 'string' || html.trim() === '') {
+			return;
+		}
 
-		if (bannerData && bannerData.show_banner) {
-			// Create or update banner
-			const bannerHTML = `
-				<div class="rfs-ref-category-banner relative h-[200px] md:h-[250px] overflow-hidden rounded-lg">
-					<!-- Background Image -->
-					<div class="absolute inset-0">
-						<img src="${bannerData.banner_image}"
-						     alt="${bannerData.category_name}"
-						     class="w-full h-full object-cover" />
-						<div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
-					</div>
+		const region = document.querySelector('.rfs-ref-category-banner-region');
+		if (region) {
+			// Swap the whole region; the new markup carries its own data-cat.
+			region.outerHTML = html;
+			return;
+		}
 
-					<!-- Decorative Brand Elements -->
-					<div class="rfs-ref-banner-decorations absolute inset-0 pointer-events-none opacity-20">
-						<!-- Large Circle - Top Right -->
-						<div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-600 blur-3xl"></div>
-						<!-- Medium Circle - Bottom Left -->
-						<div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-ats-yellow blur-2xl"></div>
-						<!-- Small Accent - Middle -->
-						<div class="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-primary-300 blur-xl"></div>
-					</div>
+		// No existing region (e.g. selecting a category from the main shop page):
+		// insert the new region above the products grid and drop the shop banner
+		// so the two don't stack.
+		const productsContainer = document.querySelector('.rfs-ref-products-container');
+		if (!productsContainer) {
+			return;
+		}
+		const gridWrapper = productsContainer.closest('.rfs-ref-shop-container') || productsContainer;
+		const temp = document.createElement('div');
+		temp.innerHTML = html.trim();
+		const newRegion = temp.firstElementChild;
+		if (!newRegion) {
+			return;
+		}
+		gridWrapper.parentNode.insertBefore(newRegion, gridWrapper);
 
-					<!-- Content -->
-					<div class="rfs-ref-category-banner-content relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
-						<div class="max-w-3xl">
-							<h1 class="rfs-ref-category-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-								${bannerData.category_name}
-							</h1>
-							${bannerData.category_desc ? `
-								<div class="rfs-ref-category-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
-									${bannerData.category_desc}
-								</div>
-							` : ''}
-						</div>
-					</div>
-				</div>
-			`;
-
-			if (existingBanner) {
-				// Update existing banner
-				existingBanner.outerHTML = bannerHTML;
-			} else {
-				// Create banner container if it doesn't exist
-				if (!bannerContainer) {
-					const productsContainer = document.querySelector('.rfs-ref-products-container');
-					if (productsContainer) {
-						bannerContainer = document.createElement('div');
-						bannerContainer.className = 'rfs-ref-shop-container container mx-auto px-4 pt-8 mb-8';
-						productsContainer.parentNode.insertBefore(bannerContainer, productsContainer);
-					}
-				}
-
-				if (bannerContainer) {
-					bannerContainer.innerHTML = bannerHTML;
-				}
-			}
-		} else {
-			// Hide banner when "All Products" is selected
-			if (existingBanner) {
-				const bannerWrapper = existingBanner.parentElement;
-				if (bannerWrapper && bannerWrapper.classList.contains('rfs-ref-shop-container')) {
-					bannerWrapper.remove();
-				} else {
-					existingBanner.remove();
-				}
-			}
+		const shopBanner = document.querySelector('.rfs-ref-shop-banner');
+		if (shopBanner) {
+			const shopWrap = shopBanner.closest('.rfs-ref-shop-container');
+			(shopWrap || shopBanner).remove();
 		}
 	}
 
@@ -392,9 +357,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				// Update counts - for infinite scroll, showing_end is cumulative
 				updateResultsCount(data.data.showing_end, data.data.total_products);
 
-				// Update banner if data is provided (only on filter change, not on infinite scroll)
-				if (!loadMore && data.data.banner_data) {
-					updateCategoryBanner(data.data.banner_data);
+				// Update banner only on a filter change (not infinite scroll) and
+				// only when the category actually changed, so sort/price/application
+				// filters don't needlessly reflash the banner image.
+				if (!loadMore && typeof data.data.banner_html === 'string') {
+					const bannerRegion = document.querySelector('.rfs-ref-category-banner-region');
+					const newCat = String(data.data.category || '');
+					const curCat = bannerRegion ? (bannerRegion.dataset.cat || '') : '';
+					if (newCat && newCat !== curCat) {
+						updateCategoryBanner(data.data.banner_html);
+					}
 				}
 
 				// Resync the price slider when the category just changed so the

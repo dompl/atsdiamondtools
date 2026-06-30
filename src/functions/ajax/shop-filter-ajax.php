@@ -192,29 +192,13 @@ function ats_handle_filter_products() {
 
 	wp_reset_postdata();
 
-	// Get banner data for category pages
-	$banner_data = array(
-		'show_banner'   => false,
-		'category_name' => '',
-		'category_desc' => '',
-		'banner_image'  => '',
-	);
-
-	if ( $category > 0 ) {
-		$category_term = get_term( $category, 'product_cat' );
-		if ( $category_term && ! is_wp_error( $category_term ) ) {
-			$thumbnail_id        = get_term_meta( $category, 'thumbnail_id', true );
-			$banner_image_id     = $thumbnail_id ? $thumbnail_id : 43462;
-			$banner_image_url    = wpimage( $banner_image_id, array( 1920, 400 ), false, true, true, true, 85 );
-
-			$banner_data = array(
-				'show_banner'   => true,
-				'category_name' => $category_term->name,
-				'category_desc' => $category_term->description,
-				'banner_image'  => $banner_image_url,
-			);
-		}
-	}
+	// Render the full banner region (hero banner + description band) from the
+	// shared helper, so AJAX category browsing produces identical markup to a
+	// full page load (breadcrumb, ACF banner blurb and the description band all
+	// update together). Empty string on the shop page / "All products".
+	$banner_html = ( $category > 0 && function_exists( 'ats_get_category_banner_html' ) )
+		? ats_get_category_banner_html( $category )
+		: '';
 
 	// Price range for the current category so the sidebar slider can resync
 	// after a category change.
@@ -231,7 +215,8 @@ function ats_handle_filter_products() {
 			'current_page'   => $current_page,
 			'has_prev'       => $current_page > 1,
 			'has_next'       => $current_page < $max_pages,
-			'banner_data'    => $banner_data,
+			'category'       => $category,
+			'banner_html'    => $banner_html,
 			'price_range'    => $price_range,
 		)
 	);

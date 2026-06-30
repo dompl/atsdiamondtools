@@ -49,85 +49,14 @@ if ( $products_per_page <= 0 ) {
 <div class="rfs-ref-shop-page bg-white min-h-screen">
 
 	<?php
-	// Category Banner (for category pages only)
+	// Category Banner (for category pages only). Rendered through the shared
+	// ats_get_category_banner_html() helper so the AJAX filter handler outputs
+	// identical markup when browsing between categories with AJAX.
 	if ( is_product_category() ) :
 		$queried_object = get_queried_object();
-		$category_name  = $queried_object->name;
-		$category_desc  = $queried_object->description;
-
-		// Get category image or fallback to default
-		$thumbnail_id = get_term_meta( $queried_object->term_id, 'thumbnail_id', true );
-		$banner_image_id = $thumbnail_id ? $thumbnail_id : 43462; // Fallback to image ID 43462
-
-		// Use wpimage() to get the image URL with retina support
-		$banner_image_url = wpimage( $banner_image_id, [1920, 400], false, true, true, true, 85 );
-		?>
-
-		<!-- Category Banner -->
-		<div class="rfs-ref-shop-container container mx-auto px-4 pt-4 mb-6">
-			<div class="rfs-ref-category-banner relative h-[200px] md:h-[250px] overflow-hidden rounded-lg">
-				<!-- Background Image -->
-				<div class="absolute inset-0">
-					<img src="<?php echo esc_url( $banner_image_url ); ?>"
-					     alt="<?php echo esc_attr( $category_name ); ?>"
-					     class="w-full h-full object-cover" />
-					<!-- Overlay Gradient -->
-					<div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
-				</div>
-
-				<!-- Decorative Brand Elements -->
-				<div class="rfs-ref-banner-decorations absolute inset-0 pointer-events-none opacity-20">
-					<!-- Large Circle - Top Right -->
-					<div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-600 blur-3xl"></div>
-					<!-- Medium Circle - Bottom Left -->
-					<div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-ats-yellow blur-2xl"></div>
-					<!-- Small Accent - Middle -->
-					<div class="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-primary-300 blur-xl"></div>
-				</div>
-
-				<!-- Content -->
-				<div class="rfs-ref-category-banner-content relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
-					<div class="max-w-3xl">
-						<?php if ( function_exists( 'woocommerce_breadcrumb' ) ) : ?>
-							<div class="rfs-ref-category-breadcrumbs text-xs md:text-sm text-gray-200 mb-3 drop-shadow [&_a]:text-gray-200 [&_a:hover]:text-white [&_a:hover]:underline">
-								<?php woocommerce_breadcrumb( array( 'delimiter' => '<span class="mx-2 opacity-60">/</span>', 'wrap_before' => '<nav class="woocommerce-breadcrumb flex flex-wrap items-center" aria-label="Breadcrumb">', 'wrap_after' => '</nav>' ) ); ?>
-							</div>
-						<?php endif; ?>
-
-						<h1 class="rfs-ref-category-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-							<?php echo esc_html( $category_name ); ?>
-						</h1>
-
-						<?php
-						$category_banner_desc = function_exists( 'get_field' ) ? get_field( 'category_banner_description', $queried_object ) : '';
-						if ( ! empty( $category_banner_desc ) ) : ?>
-							<div class="rfs-ref-category-banner-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
-								<?php echo wp_kses_post( $category_banner_desc ); ?>
-							</div>
-						<?php endif; ?>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<?php if ( ! empty( $category_desc ) ) : ?>
-			<!-- Full Category Description (below banner) -->
-			<div class="rfs-ref-shop-container container mx-auto px-4 mb-6">
-				<div class="rfs-ref-category-full-description relative overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-r from-gray-50 via-white to-gray-50 px-5 py-4 md:px-7 md:py-4">
-					<span class="absolute inset-y-0 left-0 w-1 bg-ats-yellow" aria-hidden="true"></span>
-					<div class="flex items-start gap-3 md:gap-4">
-						<span class="hidden sm:flex shrink-0 items-center justify-center w-9 h-9 rounded-full bg-primary-600/10 text-primary-700 mt-0.5" aria-hidden="true">
-							<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-						</span>
-						<div class="rfs-ref-category-description-text text-sm md:text-base text-gray-600 leading-relaxed [&_p]:m-0 [&_a]:text-primary-700 [&_a]:font-semibold [&_a:hover]:underline">
-							<?php echo wp_kses_post( $category_desc ); ?>
-						</div>
-					</div>
-				</div>
-			</div>
-		<?php endif; ?>
-
-	<?php else : ?>
+		echo ats_get_category_banner_html( $queried_object->term_id ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within the helper.
+	else :
+	?>
 
 		<!-- Shop Page Banner (for main shop page) -->
 		<?php
