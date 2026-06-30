@@ -1,4 +1,4 @@
-	<?php
+<?php
 function ats_banner_html() {
     ob_start();
     ?>
@@ -62,4 +62,3 @@ function ats_banner_html() {
 		<?php
 return ob_get_clean();
 }
-?>
