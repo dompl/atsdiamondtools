@@ -14,7 +14,16 @@ add_action( 'wp_enqueue_scripts', function () {
     }
 
     // Enqueue the child theme's main stylesheet.
-    wp_enqueue_style( 'child-theme-style', get_stylesheet_uri(), ( get_template() !== get_stylesheet() ? ['parent-style'] : [] ) );
+    // The parent theme strips only the `ver` query arg (security + performance
+    // modules), so a standard $ver would never bust the cache. We append a
+    // custom `c` key derived from the compiled file's mtime; it survives the
+    // stripping and forces browsers to re-download whenever the build changes.
+    $child_css_path = get_stylesheet_directory() . '/style.css';
+    $child_css_uri  = get_stylesheet_uri();
+    if ( file_exists( $child_css_path ) ) {
+        $child_css_uri = add_query_arg( 'c', filemtime( $child_css_path ), $child_css_uri );
+    }
+    wp_enqueue_style( 'child-theme-style', $child_css_uri, ( get_template() !== get_stylesheet() ? ['parent-style'] : [] ), null );
 
     // Conditionally enqueue build.css files in the development environment only.
     if ( wp_get_environment_type() === 'staging' ) {
@@ -68,7 +77,10 @@ add_action( 'wp_enqueue_scripts', function () {
         $bundle_js_version = '1.0.0'; // Fallback version if file doesn't exist.
     }
 
-    wp_enqueue_script( 'child-bundle', $bundle_js_uri, ['jquery'], $bundle_js_version, true );
+    // Same cache-bust treatment as the stylesheet: a `ver` query is stripped by
+    // the parent, so append a surviving `c` key and pass null as the version.
+    $bundle_js_uri = add_query_arg( 'c', $bundle_js_version, $bundle_js_uri );
+    wp_enqueue_script( 'child-bundle', $bundle_js_uri, ['jquery'], null, true );
     wp_script_add_data( 'child-bundle', 'strategy', 'defer' );
 
     // Localise script to add dynamic data to bundle.js.

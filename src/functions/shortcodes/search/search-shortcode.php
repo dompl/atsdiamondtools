@@ -98,7 +98,7 @@ function ats_render_search_shortcode( $atts = array() ) {
 			<div class="flex-1 flex items-center px-3 min-w-56">
 				<input
 					type="text"
-					class="js-search-input w-full border-0 focus:ring-0 text-ats-text text-xs font-light font-['Inter'] placeholder:text-ats-text placeholder:opacity-70 bg-transparent"
+					class="js-search-input w-full border-0 focus:ring-0 text-ats-text text-xs font-light font-[inherit] placeholder:text-ats-text placeholder:opacity-70 bg-transparent"
 					placeholder="<?php esc_attr_e( 'Search over 1000 products', 'ats' ); ?>"
 					autocomplete="off"
 				>

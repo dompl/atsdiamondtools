@@ -52,7 +52,7 @@ get_header();
 					<div class="absolute inset-0 bg-gradient-to-t from-ats-dark via-ats-dark/70 to-transparent"></div>
 				</div>
 
-				<div class="rfs-ref-post-hero-content relative container mx-auto px-4 py-20 md:py-32">
+				<div class="rfs-ref-post-hero-content relative container mx-auto px-4 py-12 md:py-16">
 					<div class="max-w-4xl">
 						<!-- Categories -->
 						<?php
@@ -169,27 +169,34 @@ get_header();
 
 						<!-- Post Navigation -->
 						<div class="rfs-ref-post-navigation mt-12 pt-8 border-t border-gray-200">
-							<div class="flex flex-wrap items-center justify-between gap-4 text-sm">
-								<?php
-								$prev_post = get_previous_post();
-								$next_post = get_next_post();
-								?>
+							<?php
+							$prev_post = get_previous_post();
+							$next_post = get_next_post();
+							$blog_link = get_option( 'page_for_posts' ) ? get_permalink( (int) get_option( 'page_for_posts' ) ) : home_url( '/blog/' );
+							?>
+							<div class="flex flex-wrap items-center justify-between gap-4">
 
-								<!-- Previous Post -->
-								<?php if ($prev_post) : ?>
-									<a href="<?php echo get_permalink($prev_post); ?>" class="rfs-ref-nav-prev text-ats-dark hover:text-primary-700 hover:underline">
-										← Previous Article: <?php echo get_the_title($prev_post); ?>
-									</a>
-								<?php else: ?>
-									<span></span>
-								<?php endif; ?>
+								<!-- Return to listing -->
+								<a href="<?php echo esc_url( $blog_link ); ?>" class="rfs-ref-nav-back inline-flex items-center gap-2 text-sm font-semibold text-ats-dark hover:text-primary-700 transition-colors">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+									Return to blog listing
+								</a>
 
-								<!-- Next Post -->
-								<?php if ($next_post) : ?>
-									<a href="<?php echo get_permalink($next_post); ?>" class="rfs-ref-nav-next text-ats-dark hover:text-primary-700 hover:underline text-right">
-										Next Article: <?php echo get_the_title($next_post); ?> →
-									</a>
-								<?php endif; ?>
+								<!-- Prev / Next badges -->
+								<div class="rfs-ref-nav-badges flex items-center gap-2">
+									<?php if ($next_post) : ?>
+										<a href="<?php echo esc_url( get_permalink($next_post) ); ?>" class="rfs-ref-nav-next inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-ats-dark hover:bg-ats-yellow hover:border-ats-yellow transition-colors">
+											Next article
+											<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+										</a>
+									<?php endif; ?>
+									<?php if ($prev_post) : ?>
+										<a href="<?php echo esc_url( get_permalink($prev_post) ); ?>" class="rfs-ref-nav-prev inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-ats-dark hover:bg-ats-yellow hover:border-ats-yellow transition-colors">
+											<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+											Previous article
+										</a>
+									<?php endif; ?>
+								</div>
 							</div>
 						</div>
 
