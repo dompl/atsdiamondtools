@@ -14,6 +14,7 @@ if ( defined( 'ATS_PRODUCT_CATEGORY_SETTINGS_LOADED' ) ) {
 }
 define( 'ATS_PRODUCT_CATEGORY_SETTINGS_LOADED', true );
 
+use Extended\ACF\Fields\Text;
 use Extended\ACF\Fields\Textarea;
 use Extended\ACF\Location;
 
@@ -25,6 +26,9 @@ if ( function_exists( 'register_extended_field_group' ) ) {
         'title'    => 'Category Banner Settings',
         'key'      => 'group_product_category_banner',
         'fields'   => [
+            Text::make( 'Category H1 Heading', 'category_h1' )
+                ->helperText( 'Optional. Overrides the visible H1 heading in the category banner. The navigation label and breadcrumb still use the category name, so keep nav short. Use a keyword-rich heading, e.g. "Diamond Cutting Blades". Leave blank to use the category name.' )
+                ->maxLength( 80 ),
             Textarea::make( 'Category Navigation Short Description', 'category_nav_short_description' )
                 ->helperText( 'Short description displayed in the banner category navigation sidebar. Keep it concise (e.g., "High-performance core drills and bits").' )
                 ->rows( 2 )

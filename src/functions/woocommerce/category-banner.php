@@ -82,6 +82,11 @@ function ats_get_category_banner_html( $term_id ) {
 	// ACF short banner blurb (reads term meta; query-context independent).
 	$category_banner_desc = function_exists( 'get_field' ) ? get_field( 'category_banner_description', $term ) : '';
 
+	// Optional H1 override: a keyword-rich heading that replaces the bare term
+	// name in the banner H1, while nav labels and breadcrumbs keep the term name.
+	$category_h1 = function_exists( 'get_field' ) ? (string) get_field( 'category_h1', $term ) : '';
+	$heading     = '' !== trim( $category_h1 ) ? $category_h1 : $category_name;
+
 	ob_start();
 	?>
 	<div class="rfs-ref-category-banner-region" data-cat="<?php echo esc_attr( $term_id ); ?>">
@@ -113,7 +118,7 @@ function ats_get_category_banner_html( $term_id ) {
 						</div>
 
 						<h1 class="rfs-ref-category-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-							<?php echo esc_html( $category_name ); ?>
+							<?php echo esc_html( $heading ); ?>
 						</h1>
 
 						<?php if ( ! empty( $category_banner_desc ) ) : ?>
