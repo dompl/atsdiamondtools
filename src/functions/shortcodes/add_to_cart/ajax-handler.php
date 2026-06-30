@@ -317,6 +317,12 @@ function ats_get_cart_items_html( $cart_items ) {
 						<span class="text-sm font-semibold text-ats-dark"><?php echo wp_kses_post( $item['subtotal'] ); ?></span>
 					</div>
 				</div>
+				<?php
+				// "Upgrade to the kit" upsell banner (renders only for kit components).
+				if ( function_exists( 'ats_bundle_render_minicart_upsell' ) ) {
+					echo ats_bundle_render_minicart_upsell( $item['product_id'], $item['key'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within function.
+				}
+				?>
         <?php endforeach; ?>
     </div>
     <?php

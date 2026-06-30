@@ -88,19 +88,44 @@ if ( $products_per_page <= 0 ) {
 				<!-- Content -->
 				<div class="rfs-ref-category-banner-content relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
 					<div class="max-w-3xl">
+						<?php if ( function_exists( 'woocommerce_breadcrumb' ) ) : ?>
+							<div class="rfs-ref-category-breadcrumbs text-xs md:text-sm text-gray-200 mb-3 drop-shadow [&_a]:text-gray-200 [&_a:hover]:text-white [&_a:hover]:underline">
+								<?php woocommerce_breadcrumb( array( 'delimiter' => '<span class="mx-2 opacity-60">/</span>', 'wrap_before' => '<nav class="woocommerce-breadcrumb flex flex-wrap items-center" aria-label="Breadcrumb">', 'wrap_after' => '</nav>' ) ); ?>
+							</div>
+						<?php endif; ?>
+
 						<h1 class="rfs-ref-category-title text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 drop-shadow-lg">
 							<?php echo esc_html( $category_name ); ?>
 						</h1>
 
-						<?php if ( ! empty( $category_desc ) ) : ?>
-							<div class="rfs-ref-category-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
-								<?php echo wp_kses_post( $category_desc ); ?>
+						<?php
+						$category_banner_desc = function_exists( 'get_field' ) ? get_field( 'category_banner_description', $queried_object ) : '';
+						if ( ! empty( $category_banner_desc ) ) : ?>
+							<div class="rfs-ref-category-banner-description text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl drop-shadow-md">
+								<?php echo wp_kses_post( $category_banner_desc ); ?>
 							</div>
 						<?php endif; ?>
 					</div>
 				</div>
 			</div>
 		</div>
+
+		<?php if ( ! empty( $category_desc ) ) : ?>
+			<!-- Full Category Description (below banner) -->
+			<div class="rfs-ref-shop-container container mx-auto px-4 mb-6">
+				<div class="rfs-ref-category-full-description relative overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-r from-gray-50 via-white to-gray-50 px-5 py-4 md:px-7 md:py-4">
+					<span class="absolute inset-y-0 left-0 w-1 bg-ats-yellow" aria-hidden="true"></span>
+					<div class="flex items-start gap-3 md:gap-4">
+						<span class="hidden sm:flex shrink-0 items-center justify-center w-9 h-9 rounded-full bg-primary-600/10 text-primary-700 mt-0.5" aria-hidden="true">
+							<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+						</span>
+						<div class="rfs-ref-category-description-text text-sm md:text-base text-gray-600 leading-relaxed [&_p]:m-0 [&_a]:text-primary-700 [&_a]:font-semibold [&_a:hover]:underline">
+							<?php echo wp_kses_post( $category_desc ); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
 
 	<?php else : ?>
 

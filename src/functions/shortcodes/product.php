@@ -137,10 +137,21 @@ if ( !function_exists( 'ats_get_product_price_html' ) ) {
     function ats_get_product_price_html( $product ) {
         if ( $product->is_type( 'variable' ) ) {
             $min_price = $product->get_variation_price( 'min', true );
-            return 'From: ' . wc_price( $min_price ) . ' +VAT';
+            $html      = 'From: ' . wc_price( $min_price ) . ' +VAT';
         } else {
-            return wc_price( $product->get_price() ) . ' +VAT';
+            $html = wc_price( $product->get_price() ) . ' +VAT';
         }
+
+        /**
+         * Filter the single-product main price HTML.
+         *
+         * Allows bundles (and other custom product types) to inject a richer
+         * price block (e.g. a "Save £X" badge + option-aware markup).
+         *
+         * @param string     $html    The price HTML.
+         * @param WC_Product $product The product.
+         */
+        return apply_filters( 'ats_product_price_html', $html, $product );
     }
 }
 
@@ -214,11 +225,9 @@ if ( !function_exists( 'ats_render_product_card' ) ) {
 		<button class="rfs-ref-product-expand-btn absolute top-2 right-2 z-10 p-0 hover:opacity-70 transition-opacity hover:bcg-accent-yellow ats-expand-product" aria-label="Expand product">
 			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#DEDEDE"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>
 		</button>
-		<div class="rfs-ref-product-favorite-heart absolute top-2 left-2 z-10">
-			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
-		</div>
 		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-image-link relative mb-4 flex justify-center">
 			<?php if ( ats_is_clearance_product( $product->get_id() ) ) : ?><span class="ats-clearance-product-badge">Clearance</span><?php endif; ?>
+		<?php if ( function_exists( 'ats_is_bundle' ) && ats_is_bundle( $product ) && ats_bundle_max_save( $product->get_id() ) > 0 ) : ?><span class="ats-bundle-save-badge">Save <?php echo wp_kses_post( wc_price( ats_bundle_max_save( $product->get_id() ) ) ); ?></span><?php endif; ?>
 			<img
 				src="<?php echo esc_url( $img_1x ); ?>"
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
@@ -307,11 +316,9 @@ if ( !function_exists( 'ats_render_product_list' ) ) {
 		<button class="rfs-ref-product-list-expand-btn ats-expand-product absolute top-2 right-2 z-10 p-0 hover:opacity-70 transition-opacity" aria-label="Expand product">
 			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#DEDEDE"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>
 		</button>
-		<div class="rfs-ref-product-list-favorite-heart absolute top-2 left-2 z-10">
-			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
-		</div>
 		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-list-image-link flex-shrink-0 flex items-center relative">
 			<?php if ( ats_is_clearance_product( $product->get_id() ) ) : ?><span class="ats-clearance-product-badge ats-clearance-product-badge--sm">Clearance</span><?php endif; ?>
+			<?php if ( function_exists( 'ats_is_bundle' ) && ats_is_bundle( $product ) && ats_bundle_max_save( $product->get_id() ) > 0 ) : ?><span class="ats-bundle-save-badge ats-bundle-save-badge--sm">Save <?php echo wp_kses_post( wc_price( ats_bundle_max_save( $product->get_id() ) ) ); ?></span><?php endif; ?>
 			<img
 				src="<?php echo esc_url( $img_1x ); ?>"
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>
@@ -400,11 +407,9 @@ if ( !function_exists( 'ats_render_product_compact' ) ) {
         ob_start();
         ?>
 	<div class="rfs-ref-product-compact ats-product-compact flex gap-2 lg:gap-3 p-2 lg:p-3 bg-white border border-neutral-200 hover:border-accent-yellow rounded-lg transition-colors relative" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>" data-display-type="3">
-		<div class="rfs-ref-product-compact-favorite-heart absolute top-1.5 left-1.5 lg:top-2 lg:left-2 z-10">
-			<?php get_template_part( 'functions/template-parts/favorites-heart', null, array( 'product_id' => $product->get_id() ) ); ?>
-		</div>
 		<a href="<?php echo esc_url( $product_url ); ?>" class="rfs-ref-product-compact-image-link flex-shrink-0 relative">
 			<?php if ( ats_is_clearance_product( $product->get_id() ) ) : ?><span class="ats-clearance-product-badge ats-clearance-product-badge--sm">Clearance</span><?php endif; ?>
+			<?php if ( function_exists( 'ats_is_bundle' ) && ats_is_bundle( $product ) && ats_bundle_max_save( $product->get_id() ) > 0 ) : ?><span class="ats-bundle-save-badge ats-bundle-save-badge--sm">Save <?php echo wp_kses_post( wc_price( ats_bundle_max_save( $product->get_id() ) ) ); ?></span><?php endif; ?>
 			<img
 				src="<?php echo esc_url( $img_1x ); ?>"
 				<?php if ( $img_2x ) : ?>srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"<?php endif; ?>

@@ -197,6 +197,20 @@ $product_id = $product->get_id();
                                 <?php endif; ?>
                             </div>
 
+                            <!-- "Also available in a bundle" badge/link (renders only for products that belong to a bundle) -->
+                            <?php
+                            if ( function_exists( 'ats_bundle_render_in_bundle_notice' ) ) {
+                                ats_bundle_render_in_bundle_notice();
+                            }
+                            ?>
+
+                            <!-- Bundle "What's in the box" slider (above the basket; renders only for bundles) -->
+                            <?php
+                            if ( function_exists( 'ats_bundle_render_whats_inside' ) ) {
+                                ats_bundle_render_whats_inside();
+                            }
+                            ?>
+
                             <!-- Add to Cart Form -->
                             <div class="ats-product-form">
                                 <?php woocommerce_template_single_add_to_cart(); ?>

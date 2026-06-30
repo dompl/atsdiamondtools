@@ -30,6 +30,11 @@ if ( function_exists( 'register_extended_field_group' ) ) {
                 ->rows( 2 )
                 ->maxLength( 100 )
                 ->newLines( 'br' ),
+            Textarea::make( 'Category Banner Description', 'category_banner_description' )
+                ->helperText( 'Short additional line shown under the category title in the banner. Keep it to one short sentence. The full category description appears below the banner.' )
+                ->rows( 2 )
+                ->maxLength( 200 )
+                ->newLines( 'br' ),
         ],
         'location' => [
             Location::where( 'taxonomy', 'product_cat' ),

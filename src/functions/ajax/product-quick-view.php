@@ -23,15 +23,12 @@ add_action( 'wp_ajax_nopriv_ats_product_quick_view', 'ats_handle_product_quick_v
  * @return void
  */
 function ats_handle_product_quick_view() {
-    // Verify nonce
-    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ats_product_quick_view' ) ) {
-        wp_send_json_error(
-            array(
-                'message' => __( 'Security check failed. Please refresh the page and try again.', 'skylinewp-dev-child' ),
-            ),
-            403
-        );
-    }
+    // No nonce gate: the quick view only outputs PUBLIC, read-only product
+    // display markup (the same info as the product page) — it performs no action
+    // and exposes nothing private. The nonce was localized into the page and
+    // frozen by the WP Rocket page cache, so it failed for logged-in users and
+    // once it aged past ~12h, producing an empty quick-view popup. Access is
+    // still limited to published products below.
 
     // Validate product ID
     if ( ! isset( $_POST['product_id'] ) || empty( $_POST['product_id'] ) ) {

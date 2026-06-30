@@ -218,3 +218,19 @@ function ats_customize_rating_options() {
 	', 'before' );
 }
 add_action( 'wp_enqueue_scripts', 'ats_customize_rating_options', 99 );
+
+/**
+ * Show product reviews newest-first (latest at the top), matching the AJAX
+ * paginator in reviews-ajax.php which already orders by date DESC. Scoped to
+ * single product pages so blog/other comment ordering is untouched.
+ *
+ * @param string $order The 'comment_order' option value.
+ * @return string
+ */
+function ats_product_reviews_newest_first( $order ) {
+	if ( is_singular( 'product' ) ) {
+		return 'desc';
+	}
+	return $order;
+}
+add_filter( 'option_comment_order', 'ats_product_reviews_newest_first' );
