@@ -59,8 +59,16 @@ function wpo_wcpdf_woocommerce_totals_custom($totals, $order, $document_type) {
     $totals[$key]['subtotals'] = $totals['cart_subtotal'];
   }
 
-  /* Move shoppint to the top of the array */
-  $totals = array_merge(array('shipping' => $totals['shipping']), $totals);
+  /* Move shipping to the top of the array — only when a shipping total exists.
+     Without this guard, orders with no shipping get a bogus empty 'shipping' row
+     prepended. That renders as a single-cell first row, which makes Dompdf treat
+     the totals table as one column and collapses Subtotal/VAT/Total into a single
+     vertical column in the generated PDF. */
+  if ( isset( $totals['shipping'] ) && is_array( $totals['shipping'] ) ) {
+    $shipping = $totals['shipping'];
+    unset( $totals['shipping'] );
+    $totals = array( 'shipping' => $shipping ) + $totals;
+  }
 
   return $totals;
 
