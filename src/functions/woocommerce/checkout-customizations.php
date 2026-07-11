@@ -25,6 +25,21 @@ remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_
 remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10 );
 
 /**
+ * Keep checkout notices inside the checkout container.
+ *
+ * WooCommerce hooks woocommerce_output_all_notices onto both
+ * woocommerce_before_checkout_form_cart_notices (fired by the checkout
+ * shortcode) and woocommerce_before_checkout_form (fired inside
+ * form-checkout.php at line 16). Both run BEFORE our .rfs-ref-checkout-container
+ * opens, so any notice printed there spans the full browser width, outside the
+ * checkout layout. We remove those automatic outputs and let the explicit
+ * wc_print_notices() call in .rfs-ref-checkout-notices (form-checkout.php)
+ * render them within the same container as the checkout content instead.
+ */
+remove_action( 'woocommerce_before_checkout_form_cart_notices', 'woocommerce_output_all_notices', 10 );
+remove_action( 'woocommerce_before_checkout_form', 'woocommerce_output_all_notices', 10 );
+
+/**
  * Reorder checkout fields for clean 2-column layout
  */
 add_filter( 'woocommerce_checkout_fields', 'ats_reorder_checkout_fields' );

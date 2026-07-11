@@ -159,6 +159,79 @@
 }
 
 // ============================================
+// Checkout Notices (rendered inside the checkout container)
+// ============================================
+// woocommerce_output_all_notices is removed from the checkout hooks in
+// checkout-customizations.php, so WooCommerce notices now render here — inside
+// .rfs-ref-checkout-notices, within the max-w-7xl checkout container — rather
+// than spanning the full browser width above it. WC's default notice CSS is
+// dequeued (enqueue.php), so these styles stand alone.
+
+.rfs-ref-checkout-notices {
+	// Stack multiple notices with breathing room
+	> * + * {
+		@apply mt-3;
+	}
+
+	// Shared card layout for all notice variants
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error {
+		@apply rounded-lg border p-4 m-0 text-sm leading-relaxed;
+	}
+
+	// Success (e.g. "Coupon applied successfully", "Order totals updated")
+	.woocommerce-message {
+		@apply bg-green-50 border-green-200 text-green-900;
+
+		a:not(.button) {
+			@apply text-green-700 hover:text-green-900 underline font-medium;
+		}
+	}
+
+	// Info / status (e.g. shipping notices)
+	.woocommerce-info {
+		@apply bg-blue-50 border-blue-200 text-blue-900;
+
+		a:not(.button) {
+			@apply text-blue-700 hover:text-blue-900 underline font-medium;
+		}
+	}
+
+	// Error — rendered by WooCommerce as a <ul> of <li> messages
+	.woocommerce-error {
+		@apply bg-red-50 border-red-200 text-red-800 list-none;
+
+		li {
+			@apply text-sm list-none m-0;
+
+			& + li {
+				@apply mt-2 pt-2 border-t border-red-100;
+			}
+		}
+
+		a:not(.button) {
+			@apply text-red-700 hover:text-red-900 underline font-medium;
+		}
+	}
+
+	// Action button some notices inject (e.g. "View cart")
+	.button {
+		@apply inline-flex items-center mt-2 px-4 py-2 rounded-lg;
+		@apply text-sm font-semibold no-underline whitespace-nowrap;
+		@apply bg-ats-dark text-white border-0 cursor-pointer;
+		@apply hover:bg-primary-700 transition-colors duration-200;
+	}
+}
+
+// Safety net: if any plugin or edge-case path still emits a
+// .woocommerce-notices-wrapper on the checkout, keep it aligned to the
+// checkout container width instead of the full viewport.
+body.woocommerce-checkout .woocommerce-notices-wrapper {
+	@apply max-w-7xl mx-auto px-4;
+}
+
+// ============================================
 // Crafty Clicks Postcode Lookup
 // ============================================
 
