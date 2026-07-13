@@ -204,39 +204,77 @@
 	}
 
 	/**
-	 * Track add_shipping_info — Shipping method selection on checkout
+	 * Last value reported per event, so the repeated `updated_checkout` refreshes don't
+	 * re-send the same selection while a genuine switch still does.
+	 */
+	var lastReported = {};
+
+	function reportSelection(eventName, value, params) {
+		if (!value || lastReported[eventName] === value) return;
+		lastReported[eventName] = value;
+		trackEvent(eventName, params);
+	}
+
+	/**
+	 * Track add_shipping_info — Shipping method selection on checkout.
+	 *
+	 * Binding to `change` alone silently drops most customers: the shipping radios render
+	 * with the first option already checked, so anyone accepting the default never fires
+	 * one. In a closed GA4 funnel that also discards them from every later step, which is
+	 * what made Purchase read near-zero while orders were completing normally. So report
+	 * whatever is currently selected on load and on each order-review refresh too.
 	 */
 	function initAddShippingInfo() {
 		if (!themeData.ga4.checkout_items) return;
 
-		$(document.body).on('change', 'input[name^="shipping_method"]', function () {
-			var shippingTier = $(this).closest('label').text().trim() || $(this).val();
+		function report() {
+			// With a single available method WooCommerce renders a hidden input rather
+			// than a checked radio, so that case has never fired at all.
+			var $input = $('input[name^="shipping_method"]:checked');
+			if (!$input.length) $input = $('input[name^="shipping_method"][type="hidden"]');
+			if (!$input.length) return;
 
-			trackEvent('add_shipping_info', {
+			var shippingTier = $input.closest('label').text().trim() || $input.val();
+
+			reportSelection('add_shipping_info', $input.val(), {
 				currency: getCurrency(),
 				value: themeData.ga4.checkout_value || 0,
 				shipping_tier: shippingTier,
 				items: themeData.ga4.checkout_items,
 			});
-		});
+		}
+
+		$(document.body).on('change', 'input[name^="shipping_method"]', report);
+		$(document.body).on('updated_checkout', report);
+		report();
 	}
 
 	/**
-	 * Track add_payment_info — Payment method selection on checkout
+	 * Track add_payment_info — Payment method selection on checkout.
+	 *
+	 * Same defect as add_shipping_info: the first gateway is pre-checked, so customers who
+	 * accept the default never fired a `change`.
 	 */
 	function initAddPaymentInfo() {
 		if (!themeData.ga4.checkout_items) return;
 
-		$(document.body).on('change', 'input[name="payment_method"]', function () {
-			var paymentType = $(this).closest('label, li').find('label').first().text().trim() || $(this).val();
+		function report() {
+			var $input = $('input[name="payment_method"]:checked');
+			if (!$input.length) return;
 
-			trackEvent('add_payment_info', {
+			var paymentType = $input.closest('label, li').find('label').first().text().trim() || $input.val();
+
+			reportSelection('add_payment_info', $input.val(), {
 				currency: getCurrency(),
 				value: themeData.ga4.checkout_value || 0,
 				payment_type: paymentType,
 				items: themeData.ga4.checkout_items,
 			});
-		});
+		}
+
+		$(document.body).on('change', 'input[name="payment_method"]', report);
+		$(document.body).on('updated_checkout payment_method_selected', report);
+		report();
 	}
 
 	/**
