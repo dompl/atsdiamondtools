@@ -84,16 +84,26 @@ JS;
 
 /**
  * Render honeypot, timestamp, and reCAPTCHA hidden token field in the registration form.
+ *
+ * Rendered on BOTH registration entry points, because WooCommerce applies
+ * `woocommerce_registration_errors` (our validator) to both:
+ *   - the my-account register form  -> woocommerce_register_form
+ *   - "Create an account?" at checkout -> woocommerce_before_checkout_registration_form
  */
 add_action( 'woocommerce_register_form', 'ats_render_registration_captcha', 15 );
+add_action( 'woocommerce_before_checkout_registration_form', 'ats_render_registration_captcha', 15 );
 function ats_render_registration_captcha() {
     $ts      = time();
     $ts_hash = wp_hash( $ts . 'ats_registration_timestamp' );
     ?>
-    <!-- Honeypot — invisible to real users -->
+    <!-- Honeypot — invisible to real users.
+         The ignore attributes matter on checkout, where password managers and browser
+         address autofill are aggressive: a bot-trap that autofill populates would block
+         a paying customer. -->
     <div style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;overflow:hidden;" aria-hidden="true">
         <label for="ats_website_url">Website</label>
-        <input type="text" name="ats_website_url" id="ats_website_url" value="" tabindex="-1" autocomplete="off" />
+        <input type="text" name="ats_website_url" id="ats_website_url" value="" tabindex="-1"
+               autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" />
     </div>
 
     <!-- Signed timestamp -->
@@ -110,6 +120,18 @@ function ats_render_registration_captcha() {
  */
 add_filter( 'woocommerce_registration_errors', 'ats_validate_registration_captcha', 10, 3 );
 function ats_validate_registration_captcha( $errors, $username, $email ) {
+    // WooCommerce applies this filter inside wc_create_new_customer(), which also
+    // runs for checkout account creation, the REST API, WP-CLI and admin-created
+    // customers — none of which render our fields. Never block a submission that
+    // was never decorated: if our signed timestamp is absent, this is not a form
+    // we protect, so let WooCommerce's own validation decide.
+    if ( ! isset( $_POST['ats_reg_ts_hash'] ) ) {
+        return $errors;
+    }
+
+    // WC_Checkout and WC_AJAX both define this before processing an order.
+    $is_checkout = defined( 'WOOCOMMERCE_CHECKOUT' ) && WOOCOMMERCE_CHECKOUT;
+
     // 1. Honeypot check — if filled, it's a bot
     if ( ! empty( $_POST['ats_website_url'] ) ) {
         $errors->add( 'spam_detected', __( 'Registration failed. Please try again.', 'woocommerce' ) );
@@ -118,9 +140,9 @@ function ats_validate_registration_captcha( $errors, $username, $email ) {
 
     // 2. Timestamp check — signed to prevent tampering
     $ts      = isset( $_POST['ats_reg_ts'] ) ? intval( $_POST['ats_reg_ts'] ) : 0;
-    $ts_hash = isset( $_POST['ats_reg_ts_hash'] ) ? sanitize_text_field( wp_unslash( $_POST['ats_reg_ts_hash'] ) ) : '';
+    $ts_hash = sanitize_text_field( wp_unslash( $_POST['ats_reg_ts_hash'] ) );
 
-    if ( wp_hash( $ts . 'ats_registration_timestamp' ) !== $ts_hash ) {
+    if ( ! hash_equals( wp_hash( $ts . 'ats_registration_timestamp' ), $ts_hash ) ) {
         $errors->add( 'timestamp_invalid', __( 'Registration failed. Please refresh the page and try again.', 'woocommerce' ) );
         return $errors;
     }
@@ -130,12 +152,24 @@ function ats_validate_registration_captcha( $errors, $username, $email ) {
         return $errors;
     }
 
-    if ( ( time() - $ts ) > 600 ) {
+    // Filling in a basket, addresses and card details legitimately takes far longer
+    // than signing up, so the 10-minute window would lock real buyers out.
+    $max_age = $is_checkout ? 12 * HOUR_IN_SECONDS : 600;
+
+    if ( ( time() - $ts ) > $max_age ) {
         $errors->add( 'form_expired', __( 'The form has expired. Please refresh the page and try again.', 'woocommerce' ) );
         return $errors;
     }
 
-    // 3. reCAPTCHA v3 verification
+    // 3. reCAPTCHA v3 verification — my-account register form only.
+    // The checkout form posts over AJAX and a v3 token dies after ~2 minutes, so a
+    // customer who takes their time would be rejected at Place Order. Checkout stays
+    // covered by the honeypot and signed timestamp above, and a bot would still have
+    // to pay for an order. Registration on its own is the endpoint worth scoring.
+    if ( $is_checkout ) {
+        return $errors;
+    }
+
     if ( ! defined( 'ATS_RECAPTCHA_SECRET_KEY' ) || empty( ATS_RECAPTCHA_SECRET_KEY ) ) {
         return $errors; // Skip if keys not configured
     }
