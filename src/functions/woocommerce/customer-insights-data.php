@@ -94,8 +94,12 @@ function ats_ci_parse_args( array $source ) {
 	}
 
 	$orderby = isset( $source['orderby'] ) ? sanitize_key( $source['orderby'] ) : 'units';
-	if ( ! in_array( $orderby, array( 'units', 'spend', 'orders', 'last_order' ), true ) ) {
+	if ( ! in_array( $orderby, array( 'name', 'units', 'spend', 'orders', 'aov', 'last_order', 'days_since', 'coupon_orders' ), true ) ) {
 		$orderby = 'units';
+	}
+	$order = isset( $source['order'] ) ? sanitize_key( $source['order'] ) : '';
+	if ( ! in_array( $order, array( 'asc', 'desc' ), true ) ) {
+		$order = 'name' === $orderby ? 'asc' : 'desc';
 	}
 	$per_page = isset( $source['per_page'] ) ? absint( $source['per_page'] ) : 25;
 	if ( ! in_array( $per_page, array( 25, 50, 100 ), true ) ) {
@@ -125,6 +129,7 @@ function ats_ci_parse_args( array $source ) {
 		'buyer'        => $buyer,
 		'account'      => $account,
 		'orderby'      => $orderby,
+		'order'        => $order,
 		'per_page'     => $per_page,
 		'paged'        => isset( $source['paged'] ) ? max( 1, absint( $source['paged'] ) ) : 1,
 		'nocache'      => ! empty( $source['nocache'] ),
@@ -214,20 +219,28 @@ function ats_ci_query_customers( array $args ) {
 	}
 
 	$orderby_map = array(
-		'units'      => 'units DESC',
-		'spend'      => 'total_spend DESC',
-		'orders'     => 'orders_count DESC',
-		'last_order' => 'last_order DESC',
+		'name'          => 'display_name',
+		'units'         => 'units',
+		'spend'         => 'total_spend',
+		'orders'        => 'orders_count',
+		'aov'           => 'aov',
+		'last_order'    => 'last_order',
+		'days_since'    => 'days_since_last',
+		'coupon_orders' => 'coupon_orders',
 	);
-	$order_sql   = $orderby_map[ $args['orderby'] ];
+	$orderby_key = isset( $orderby_map[ $args['orderby'] ] ) ? $args['orderby'] : 'units';
+	$direction   = ( isset( $args['order'] ) && 'asc' === $args['order'] ) ? 'ASC' : 'DESC';
+	$order_sql   = $orderby_map[ $orderby_key ] . ' ' . $direction;
 
 	$where_sql  = implode( ' AND ', $where );
 	$having_sql = $having ? 'HAVING ' . implode( ' AND ', $having ) : '';
 
 	$select = "SELECT cl.customer_id, cl.user_id, cl.first_name, cl.last_name, cl.email, cl.country, cl.city,
+		TRIM( CONCAT( COALESCE( cl.first_name, '' ), ' ', COALESCE( cl.last_name, '' ) ) ) AS display_name,
 		COUNT(DISTINCT os.order_id) AS orders_count,
 		SUM(os.num_items_sold)      AS units,
 		SUM(os.total_sales)         AS total_spend,
+		SUM(os.total_sales) / COUNT(DISTINCT os.order_id) AS aov,
 		MIN(os.date_created)        AS first_order,
 		MAX(os.date_created)        AS last_order,
 		SUM( CASE WHEN cpn.order_id IS NULL THEN 0 ELSE 1 END ) AS coupon_orders,
@@ -263,13 +276,22 @@ function ats_ci_query_customers( array $args ) {
 
 	// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- fragments prepared above; LIMIT/OFFSET
 	// are cast ints. An outer prepare() here would mangle literal % in LIKE fragments.
-	$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM ( {$select} {$core} {$having_sql} ) x" );
-	$rows  = $wpdb->get_results( "{$select} {$core} {$having_sql} ORDER BY {$order_sql} LIMIT {$limit} OFFSET {$offset}" );
+	$totals = $wpdb->get_row(
+		"SELECT COUNT(*) AS customers,
+		        COALESCE( SUM(orders_count), 0 ) AS orders,
+		        COALESCE( SUM(units), 0 )        AS units,
+		        COALESCE( SUM(total_spend), 0 )  AS spend
+		 FROM ( {$select} {$core} {$having_sql} ) x"
+	);
+	$rows   = $wpdb->get_results( "{$select} {$core} {$having_sql} ORDER BY {$order_sql} LIMIT {$limit} OFFSET {$offset}" );
 	// phpcs:enable
 
 	return array(
-		'rows'  => $rows,
-		'total' => $total,
+		'rows'       => $rows,
+		'total'      => (int) $totals->customers,
+		'sum_orders' => (int) $totals->orders,
+		'sum_units'  => (int) $totals->units,
+		'sum_spend'  => (float) $totals->spend,
 	);
 }
 
@@ -297,6 +319,7 @@ function ats_ci_get_customers( array $args ) {
 			'buyer'        => 'all',
 			'account'      => 'all',
 			'orderby'      => 'units',
+			'order'        => 'desc',
 			'per_page'     => 25,
 			'paged'        => 1,
 			'nocache'      => false,

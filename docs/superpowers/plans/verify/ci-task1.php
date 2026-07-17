@@ -87,4 +87,20 @@ $pt = $wpdb->get_var(
 $r9 = ats_ci_get_customers( array( 'product' => $pt, 'per_page' => 5, 'nocache' => true ) );
 ci_check( 'product name filter returns buyers of a known product', $r9['total'] >= 1 );
 
+// 10. Ascending order works and differs from descending.
+$ra = ats_ci_get_customers( array( 'orderby' => 'units', 'order' => 'asc', 'min_units' => 1, 'per_page' => 5, 'nocache' => true ) );
+$rd = ats_ci_get_customers( array( 'orderby' => 'units', 'order' => 'desc', 'per_page' => 5, 'nocache' => true ) );
+ci_check( 'asc order returns smallest first', (int) $ra['rows'][0]->units <= (int) $ra['rows'][4]->units && (int) $ra['rows'][0]->units < (int) $rd['rows'][0]->units );
+
+// 11. New sort key: average order value descends.
+$rv = ats_ci_get_customers( array( 'orderby' => 'aov', 'per_page' => 5, 'nocache' => true ) );
+$ok = true;
+for ( $i = 1; $i < count( $rv['rows'] ); $i++ ) {
+	if ( (float) $rv['rows'][ $i - 1 ]->aov + 0.0001 < (float) $rv['rows'][ $i ]->aov ) { $ok = false; }
+}
+ci_check( 'aov sort descends', $ok );
+
+// 12. Filtered totals for the stat cards.
+ci_check( 'totals present and sane', isset( $rd['sum_spend'], $rd['sum_orders'], $rd['sum_units'] ) && $rd['sum_spend'] > 0 && $rd['sum_orders'] > 0 );
+
 echo $GLOBALS['ci_fail'] ? "RESULT: {$GLOBALS['ci_fail']} FAILURES\n" : "RESULT: ALL PASS\n";

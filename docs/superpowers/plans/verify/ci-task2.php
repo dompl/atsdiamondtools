@@ -41,4 +41,16 @@ $html2 = ob_get_clean();
 ci_check( 'filtered view renders rows', false !== strpos( $html2, 'class="ats-ci-row"' ) );
 ci_check( 'filtered view keeps dormant value', false !== strpos( $html2, 'value="180"' ) );
 
+// New UI checks: stat cards, help modal, fully sortable header.
+$_GET = array( 'page' => 'ats-customer-insights', 'range' => 'all' );
+ob_start();
+ats_ci_render_page();
+$html3 = ob_get_clean();
+ci_check( 'five stat cards render', 5 === substr_count( $html3, 'class="ats-ci-stat-card"' ) );
+ci_check( 'help modal present', false !== strpos( $html3, 'id="ats-ci-help-modal"' ) );
+ci_check( 'help button present', false !== strpos( $html3, 'id="ats-ci-help-open"' ) );
+ci_check( 'eight sortable columns', 8 === substr_count( $html3, 'sorting-indicators' ) );
+ci_check( 'current sort column marked', false !== strpos( $html3, 'sorted desc' ) );
+ci_check( 'clicking current column flips to asc', false !== strpos( $html3, 'orderby=units&#038;order=asc' ) || false !== strpos( $html3, 'orderby=units&order=asc' ) );
+
 echo $GLOBALS['ci_fail'] ? "RESULT: {$GLOBALS['ci_fail']} FAILURES\n" : "RESULT: ALL PASS\n";
