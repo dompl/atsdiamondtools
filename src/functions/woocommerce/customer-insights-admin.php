@@ -332,3 +332,151 @@ function ats_ci_footer_detail_modal( $args, $result ) {
 	<?php
 }
 add_action( 'ats_ci_page_footer', 'ats_ci_footer_detail_modal', 10, 2 );
+
+/**
+ * Default Brevo list name describing the active filters.
+ *
+ * @param array $args Parsed filter args.
+ */
+function ats_ci_default_list_name( array $args ) {
+	$parts  = array();
+	$ranges = array(
+		'30d'    => 'last 30d',
+		'90d'    => 'last 90d',
+		'12m'    => 'last 12m',
+		'all'    => 'all time',
+		'custom' => $args['date_from'] . '→' . $args['date_to'],
+	);
+	$parts[] = $ranges[ $args['range'] ];
+	if ( $args['min_units'] ) {
+		$parts[] = $args['min_units'] . '+ units';
+	}
+	if ( $args['min_orders'] ) {
+		$parts[] = $args['min_orders'] . '+ orders';
+	}
+	if ( $args['dormant_days'] ) {
+		$parts[] = 'dormant ' . $args['dormant_days'] . 'd';
+	}
+	if ( $args['at_risk'] ) {
+		$parts[] = 'at-risk';
+	}
+	if ( 'any' === $args['coupon'] ) {
+		$parts[] = 'coupon users';
+	} elseif ( '' !== $args['coupon'] ) {
+		$parts[] = 'coupon ' . $args['coupon'];
+	}
+	if ( 'all' !== $args['buyer'] ) {
+		$parts[] = $args['buyer'];
+	}
+	return 'Insights: ' . implode( ' + ', $parts ) . ' — ' . current_time( 'j M Y' );
+}
+
+/**
+ * "Send to Brevo" button beside the results summary.
+ *
+ * @param array $args   Parsed filter args.
+ * @param array $result Ranking result.
+ */
+function ats_ci_toolbar_brevo_button( $args, $result ) {
+	if ( empty( $result['total'] ) ) {
+		return;
+	}
+	printf(
+		' <button type="button" class="button" id="ats-ci-brevo-open" data-name="%s">Send %s to Brevo</button>',
+		esc_attr( ats_ci_default_list_name( $args ) ),
+		esc_html( number_format_i18n( (int) $result['total'] ) )
+	);
+}
+add_action( 'ats_ci_toolbar', 'ats_ci_toolbar_brevo_button', 10, 2 );
+
+/**
+ * Brevo modal + JS.
+ *
+ * @param array $args   Parsed filter args (unused).
+ * @param array $result Ranking result (unused).
+ */
+function ats_ci_footer_brevo_modal( $args, $result ) {
+	?>
+	<div id="ats-ci-brevo-modal" class="ats-ci-modal" style="display:none">
+		<div class="ats-ci-modal-inner" style="width:min(480px,92vw)">
+			<button type="button" class="ats-ci-modal-close" aria-label="Close">&times;</button>
+			<h2>Send filtered customers to Brevo</h2>
+			<p><label><input type="radio" name="ats_ci_brevo_mode" value="new" checked> Create a new list</label></p>
+			<p><input type="text" id="ats-ci-brevo-name" class="widefat"></p>
+			<p><label><input type="radio" name="ats_ci_brevo_mode" value="existing"> Add to an existing list</label></p>
+			<p><select id="ats-ci-brevo-list" class="widefat" disabled><option>Loading lists&hellip;</option></select></p>
+			<p>
+				<button type="button" class="button button-primary" id="ats-ci-brevo-send">Send</button>
+				<span id="ats-ci-brevo-status"></span>
+			</p>
+		</div>
+	</div>
+	<script>
+	(function () {
+		var open   = document.getElementById('ats-ci-brevo-open');
+		if (!open) { return; }
+		var modal  = document.getElementById('ats-ci-brevo-modal');
+		var name   = document.getElementById('ats-ci-brevo-name');
+		var select = document.getElementById('ats-ci-brevo-list');
+		var send   = document.getElementById('ats-ci-brevo-send');
+		var status = document.getElementById('ats-ci-brevo-status');
+		var loaded = false;
+
+		function close() { modal.style.display = 'none'; }
+		modal.querySelector('.ats-ci-modal-close').addEventListener('click', close);
+		modal.addEventListener('click', function (e) { if (e.target === modal) { close(); } });
+
+		open.addEventListener('click', function () {
+			name.value = open.dataset.name;
+			status.textContent = '';
+			modal.style.display = 'flex';
+			if (loaded) { return; }
+			var data = new FormData();
+			data.append('action', 'ats_ci_brevo_lists');
+			data.append('nonce', atsCi.nonce);
+			fetch(atsCi.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
+				.then(function (r) { return r.json(); })
+				.then(function (res) {
+					if (!res || !res.success) { throw new Error('lists'); }
+					select.innerHTML = '';
+					res.data.forEach(function (l) {
+						var o = document.createElement('option');
+						o.value = l.id;
+						o.textContent = l.name + ' (#' + l.id + ')';
+						select.appendChild(o);
+					});
+					select.disabled = false;
+					loaded = true;
+				})
+				.catch(function () { select.innerHTML = '<option>Could not load lists</option>'; });
+		});
+
+		send.addEventListener('click', function () {
+			var mode = document.querySelector('input[name="ats_ci_brevo_mode"]:checked').value;
+			send.disabled = true;
+			status.textContent = 'Sending…';
+			var data = new FormData();
+			data.append('action', 'ats_ci_brevo_send');
+			data.append('nonce', atsCi.nonce);
+			data.append('filters', window.location.search.replace(/^\?/, ''));
+			data.append('mode', mode);
+			data.append('list_name', name.value);
+			if ('existing' === mode) { data.append('list_id', select.value); }
+			fetch(atsCi.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
+				.then(function (r) { return r.json(); })
+				.then(function (res) {
+					send.disabled = false;
+					status.textContent = res && res.success
+						? 'Sent ' + res.data.count + ' contacts to "' + res.data.list_name + '" (#' + res.data.list_id + ').'
+						: 'Error: ' + (res && res.data ? res.data : 'unknown');
+				})
+				.catch(function () {
+					send.disabled = false;
+					status.textContent = 'Error: request failed.';
+				});
+		});
+	})();
+	</script>
+	<?php
+}
+add_action( 'ats_ci_page_footer', 'ats_ci_footer_brevo_modal', 20, 2 );
