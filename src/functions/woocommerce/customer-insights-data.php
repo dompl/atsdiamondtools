@@ -392,10 +392,11 @@ function ats_ci_customer_detail( $customer_id ) {
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- ids are intval'd above.
 		$item_rows = $wpdb->get_results(
 			"SELECT opl.order_id,
-			        GROUP_CONCAT( CONCAT( COALESCE( pp.post_title, '(deleted product)' ), ' ×', opl.product_qty )
+			        GROUP_CONCAT( CONCAT( COALESCE( pp.post_title, oi.order_item_name, '(deleted product)' ), ' ×', opl.product_qty )
 			                      ORDER BY pp.post_title SEPARATOR ', ' ) AS summary
 			 FROM {$p}wc_order_product_lookup opl
 			 LEFT JOIN {$p}posts pp ON pp.ID = opl.product_id
+			 LEFT JOIN {$p}woocommerce_order_items oi ON oi.order_item_id = opl.order_item_id
 			 WHERE opl.order_id IN ( {$ids_sql} )
 			 GROUP BY opl.order_id"
 		);
@@ -418,12 +419,13 @@ function ats_ci_customer_detail( $customer_id ) {
 
 	$top_products = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT MAX( COALESCE( pp.post_title, '(deleted product)' ) ) AS name,
+			"SELECT MAX( COALESCE( pp.post_title, oi.order_item_name, '(deleted product)' ) ) AS name,
 			        SUM( opl.product_qty ) AS qty
 			 FROM {$p}wc_order_product_lookup opl
 			 JOIN {$p}wc_order_stats os
 			   ON os.order_id = opl.order_id AND os.parent_id = 0 AND os.status IN ( {$statuses} )
 			 LEFT JOIN {$p}posts pp ON pp.ID = opl.product_id
+			 LEFT JOIN {$p}woocommerce_order_items oi ON oi.order_item_id = opl.order_item_id
 			 WHERE os.customer_id = %d
 			 GROUP BY opl.product_id
 			 ORDER BY qty DESC
