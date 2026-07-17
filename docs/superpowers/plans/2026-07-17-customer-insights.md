@@ -138,6 +138,17 @@ ci_check( '30d range: range spend never exceeds all-time spend', $ok );
 $codes = ats_ci_get_coupon_options();
 ci_check( 'coupon options include free24', in_array( 'free24', array_map( 'strtolower', $codes ), true ) );
 
+// 9. Product LIKE filter survives the query builder (covers the %-escaping path).
+$pt = $wpdb->get_var(
+	"SELECT pp.post_title FROM {$p}wc_order_product_lookup opl
+	 JOIN {$p}posts pp ON pp.ID = opl.product_id
+	 JOIN {$p}wc_order_stats os ON os.order_id = opl.order_id
+	  AND os.parent_id = 0 AND os.status IN ('wc-completed','wc-processing')
+	 LIMIT 1"
+);
+$r9 = ats_ci_get_customers( array( 'product' => $pt, 'per_page' => 5, 'nocache' => true ) );
+ci_check( 'product name filter returns buyers of a known product', $r9['total'] >= 1 );
+
 echo $GLOBALS['ci_fail'] ? "RESULT: {$GLOBALS['ci_fail']} FAILURES\n" : "RESULT: ALL PASS\n";
 ```
 
@@ -415,15 +426,13 @@ function ats_ci_query_customers( array $args ) {
 		WHERE {$where_sql}
 		GROUP BY cl.customer_id";
 
-	// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- fragments prepared above.
+	$limit  = (int) $args['per_page'];
+	$offset = ( max( 1, (int) $args['paged'] ) - 1 ) * $limit;
+
+	// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- fragments prepared above; LIMIT/OFFSET
+	// are cast ints. An outer prepare() here would mangle literal % in LIKE fragments.
 	$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM ( {$select} {$core} {$having_sql} ) x" );
-	$rows  = $wpdb->get_results(
-		$wpdb->prepare(
-			"{$select} {$core} {$having_sql} ORDER BY {$order_sql} LIMIT %d OFFSET %d",
-			$args['per_page'],
-			( $args['paged'] - 1 ) * $args['per_page']
-		)
-	);
+	$rows  = $wpdb->get_results( "{$select} {$core} {$having_sql} ORDER BY {$order_sql} LIMIT {$limit} OFFSET {$offset}" );
 	// phpcs:enable
 
 	return array(
