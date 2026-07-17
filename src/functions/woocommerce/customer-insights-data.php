@@ -336,3 +336,117 @@ function ats_ci_get_coupon_options() {
 		 ORDER BY cp.post_title"
 	);
 }
+
+/**
+ * Everything about one customer, for the popup.
+ *
+ * @param int $customer_id wc_customer_lookup PK.
+ * @return array|null Null when the customer doesn't exist.
+ */
+function ats_ci_customer_detail( $customer_id ) {
+	global $wpdb;
+	$p           = $wpdb->prefix;
+	$customer_id = (int) $customer_id;
+	$statuses    = ats_ci_statuses_sql();
+
+	$customer = $wpdb->get_row(
+		$wpdb->prepare( "SELECT * FROM {$p}wc_customer_lookup WHERE customer_id = %d", $customer_id )
+	);
+	if ( ! $customer ) {
+		return null;
+	}
+
+	$stats = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT COUNT(*)            AS att_orders,
+			        SUM(num_items_sold) AS att_units,
+			        SUM(total_sales)    AS att_spend,
+			        MIN(date_created)   AS att_first,
+			        MAX(date_created)   AS att_last,
+			        CASE WHEN COUNT(*) > 1
+			             THEN DATEDIFF( MAX(date_created), MIN(date_created) ) / ( COUNT(*) - 1 )
+			             ELSE NULL END  AS avg_gap_days,
+			        DATEDIFF( NOW(), MAX(date_created) ) AS days_since_last
+			 FROM {$p}wc_order_stats
+			 WHERE customer_id = %d AND parent_id = 0 AND status IN ( {$statuses} )",
+			$customer_id
+		)
+	);
+
+	$orders = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT os.order_id, os.date_created, os.status, os.total_sales, os.num_items_sold
+			 FROM {$p}wc_order_stats os
+			 WHERE os.customer_id = %d AND os.parent_id = 0 AND os.status <> 'wc-trash'
+			 ORDER BY os.date_created DESC
+			 LIMIT 200",
+			$customer_id
+		)
+	);
+
+	$items         = array();
+	$order_coupons = array();
+	$order_ids     = array_map( 'intval', wp_list_pluck( $orders, 'order_id' ) );
+	if ( $order_ids ) {
+		$ids_sql = implode( ',', $order_ids );
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- ids are intval'd above.
+		$item_rows = $wpdb->get_results(
+			"SELECT opl.order_id,
+			        GROUP_CONCAT( CONCAT( COALESCE( pp.post_title, '(deleted product)' ), ' ×', opl.product_qty )
+			                      ORDER BY pp.post_title SEPARATOR ', ' ) AS summary
+			 FROM {$p}wc_order_product_lookup opl
+			 LEFT JOIN {$p}posts pp ON pp.ID = opl.product_id
+			 WHERE opl.order_id IN ( {$ids_sql} )
+			 GROUP BY opl.order_id"
+		);
+		foreach ( $item_rows as $ir ) {
+			$items[ (int) $ir->order_id ] = $ir->summary;
+		}
+		$cpn_rows = $wpdb->get_results(
+			"SELECT ocl.order_id,
+			        GROUP_CONCAT( COALESCE( cp.post_title, '(deleted)' ) SEPARATOR ', ' ) AS codes
+			 FROM {$p}wc_order_coupon_lookup ocl
+			 LEFT JOIN {$p}posts cp ON cp.ID = ocl.coupon_id
+			 WHERE ocl.order_id IN ( {$ids_sql} )
+			 GROUP BY ocl.order_id"
+		);
+		foreach ( $cpn_rows as $cr ) {
+			$order_coupons[ (int) $cr->order_id ] = $cr->codes;
+		}
+		// phpcs:enable
+	}
+
+	$top_products = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT MAX( COALESCE( pp.post_title, '(deleted product)' ) ) AS name,
+			        SUM( opl.product_qty ) AS qty
+			 FROM {$p}wc_order_product_lookup opl
+			 JOIN {$p}wc_order_stats os
+			   ON os.order_id = opl.order_id AND os.parent_id = 0 AND os.status IN ( {$statuses} )
+			 LEFT JOIN {$p}posts pp ON pp.ID = opl.product_id
+			 WHERE os.customer_id = %d
+			 GROUP BY opl.product_id
+			 ORDER BY qty DESC
+			 LIMIT 5",
+			$customer_id
+		)
+	);
+
+	$coupons = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT MAX( COALESCE( cp.post_title, '(deleted)' ) ) AS code,
+			        COUNT(*) AS times_used,
+			        SUM( ocl.discount_amount ) AS total_discount
+			 FROM {$p}wc_order_coupon_lookup ocl
+			 JOIN {$p}wc_order_stats os
+			   ON os.order_id = ocl.order_id AND os.parent_id = 0 AND os.status <> 'wc-trash'
+			 LEFT JOIN {$p}posts cp ON cp.ID = ocl.coupon_id
+			 WHERE os.customer_id = %d
+			 GROUP BY ocl.coupon_id
+			 ORDER BY times_used DESC",
+			$customer_id
+		)
+	);
+
+	return compact( 'customer', 'stats', 'orders', 'items', 'order_coupons', 'top_products', 'coupons' );
+}

@@ -272,3 +272,63 @@ function ats_ci_render_page() {
 	</div>
 	<?php
 }
+
+/**
+ * Detail modal + page JS, printed at the foot of the Insights page.
+ *
+ * @param array $args   Parsed filter args (unused here).
+ * @param array $result Ranking result (unused here).
+ */
+function ats_ci_footer_detail_modal( $args, $result ) {
+	?>
+	<div id="ats-ci-modal" class="ats-ci-modal" style="display:none">
+		<div class="ats-ci-modal-inner">
+			<button type="button" class="ats-ci-modal-close" aria-label="Close">&times;</button>
+			<div id="ats-ci-modal-body"></div>
+		</div>
+	</div>
+	<style>
+		.ats-ci-modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 100000; display: flex; align-items: center; justify-content: center; }
+		.ats-ci-modal-inner { background: #fff; border-radius: 6px; width: min(860px, 92vw); max-height: 86vh; overflow-y: auto; padding: 20px 24px; position: relative; }
+		.ats-ci-modal-close { position: absolute; top: 8px; right: 10px; border: 0; background: none; font-size: 26px; cursor: pointer; line-height: 1; }
+		.ats-ci-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+		.ats-ci-stats div { background: #f6f7f7; border-radius: 4px; padding: 8px 10px; }
+		.ats-ci-stats span { display: block; color: #646970; font-size: 11px; text-transform: uppercase; }
+		.ats-ci-due { background: #d63638; color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+		.ats-ci-orders { max-height: 320px; overflow-y: auto; }
+		.ats-ci-order-void { opacity: .45; }
+	</style>
+	<script>
+	var atsCi = {
+		ajaxUrl: <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>,
+		nonce:   <?php echo wp_json_encode( wp_create_nonce( 'ats_ci' ) ); ?>
+	};
+	(function () {
+		var modal = document.getElementById('ats-ci-modal');
+		var body  = document.getElementById('ats-ci-modal-body');
+		function close() { modal.style.display = 'none'; }
+		modal.querySelector('.ats-ci-modal-close').addEventListener('click', close);
+		modal.addEventListener('click', function (e) { if (e.target === modal) { close(); } });
+		document.addEventListener('keydown', function (e) { if ('Escape' === e.key) { close(); } });
+
+		document.querySelectorAll('.ats-ci-row[data-customer]').forEach(function (tr) {
+			tr.addEventListener('click', function () {
+				body.innerHTML = '<p>Loading&hellip;</p>';
+				modal.style.display = 'flex';
+				var data = new FormData();
+				data.append('action', 'ats_ci_customer');
+				data.append('nonce', atsCi.nonce);
+				data.append('customer_id', tr.dataset.customer);
+				fetch(atsCi.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
+					.then(function (r) { return r.json(); })
+					.then(function (res) {
+						body.innerHTML = res && res.success ? res.data.html : '<p>Could not load customer details.</p>';
+					})
+					.catch(function () { body.innerHTML = '<p>Could not load customer details.</p>'; });
+			});
+		});
+	})();
+	</script>
+	<?php
+}
+add_action( 'ats_ci_page_footer', 'ats_ci_footer_detail_modal', 10, 2 );
