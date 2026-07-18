@@ -13,96 +13,126 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Popup HTML fragment for one customer.
+ * Popup HTML fragment for one customer — redesigned layout.
  *
  * @param array $d Output of ats_ci_customer_detail().
  */
 function ats_ci_detail_html( array $d ) {
-	$c    = $d['customer'];
-	$s    = $d['stats'];
-	$name = trim( $c->first_name . ' ' . $c->last_name );
-	$loc  = trim( implode( ', ', array_filter( array( $c->city, $c->country ) ) ) );
-	$aov  = $s->att_orders ? (float) $s->att_spend / (int) $s->att_orders : 0;
-	$row  = (object) array(
+	$c       = $d['customer'];
+	$s       = $d['stats'];
+	$name    = trim( $c->first_name . ' ' . $c->last_name );
+	$display = $name ? $name : $c->email;
+	$loc     = trim( implode( ', ', array_filter( array( $c->city, $c->country ) ) ) );
+	$aov     = $s->att_orders ? (float) $s->att_spend / (int) $s->att_orders : 0;
+	$row     = (object) array(
 		'att_orders'      => $s->att_orders,
 		'avg_gap_days'    => $s->avg_gap_days,
 		'days_since_last' => $s->days_since_last,
 	);
-	$due  = (int) $s->att_orders >= 3 && (float) $s->avg_gap_days > 0
+	$segment = ats_ci_segment( $row );
+	$color   = ats_ci_segment_color( $segment );
+	$initial = strtoupper( mb_substr( $display, 0, 1 ) );
+	$due     = (int) $s->att_orders >= 3 && (float) $s->avg_gap_days > 0
 		&& (int) $s->days_since_last >= (float) $s->avg_gap_days;
+
+	$metrics = array(
+		array( 'money-alt', 'Lifetime spend', wp_kses_post( wc_price( (float) $s->att_spend ) ) ),
+		array( 'cart', 'Orders', esc_html( number_format_i18n( (int) $s->att_orders ) ) ),
+		array( 'products', 'Units', esc_html( number_format_i18n( (int) $s->att_units ) ) ),
+		array( 'chart-bar', 'Avg order', wp_kses_post( wc_price( $aov ) ) ),
+		array( 'calendar-alt', 'First order', esc_html( mysql2date( 'j M Y', $s->att_first ) ) ),
+		array( 'calendar-alt', 'Last order', esc_html( mysql2date( 'j M Y', $s->att_last ) ) ),
+		array( 'update', 'Avg gap', $s->avg_gap_days ? esc_html( number_format_i18n( (float) $s->avg_gap_days ) . ' days' ) : '&mdash;' ),
+		array( 'clock', 'Days since', esc_html( number_format_i18n( (int) $s->days_since_last ) ) ),
+	);
 
 	ob_start();
 	?>
-	<div class="ats-ci-detail-head">
-		<h2><?php echo esc_html( $name ? $name : $c->email ); ?>
-			<?php echo wp_kses_post( ats_ci_badge( ats_ci_segment( $row ) ) ); ?>
-			<?php if ( $due ) : ?><span class="ats-ci-due">Due to reorder</span><?php endif; ?>
-		</h2>
-		<p>
-			<?php echo esc_html( $c->email ); ?>
-			<?php if ( $loc ) : ?> &middot; <?php echo esc_html( $loc ); ?><?php endif; ?>
-			&middot; <?php echo null === $c->user_id ? 'Guest' : 'Registered'; ?>
-		</p>
-	</div>
+	<div class="ats-ci-detail">
+		<div class="ats-ci-detail-head">
+			<span class="ats-ci-avatar" style="background:<?php echo esc_attr( $color ); ?>"><?php echo esc_html( $initial ); ?></span>
+			<div class="ats-ci-detail-id">
+				<h2><?php echo esc_html( $display ); ?>
+					<?php echo wp_kses_post( ats_ci_badge( $segment ) ); ?>
+					<?php if ( $due ) : ?><span class="ats-ci-due">Due to reorder</span><?php endif; ?>
+				</h2>
+				<p>
+					<a href="mailto:<?php echo esc_attr( $c->email ); ?>"><?php echo esc_html( $c->email ); ?></a>
+					<?php if ( $loc ) : ?> &middot; <?php echo esc_html( $loc ); ?><?php endif; ?>
+					&middot; <?php echo null === $c->user_id ? 'Guest checkout' : 'Registered account'; ?>
+				</p>
+			</div>
+		</div>
 
-	<div class="ats-ci-stats">
-		<div><span>Lifetime spend</span><strong><?php echo wp_kses_post( wc_price( (float) $s->att_spend ) ); ?></strong></div>
-		<div><span>Orders</span><strong><?php echo esc_html( number_format_i18n( (int) $s->att_orders ) ); ?></strong></div>
-		<div><span>Units</span><strong><?php echo esc_html( number_format_i18n( (int) $s->att_units ) ); ?></strong></div>
-		<div><span>Avg order</span><strong><?php echo wp_kses_post( wc_price( $aov ) ); ?></strong></div>
-		<div><span>First order</span><strong><?php echo esc_html( mysql2date( 'j M Y', $s->att_first ) ); ?></strong></div>
-		<div><span>Last order</span><strong><?php echo esc_html( mysql2date( 'j M Y', $s->att_last ) ); ?></strong></div>
-		<div><span>Avg gap</span><strong><?php echo $s->avg_gap_days ? esc_html( number_format_i18n( (float) $s->avg_gap_days ) . ' days' ) : '&mdash;'; ?></strong></div>
-		<div><span>Days since last</span><strong><?php echo esc_html( number_format_i18n( (int) $s->days_since_last ) ); ?></strong></div>
-	</div>
-
-	<?php if ( $d['top_products'] ) : ?>
-		<h3>Most bought</h3>
-		<ul class="ats-ci-top">
-			<?php foreach ( $d['top_products'] as $tp ) : ?>
-				<li><?php echo esc_html( $tp->name ); ?> <strong>&times;<?php echo esc_html( number_format_i18n( (int) $tp->qty ) ); ?></strong></li>
+		<div class="ats-ci-detail-metrics">
+			<?php foreach ( $metrics as $m ) : ?>
+				<div class="ats-ci-metric">
+					<span class="dashicons dashicons-<?php echo esc_attr( $m[0] ); ?>"></span>
+					<div><span class="l"><?php echo esc_html( $m[1] ); ?></span><strong><?php echo wp_kses_post( $m[2] ); ?></strong></div>
+				</div>
 			<?php endforeach; ?>
-		</ul>
-	<?php endif; ?>
+		</div>
 
-	<?php if ( $d['coupons'] ) : ?>
-		<h3>Coupons used</h3>
-		<table class="widefat striped">
-			<thead><tr><th>Code</th><th>Times used</th><th>Total discount</th></tr></thead>
-			<tbody>
-			<?php foreach ( $d['coupons'] as $cp ) : ?>
-				<tr>
-					<td><?php echo esc_html( $cp->code ); ?></td>
-					<td><?php echo esc_html( number_format_i18n( (int) $cp->times_used ) ); ?></td>
-					<td><?php echo wp_kses_post( wc_price( (float) $cp->total_discount ) ); ?></td>
-				</tr>
-			<?php endforeach; ?>
-			</tbody>
-		</table>
-	<?php endif; ?>
+		<div class="ats-ci-detail-cols">
+			<section class="ats-ci-card">
+				<h3>Most bought</h3>
+				<?php if ( $d['top_products'] ) : ?>
+					<ul class="ats-ci-top">
+						<?php foreach ( $d['top_products'] as $tp ) : ?>
+							<li><span><?php echo esc_html( $tp->name ); ?></span><strong>&times;<?php echo esc_html( number_format_i18n( (int) $tp->qty ) ); ?></strong></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php else : ?>
+					<p class="ats-ci-empty">No product history.</p>
+				<?php endif; ?>
+			</section>
 
-	<h3>Orders (<?php echo esc_html( number_format_i18n( count( $d['orders'] ) ) ); ?>)</h3>
-	<div class="ats-ci-orders">
-		<table class="widefat striped">
-			<thead><tr><th>Date</th><th>Order</th><th>Items</th><th>Total</th><th>Status</th><th>Coupon</th></tr></thead>
-			<tbody>
-			<?php
-			foreach ( $d['orders'] as $o ) :
-				$oid     = (int) $o->order_id;
-				$status  = str_replace( 'wc-', '', $o->status );
-				$counted = in_array( $o->status, ats_ci_counted_statuses(), true );
-				?>
-				<tr class="<?php echo $counted ? '' : 'ats-ci-order-void'; ?>">
-					<td><?php echo esc_html( mysql2date( 'j M Y', $o->date_created ) ); ?></td>
-					<td><a href="<?php echo esc_url( admin_url( 'post.php?post=' . $oid . '&action=edit' ) ); ?>" target="_blank">#<?php echo esc_html( $oid ); ?></a></td>
-					<td><?php echo esc_html( isset( $d['items'][ $oid ] ) ? $d['items'][ $oid ] : '—' ); ?></td>
-					<td><?php echo wp_kses_post( wc_price( (float) $o->total_sales ) ); ?></td>
-					<td><?php echo esc_html( $status ); ?></td>
-					<td><?php echo esc_html( isset( $d['order_coupons'][ $oid ] ) ? $d['order_coupons'][ $oid ] : '' ); ?></td>
-				</tr>
-			<?php endforeach; ?>
-			</tbody>
-		</table>
+			<section class="ats-ci-card">
+				<h3>Coupons used</h3>
+				<?php if ( $d['coupons'] ) : ?>
+					<table class="ats-ci-mini">
+						<thead><tr><th>Code</th><th class="ats-ci-num">Used</th><th class="ats-ci-num">Discount</th></tr></thead>
+						<tbody>
+						<?php foreach ( $d['coupons'] as $cp ) : ?>
+							<tr>
+								<td><?php echo esc_html( $cp->code ); ?></td>
+								<td class="ats-ci-num"><?php echo esc_html( number_format_i18n( (int) $cp->times_used ) ); ?></td>
+								<td class="ats-ci-num"><?php echo wp_kses_post( wc_price( (float) $cp->total_discount ) ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php else : ?>
+					<p class="ats-ci-empty">No coupons used.</p>
+				<?php endif; ?>
+			</section>
+		</div>
+
+		<section class="ats-ci-card ats-ci-orders-card">
+			<h3>Order history <span class="ats-ci-count"><?php echo esc_html( number_format_i18n( count( $d['orders'] ) ) ); ?></span></h3>
+			<div class="ats-ci-orders">
+				<table class="ats-ci-mini">
+					<thead><tr><th>Date</th><th>Order</th><th>Items</th><th class="ats-ci-num">Total</th><th>Status</th><th>Coupon</th></tr></thead>
+					<tbody>
+					<?php
+					foreach ( $d['orders'] as $o ) :
+						$oid     = (int) $o->order_id;
+						$status  = str_replace( 'wc-', '', $o->status );
+						$counted = in_array( $o->status, ats_ci_counted_statuses(), true );
+						?>
+						<tr class="<?php echo $counted ? '' : 'ats-ci-order-void'; ?>">
+							<td><?php echo esc_html( mysql2date( 'j M Y', $o->date_created ) ); ?></td>
+							<td><a href="<?php echo esc_url( admin_url( 'post.php?post=' . $oid . '&action=edit' ) ); ?>" target="_blank">#<?php echo esc_html( $oid ); ?></a></td>
+							<td class="ats-ci-items"><?php echo esc_html( isset( $d['items'][ $oid ] ) ? $d['items'][ $oid ] : '—' ); ?></td>
+							<td class="ats-ci-num"><?php echo wp_kses_post( wc_price( (float) $o->total_sales ) ); ?></td>
+							<td><span class="ats-ci-status is-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( $status ); ?></span></td>
+							<td><?php echo esc_html( isset( $d['order_coupons'][ $oid ] ) ? $d['order_coupons'][ $oid ] : '' ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		</section>
 	</div>
 	<?php
 	return (string) ob_get_clean();
@@ -123,6 +153,31 @@ function ats_ci_ajax_customer_detail() {
 	wp_send_json_success( array( 'html' => ats_ci_detail_html( $detail ) ) );
 }
 add_action( 'wp_ajax_ats_ci_customer', 'ats_ci_ajax_customer_detail' );
+
+/**
+ * AJAX: re-render the results block (stat cards + summary + table + pagination)
+ * for a set of filters. Powers live reloads when the period (or any filter)
+ * changes without a full page navigation.
+ */
+function ats_ci_ajax_results() {
+	check_ajax_referer( 'ats_ci', 'nonce' );
+	if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		wp_send_json_error( 'forbidden', 403 );
+	}
+	$filters = array();
+	if ( isset( $_POST['filters'] ) ) {
+		parse_str( sanitize_text_field( wp_unslash( $_POST['filters'] ) ), $filters );
+	}
+	// Expose the parsed filters as $_GET so ats_ci_url() rebuilds correct
+	// sort/pagination links inside the returned fragment.
+	$_GET   = $filters; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$args   = ats_ci_parse_args( $filters );
+	$result = ats_ci_get_customers( $args );
+	ob_start();
+	ats_ci_render_results( $args, $result );
+	wp_send_json_success( array( 'html' => ob_get_clean() ) );
+}
+add_action( 'wp_ajax_ats_ci_results', 'ats_ci_ajax_results' );
 
 /**
  * Minimal Brevo v3 API request.

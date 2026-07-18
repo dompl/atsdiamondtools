@@ -53,4 +53,22 @@ ci_check( 'eight sortable columns', 8 === substr_count( $html3, 'sorting-indicat
 ci_check( 'current sort column marked', false !== strpos( $html3, 'sorted desc' ) );
 ci_check( 'clicking current column flips to asc', false !== strpos( $html3, 'orderby=units&#038;order=asc' ) || false !== strpos( $html3, 'orderby=units&order=asc' ) );
 
+// v3 checks: AJAX results block, legend + guide, tooltips, narrow customer col, credit.
+ci_check( 'results container present', false !== strpos( $html3, 'id="ats-ci-results"' ) );
+ci_check( 'results ajax endpoint registered', false !== has_action( 'wp_ajax_ats_ci_results' ) );
+ci_check( 'segment legend present', false !== strpos( $html3, 'ats-ci-legend' ) );
+ci_check( 'segment guide modal present', false !== strpos( $html3, 'id="ats-ci-guide-modal"' ) );
+ci_check( 'badge tooltips present', substr_count( $html3, 'data-tip=' ) >= 25 );
+ci_check( 'sort/pagination links are ajax', false !== strpos( $html3, 'data-ci-ajax' ) );
+ci_check( 'customer column ~1/4 width', false !== strpos( $html3, 'width:24%' ) );
+ci_check( 'red frog credit + logo present', false !== strpos( $html3, 'ats-ci-credit' ) && false !== strpos( $html3, 'redfrog-logo.png' ) );
+ci_check( 'red frog website linked', false !== strpos( $html3, 'redfrogstudio.co.uk' ) );
+
+// render_results fragment (what the AJAX endpoint returns) stands alone.
+$rargs = ats_ci_parse_args( array( 'range' => 'all', 'orderby' => 'spend', 'order' => 'asc' ) );
+ob_start();
+ats_ci_render_results( $rargs, ats_ci_get_customers( $rargs ) );
+$frag = ob_get_clean();
+ci_check( 'render_results fragment has cards + table', false !== strpos( $frag, 'ats-ci-stat-card' ) && false !== strpos( $frag, 'ats-ci-table' ) );
+
 echo $GLOBALS['ci_fail'] ? "RESULT: {$GLOBALS['ci_fail']} FAILURES\n" : "RESULT: ALL PASS\n";

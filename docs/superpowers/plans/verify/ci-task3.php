@@ -46,7 +46,9 @@ ci_check( 'top products non-empty', ! empty( $d['top_products'] ) );
 $html = ats_ci_detail_html( $d );
 ci_check( 'detail html contains email', false !== strpos( $html, $d['customer']->email ) );
 ci_check( 'detail html contains order link', false !== strpos( $html, 'action=edit' ) );
-ci_check( 'detail html has stats grid', false !== strpos( $html, 'ats-ci-stats' ) );
+ci_check( 'detail html has metrics grid', false !== strpos( $html, 'ats-ci-detail-metrics' ) );
+ci_check( 'detail html has avatar', false !== strpos( $html, 'ats-ci-avatar' ) );
+ci_check( 'detail html has status pill', false !== strpos( $html, 'ats-ci-status is-' ) );
 
 // AJAX + footer hooks registered.
 ci_check( 'ajax action registered', false !== has_action( 'wp_ajax_ats_ci_customer' ) );
