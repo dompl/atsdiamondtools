@@ -25,7 +25,7 @@ Customers browse and pay without leaving the satellite domain. ATS is not hidden
 | Pricing | Per-site markup (percentage or fixed), with per-product override, uplift cap and rounding rules. **Configured only in the platform admin** |
 | **Sale prices** | **Per-site toggle.** Follow ATS sales (markup applied to both normal and sale price, so the discount percentage matches) or ignore them and always sell at the marked-up normal price |
 | **Coupons** | **Per-site allowlist.** No ATS code works on a satellite unless explicitly added to that site's list |
-| **Shipping** | Methods and rates come live from ATS. Free-shipping threshold inherited (currently £200 UK). Individual methods can be hidden per site |
+| **Shipping** | Methods and rates come live from ATS. **Free shipping is a per-site checkbox** — offer ATS's threshold (currently £200 UK) or withhold it entirely. Individual methods can also be hidden per site |
 | Who charges the card | ATS processes the payment at the marked-up total; margin settled periodically from a platform report |
 | Markup visibility | The ATS owner has no login to the platform admin and cannot see or change markup rules. They do see final order totals, since they process the card |
 | Product availability | Everything included by default; tick to exclude per site |
@@ -75,6 +75,7 @@ A ruleset contains:
 - **Sale policy** — follow ATS sales, or ignore them
 - **Coupon allowlist** — the only codes accepted on this channel
 - **Excluded products** — product ids this site does not sell
+- **Free shipping** — whether this site offers ATS's free-delivery threshold
 - **Hidden shipping methods** — method instance ids to withhold from this site
 
 The bridge enforces every one of these **server-side**. Hiding a product, a coupon or a shipping method in the satellite's UI is presentation; the ruleset is what makes it real, so a crafted request cannot buy an excluded product, redeem a coupon that isn't allowlisted, or pick a withheld shipping method.
@@ -139,7 +140,9 @@ ATS currently offers 1st Class, 2nd Class and Special Delivery next-day in the U
 
 - **Methods pass through as configured.** Anything ATS adds, renames or reprices appears on the satellites with no work.
 - **Per-site hiding.** A site can withhold individual methods — an international zone it doesn't want to serve, say — enforced through the ruleset rather than only hidden in the UI.
-- **The free-shipping threshold is inherited.** Because satellite prices are higher, customers cross £200 with slightly fewer goods, so ATS absorbs marginally more delivery cost. Accepted as the simplest option and always in step with ATS.
+- **Free shipping is a per-site checkbox.** Tick it and the site offers ATS's free-delivery threshold; untick it and free delivery is withheld entirely, so every order pays a shipping rate whatever the basket is worth. The flag covers every free-shipping method across every zone, so you never have to look up instance ids.
+- **The threshold figure itself is inherited**, not editable per site. When free shipping is on, the site uses ATS's £200. Because satellite prices are higher, customers cross it with slightly fewer goods, so ATS absorbs marginally more delivery cost — which is precisely what the checkbox exists to let you switch off.
+- **Coupons are a separate matter.** The checkbox governs the threshold only. Free delivery granted by a coupon is controlled by the coupon allowlist, so the two settings never contradict each other: if you allowlist a free-shipping code, you meant to.
 - **Existing mother-site shipping logic keeps working**, including the theme's rule that a free-shipping coupon must not zero the premium Special Delivery rates, because the theme loads on channel requests exactly as it does on normal ones.
 
 ## Coupons
@@ -190,7 +193,7 @@ ATS already runs the Shipment Tracking plugin, so no new fulfilment tooling is n
 
 **Per site**
 
-- `sites` — id, name, domain, theme, channel_key, hmac_secret, branding config (JSON), markup_type, markup_value, markup_max_uplift, markup_min_uplift, rounding_rule, follow_ats_sales, hidden_shipping_methods (JSON), active
+- `sites` — id, name, domain, theme, channel_key, hmac_secret, branding config (JSON), markup_type, markup_value, markup_max_uplift, markup_min_uplift, rounding_rule, follow_ats_sales, free_shipping_enabled, hidden_shipping_methods (JSON), active
 - `site_product_settings` — (site_id, wc_product_id) PK: excluded, markup_override_type, markup_override_value, override_title, override_description, override_short_description, override_meta_title, override_meta_description. An empty override field falls back to the ATS value at render time
 - `site_coupons` — (site_id, coupon_code) PK: the allowlist, plus added_at and a note
 - `site_posts` — blog articles: slug, title, body, hero image, meta fields, status, published_at
@@ -220,7 +223,7 @@ Initial import is the same code path as the nightly reconcile, run once.
 
 Login-protected `/admin`, with a **site switcher** in the header. Everything below is scoped to the selected site. Sessions via httpOnly cookie; users in `admin_users`, permissioned per site.
 
-- **Sites** — create/edit a site: domain, theme, branding, markup defaults, sale policy, hidden shipping methods, active flag. Creating a site is the whole of "set up another one".
+- **Sites** — create/edit a site: domain, theme, branding, markup defaults, sale policy, free shipping, hidden shipping methods, active flag. Creating a site is the whole of "set up another one".
 - **Products** — table of the catalogue with per-site columns: included/excluded toggle, override status, base price, uplift, final price, effective %, on-sale flag. Edit screen holds the five text override fields (with ATS originals shown alongside) plus the per-product markup override. Stock and images are read-only, always from ATS.
 - **Pricing** — markup defaults, rounding and sale policy, with a live preview across a sample of the catalogue (including on-sale products) before saving.
 - **Coupons** — the site's allowlist, choosing from the codes that exist on ATS.
@@ -311,6 +314,7 @@ Everything you can control from the platform admin, and everything you cannot.
 - Rounding rule: none, nearest pound, or `.99`
 - Sale policy: follow ATS sales or ignore them
 - Coupon allowlist
+- Free shipping: offer ATS's threshold, or withhold free delivery on this site
 - Hidden shipping methods
 - Channel key and HMAC secret — generated on site creation, rotatable
 
@@ -394,7 +398,7 @@ Recorded deliberately, having been raised and accepted:
 - **The card statement shows ATS.** Because ATS's Stripe takes the payment, the customer's bank statement carries ATS's business name. A per-charge suffix can add the satellite name, but the prefix cannot be removed without a separate Stripe account.
 - **Merchant of record and VAT.** ATS is the VAT-registered entity taking the money and issuing the invoice. The satellite is effectively reselling, and the arrangement should be confirmed with an accountant and written into the agreement with ATS before launch. This is a commercial action, not a build task.
 - **Shared accounts expose satellite orders on ATS.** A customer logging in at atsdiamondtools.co.uk sees their satellite orders at satellite prices.
-- **Free shipping costs ATS slightly more.** Marked-up prices reach the £200 threshold with fewer goods.
+- **Free shipping costs ATS slightly more.** Marked-up prices reach the £200 threshold with fewer goods. Switchable off per site if that becomes contentious.
 
 ## Build phases
 
@@ -410,7 +414,7 @@ Recorded deliberately, having been raised and accepted:
 - **Pricing:** the highest-risk area, so it gets the most coverage — a table-driven suite over percentage/fixed, caps, minimums and rounding, crossed with both sale policies, including VAT and coupon interaction; an explicit test that a missing ruleset refuses checkout rather than charging base price; and reconciliation figures asserted against known orders including refunds.
 - **Ruleset enforcement:** the security-critical suite. Crafted requests must fail on ATS, not merely be absent from the UI — an excluded product cannot be added to the cart, a non-allowlisted coupon cannot be redeemed, a hidden shipping method cannot be selected, and a site set to ignore sales cannot be charged the sale price.
 - **Account isolation:** a customer with orders on ATS, site 1 and site 2 must see only site 1's orders when logged into site 1, verified at the ATS endpoint rather than in the UI.
-- **Shipping:** rates for each zone returned correctly, free-shipping threshold crossing at the marked-up total, and the premium Special Delivery exclusion still holding when a free-shipping coupon is applied.
+- **Shipping:** rates for each zone returned correctly, free-shipping threshold crossing at the marked-up total, a site with free shipping switched off never receiving a zero-cost rate at any basket value, and the premium Special Delivery exclusion still holding when a free-shipping coupon is applied.
 - **Checkout:** full flow against ATS staging in Stripe test mode (including the 3DS challenge card), then a live smoke order refunded immediately, asserting the refund reverses the recorded margin.
 - **Admin:** auth, per-site permissions, and override fallback rendering.
 - **Multi-site:** two sites with different markups, sale policies, coupon lists and exclusions, asserting no bleed between them.
@@ -422,7 +426,7 @@ Recorded deliberately, having been raised and accepted:
 - Red Frog rewards, back-in-stock notifications and other ATS loyalty features on satellites.
 - Multi-currency and multi-language.
 - Satellite-only coupon codes defined on the platform (v1 allowlists existing ATS codes).
-- Per-site free-shipping thresholds — ATS's figure is inherited.
+- Editing the free-shipping threshold figure per site — a site can offer ATS's threshold or withhold free delivery, but not set its own number.
 - Satellite-branded invoices and packing slips.
 - A returns request flow in the customer account — returns go to ATS directly.
 - Auto-generated reviews — satellite reviews are from real customers only.
