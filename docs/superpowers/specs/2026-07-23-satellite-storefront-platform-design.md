@@ -39,7 +39,7 @@ Customers browse and pay without leaving the satellite domain. ATS is not hidden
 
 > **Changed from the 2026-07-22 draft:** emails moved from ATS to the satellite, because satellites charge a different price and the customer must receive documents showing the price they actually paid.
 
-> **Interpretation to confirm:** "do not show the orders that come from the MOTO website" has been read as *mother* website — a satellite account lists only that satellite's orders, never atsdiamondtools.co.uk's or another satellite's. If MOTO meant virtual-terminal phone orders instead, this section changes.
+> **Confirmed:** "MOTO" meant *mother*. A satellite account lists only that satellite's own orders — never atsdiamondtools.co.uk's, and never another satellite's.
 
 ## Architecture
 
@@ -245,16 +245,121 @@ Real customers only. A review form appears on satellite product pages; submissio
 
 Reviews are per site — ATS's own reviews never appear on satellites, and satellite reviews never flow back to ATS.
 
-## Mother-site changes (all in the child theme)
+## What goes on the mother site
 
-Kept deliberately small, in `functions/` following the existing pattern (cf. `free-shipping-exclude-premium.php`):
+**Code on ATS is required.** A satellite cannot charge a different price, block a coupon or hide another site's orders on its own — ATS calculates every total and owns every order, so ATS has to do those things. The bridge is deliberately small and additive: no existing file is rewritten, nothing about normal atsdiamondtools.co.uk behaviour changes, and every hook exits immediately unless the request carries a valid channel signature.
 
-1. **Channel recognition** — validate the channel key and HMAC on incoming requests; tag resulting orders with `_sales_channel` and show the channel in the orders list.
-2. **Ruleset enforcement** — fetch and cache the channel ruleset; apply markup and sale policy through the WooCommerce price filters, reject excluded products and non-allowlisted coupons, withhold hidden shipping methods. Channel requests only, and refuse checkout if no ruleset is available.
-3. **Email suppression** — disable customer-facing WooCommerce emails, including shipment tracking, for channel orders. Admin and fulfilment notifications still fire.
-4. **Account endpoints** — login, registration, password reset and order history, with order history filtered to the requesting channel server-side.
+### Files
 
-Non-code production setup, done in WP admin with no deploy: create a read-only wc/v3 REST API key; create the product and order webhooks with a shared secret; register satellite domains with Stripe when they exist.
+New files in `src/functions/woocommerce/`, which the theme auto-loads (`src/functions.php:52`), following the same one-feature-per-file convention as `bundle-*.php` and `customer-insights-*.php`:
+
+| File | Responsibility |
+|---|---|
+| `satellite-channel.php` | Validate the channel key and HMAC on incoming requests; identify which satellite is calling. Everything else no-ops without this |
+| `satellite-ruleset.php` | Fetch the channel ruleset from the platform, cache it in a transient, refuse checkout if none is available |
+| `satellite-pricing.php` | Apply markup and sale policy through the WooCommerce price filters |
+| `satellite-restrictions.php` | Reject excluded products and non-allowlisted coupons; withhold hidden shipping methods |
+| `satellite-orders.php` | Tag orders with `_sales_channel`; add the channel column and filter to the admin orders list |
+| `satellite-emails.php` | Suppress customer-facing emails, including shipment tracking, for channel orders. Admin and fulfilment notifications still fire |
+| `satellite-accounts.php` | Login, registration, password reset and order-history endpoints, with order history filtered to the requesting channel |
+
+Developed on staging, tested there, then shipped to production through the normal deploy flow.
+
+### Configuration (WP admin, no deploy)
+
+- A **read-only wc/v3 REST API key** for the catalogue sync.
+- **Webhooks** for `product.created`, `product.updated`, `product.deleted`, `product.restored` and `order.updated`, pointing at the platform with a shared secret.
+- **Satellite domains registered with Stripe**, once purchased, for Apple Pay and Google Pay.
+
+### What does not change on ATS
+
+Its own storefront, prices, checkout, shipping rules, emails, invoices, packing slips, returns process and admin all behave exactly as they do today. The bridge is invisible to normal traffic.
+
+## Settings available on each satellite
+
+Everything you can control from the platform admin, and everything you cannot.
+
+### Platform-wide (set once, shared by every site)
+
+| Setting | Notes |
+|---|---|
+| ATS production URL | The mother site every satellite reads from |
+| wc/v3 key and secret | Read-only, used for catalogue and order sync |
+| Webhook shared secret | Verifies incoming product and order webhooks |
+| Stripe publishable key | ATS's key, used by every satellite's card form |
+| Outgoing mail (SMTP) | One relay serving all sites |
+| Sync timings | Out-of-stock interval (default 10 minutes) and nightly reconcile hour |
+| Admin users and site access | Who can log in, and which sites each may manage |
+
+### Per site — identity and design
+
+- Site name and domain
+- Theme (which component set the storefront renders with)
+- Logo and favicon
+- Colour palette and fonts
+- Contact details: address, phone, email, opening hours
+- Social links
+- Active or offline (offline shows a holding page)
+- Search-engine visibility — keep satellites `noindex` while they live on the staging subdomain
+
+### Per site — commerce
+
+- Markup type: percentage or fixed
+- Markup value
+- Maximum uplift cap
+- Minimum uplift
+- Rounding rule: none, nearest pound, or `.99`
+- Sale policy: follow ATS sales or ignore them
+- Coupon allowlist
+- Hidden shipping methods
+- Channel key and HMAC secret — generated on site creation, rotatable
+
+### Per site — content and SEO
+
+- Homepage sections
+- Meta title template or suffix
+- Default meta description
+- Analytics and tracking IDs (GA4, Meta Pixel, Google Ads)
+- Returns policy, terms and privacy page content
+
+Sitemaps, canonicals and product structured data are generated automatically and need no setting.
+
+### Per site — email
+
+- Sender name and from address
+- Reply-to address
+- Email logo and footer text
+- Which notifications send: order confirmation, order shipped
+
+### Per product, per site
+
+- Included or excluded from this site
+- Product title override
+- Description override
+- Short description override
+- Meta title override
+- Meta description override
+- Markup override: type, value, or no markup
+
+Any override left empty falls back to the ATS value, so a new product is sellable the moment it syncs.
+
+### Per content item
+
+- **Blog posts** — title, slug, body, hero image, meta title, meta description, status, publish date
+- **Pages** — title, slug, body, meta title, meta description
+- **Reviews** — approve, reject or edit; author, rating, body, verified-purchase flag
+
+### Fixed — always from ATS, not settable on a satellite
+
+- Product images, categories, attributes and variations
+- Base prices before markup
+- Stock levels and stock status
+- Shipping zones, methods, rates and the free-shipping threshold
+- Coupon definitions and their discount amounts — satellites only allow or deny existing codes
+- VAT rates
+- Order fulfilment, status and tracking
+- Invoice and packing slip design
+- The returns process
 
 ## Security
 
