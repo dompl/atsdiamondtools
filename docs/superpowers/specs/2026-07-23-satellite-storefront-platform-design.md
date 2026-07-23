@@ -2,15 +2,15 @@
 
 **Date:** 2026-07-23
 **Status:** Approved pending user spec review
-**Supersedes:** the 2026-07-22 single-site "EA Satellite Shop" draft (scope broadened to a multi-site platform with markup pricing and reviews)
+**Supersedes:** the 2026-07-22 single-site "EA Satellite Shop" draft
 
 ## What this is
 
-A platform for running **several independent storefronts**, each on its own domain with its own design, all selling the ATS Diamond Tools catalogue. Products, images, stock and fulfilment come from the **production** ATS WooCommerce site (www.atsdiamondtools.co.uk). Each satellite controls its own product titles, descriptions, meta titles/descriptions, blog articles, static pages, reviews, **selling price** and **which products it lists**.
+A platform for running **several independent storefronts**, each on its own domain with its own design, all selling the ATS Diamond Tools catalogue. Products, images, stock, payment and fulfilment come from the **production** ATS WooCommerce site (www.atsdiamondtools.co.uk). Each satellite controls its own product titles, descriptions, meta titles/descriptions, blog articles, static pages, reviews, **selling price** and **which products it lists**.
 
 The first site is "EA". Adding site two, three and four is configuration, not a rebuild.
 
-Customers never leave the satellite domain. Orders are placed on ATS for fulfilment and payment processing, but the customer sees only the satellite's brand, prices and emails.
+Customers browse and pay without leaving the satellite domain. ATS is not hidden from them after the sale: the packing slip in the box, the returns process and the card statement all carry ATS branding, by decision. See **Accepted risks**.
 
 ## Decisions made
 
@@ -21,37 +21,45 @@ Customers never leave the satellite domain. Orders are placed on ATS for fulfilm
 | Stack | Next.js (App Router) + MySQL |
 | Hosting | All sites on one server. Developed on the rfsdev staging VPS under a subdomain; deployed to purchased domains later. **Data always pulled from production**, never staging |
 | Product data | Shared local mirror + WooCommerce webhooks (instant) + cron (10-min out-of-stock recheck, nightly reconcile) |
-| Multi-site model | **One central system, many frontends.** Single codebase, single database, single admin with a site switcher; each site resolved by domain |
+| Multi-site model | **One central system, many frontends.** Single codebase, database and admin with a site switcher; each site resolved by domain |
 | Pricing | Per-site markup (percentage or fixed), with per-product override, uplift cap and rounding rules. **Configured only in the platform admin** |
-| Who charges the card | ATS processes the payment at the marked-up total; margin is settled with the ATS owner periodically from a platform report |
+| Who charges the card | ATS processes the payment at the marked-up total; margin settled periodically from a platform report |
 | Markup visibility | The ATS owner has no login to the platform admin and cannot see or change markup rules. They do see final order totals, since they process the card |
 | Product availability | Everything included by default; tick to exclude per site |
 | Reviews | Collected from real satellite customers, stored per site, moderated in the platform admin |
-| Transactional emails | **Sent by the satellite**, showing the satellite brand and the price paid. ATS's customer-facing emails are suppressed for satellite orders; ATS admin/fulfilment notifications still fire |
+| Transactional emails | Sent by the satellite, showing its brand and the price paid. ATS's customer-facing emails are suppressed for satellite orders; ATS fulfilment notifications still fire |
+| **Customer accounts** | **Shared with ATS** — one login across ATS and all satellites. Each satellite shows **only its own orders** |
+| **Invoices & packing slips** | **ATS branding, unchanged.** No per-channel templating |
+| **Returns** | **Handled by ATS directly.** Satellite returns policy points the customer at ATS's process |
+| Deliveries | Tracking pulled from ATS's Shipment Tracking plugin and shown on the satellite; ATS's own tracking email suppressed |
 | Mother-site code | Lives in the `skylinewp-dev-child` theme `functions/` folder (not a plugin), following the existing theme-feature pattern; developed on staging, tested, shipped to production via the normal flow |
 
-> **Changed from the 2026-07-22 draft:** emails were originally to be sent by ATS. Because satellites now charge a different price, the customer must receive documents showing the price they actually paid, from the brand they bought from — so the satellite sends them.
+> **Changed from the 2026-07-22 draft:** emails moved from ATS to the satellite, because satellites charge a different price and the customer must receive documents showing the price they actually paid.
+
+> **Interpretation to confirm:** "do not show the orders that come from the MOTO website" has been read as *mother* website — a satellite account lists only that satellite's orders, never atsdiamondtools.co.uk's or another satellite's. If MOTO meant virtual-terminal phone orders instead, this section changes.
 
 ## Architecture
 
 ```
 ┌─────────────────────────┐          ┌────────────────────────────────────┐
 │  ATS PRODUCTION         │          │  PLATFORM (Next.js + PM2, 1 server)│
-│  atsdiamondtools.co.uk  │  webhooks│                                    │
-│                         ├─────────►│  MySQL                             │
-│  WooCommerce 10.5       │          │   shared: product mirror           │
-│  Stripe gateway         │◄─────────┤   per-site: content, pricing,      │
-│  Orders + fulfilment    │  Store   │            reviews, orders         │
+│  atsdiamondtools.co.uk  │ product +│                                    │
+│                         │ order    │  MySQL                             │
+│  WooCommerce 10.5       │ webhooks │   shared: product mirror           │
+│  Stripe gateway         ├─────────►│   per-site: content, pricing,      │
+│  Orders + fulfilment    │          │            reviews, order records  │
+│  Invoices, packing      │◄─────────┤                                    │
+│  slips, returns         │  Store   │  /admin — site switcher + editors  │
 │                         │  API +   │                                    │
-│  theme bridge:          │  wc/v3   │  /admin — site switcher + editors  │
-│   · applies markup      ├─────────►│                                    │
-│   · tags channel        │  price   │  Domain-routed storefronts:        │
-│   · mutes cust. emails  │  rules   │   ea.example      → site 1         │
-└─────────────────────────┘          │   site2.example   → site 2         │
-                                     └────────────────────────────────────┘
+│  theme bridge:          │  wc/v3 + │  Domain-routed storefronts:        │
+│   · applies markup      │  auth +  │   ea.example      → site 1         │
+│   · tags channel        │  price   │   site2.example   → site 2         │
+│   · mutes cust. emails  │  rules   │                                    │
+│   · auth + order history├─────────►│                                    │
+└─────────────────────────┘          └────────────────────────────────────┘
 ```
 
-The browser never calls ATS directly. Every cart/checkout action goes browser → platform server route → ATS Store API (server-to-server). No CORS surface; API keys never reach the browser. The only client-side third party is Stripe.js.
+The browser never calls ATS directly. Every cart, checkout and account action goes browser → platform server route → ATS (server-to-server). No CORS surface; API keys never reach the browser. The only client-side third party is Stripe.js.
 
 Each incoming request is resolved to a site by its `Host` header. One codebase, many brands.
 
@@ -78,9 +86,9 @@ The admin shows a full catalogue price table — base price, uplift, final price
 1. The platform proxies Store API calls to ATS with a channel key and HMAC signature identifying the site.
 2. The ATS theme bridge recognises the channel and fetches that site's **price ruleset** from the platform API (signed request, cached in a WordPress transient).
 3. The bridge applies the ruleset through WooCommerce's price filters (`woocommerce_product_get_price`, `..._get_regular_price`, `..._get_sale_price`, plus the variation equivalents).
-4. Everything downstream then computes naturally from the marked-up price: line subtotals, VAT, coupon percentages, free-shipping thresholds, order total, and the ATS invoice.
+4. Everything downstream then computes naturally from the marked-up price: line subtotals, VAT, coupon percentages, free-shipping thresholds, order total, and the ATS invoice and packing slip.
 
-Filtering at the product-price layer, rather than adding a fee line, is what makes the marked-up price look native everywhere instead of bolted on.
+Filtering at the product-price layer, rather than adding a fee line, is what makes the marked-up price look native everywhere instead of bolted on. Because ATS's own documents read the order's stored line items, the ATS-branded invoice shows the satellite price with no extra work.
 
 **The bridge only ever applies markup to signed channel requests.** Normal atsdiamondtools.co.uk traffic is untouched.
 
@@ -92,7 +100,38 @@ Prices shown to the customer are always recomputed server-side at cart and check
 
 ### Margin reconciliation
 
-Every satellite order is recorded locally with the ATS base total, the charged total and the difference. The admin has a per-site margin report by date range — what was sold, what ATS is owed, what margin is due back to you — exportable as CSV, which is what the periodic settlement with the ATS owner runs from.
+Every satellite order is recorded locally with the ATS base total, the charged total and the difference. Refunds and cancellations sync back from ATS and **reverse the margin proportionally**, so the report never claims margin on money that was given back.
+
+The admin has a per-site margin report by date range — sold, refunded, net owed to ATS, net margin due to you — exportable as CSV, which is what the periodic settlement with the ATS owner runs from.
+
+## Customer accounts
+
+**One login across ATS and every satellite**, with per-site order visibility.
+
+- **Where accounts live:** ATS's WordPress customer records. The platform stores no passwords.
+- **Login:** satellite form → platform server → signed request to an ATS theme endpoint → `wp_authenticate()` → returns a short-lived token plus customer id, name and email. The platform holds the session in an httpOnly cookie.
+- **Registration:** creates a WooCommerce customer on ATS, stamped with the channel it originated from.
+- **Password reset:** requested on the satellite; ATS issues the reset key, the satellite emails a link to **its own** reset page, and the new password is posted back to ATS. The customer never lands on atsdiamondtools.co.uk mid-flow.
+- **Order history:** the platform requests orders for that customer, and **ATS filters them to the requesting channel before returning anything**. Mother-site orders and other satellites' orders never leave ATS, so they cannot leak through the API, the UI or a crafted request. The channel is taken from the authenticated channel key, never from a client parameter.
+- **Addresses:** shared across ATS and all satellites, which is a genuine convenience of the shared-account model.
+- **Consequence:** a customer logging in at atsdiamondtools.co.uk sees all their orders, satellite ones included, at the prices they paid. This is unavoidable with shared accounts and is consistent with ATS being visible elsewhere.
+
+## Deliveries and tracking
+
+ATS already runs the Shipment Tracking plugin, so no new fulfilment tooling is needed.
+
+- Order status and tracking (carrier, tracking number, ship date) sync back from ATS via order webhooks.
+- The satellite shows status and tracking on the order-history page and the order confirmation page.
+- The satellite emails the customer when the order ships, under its own brand, with the tracking link.
+- ATS's own shipment-tracking email is suppressed for channel orders, alongside the other customer-facing emails.
+
+## Invoices, packing slips and returns
+
+**Unchanged from how ATS works today.** No per-channel PDF templating is built.
+
+- The packing slip in the box and the PDF invoice carry ATS's logo, address and VAT footer. Both show the **satellite price**, because the order's stored line items are already marked up.
+- Returns are handled by ATS end to end. Each satellite has a returns policy page pointing the customer at ATS's process.
+- Refunds are processed by ATS in Stripe. The refund syncs back to the platform, updates the order record and reverses the margin in the reconciliation report.
 
 ## Database schema (MySQL)
 
@@ -110,18 +149,19 @@ Every satellite order is recorded locally with the ATS base total, the charged t
 - `site_posts` — blog articles: slug, title, body, hero image, meta fields, status, published_at
 - `site_pages` — static pages: slug, title, body, meta fields
 - `site_reviews` — wc_product_id, author, email, rating, title, body, status (pending/approved/rejected), verified_purchase, created_at
-- `site_orders` — wc_order_id, order number, customer, base_total, charged_total, margin, status, placed_at
-- `admin_users` + `user_site_access` — accounts and which sites each may manage
+- `site_orders` — wc_order_id, order number, wc_customer_id, email, status, base_total, charged_total, margin, refunded_total, tracking_carrier, tracking_number, shipped_at, placed_at, updated_at
+- `admin_users` + `user_site_access` — platform staff accounts and which sites each may manage
 
-The product mirror is synced once and serves every site, so adding a site costs no extra sync load.
+No customer passwords or customer records are stored on the platform — accounts live on ATS.
 
-## Product sync
+## Product and order sync
 
-Three mechanisms, all writing to the shared mirror:
+Writing to the shared mirror and to per-site order records:
 
-1. **Webhooks (instant).** Production webhooks for `product.created`, `product.updated`, `product.deleted`, `product.restored` → `POST /api/webhooks/wc`. HMAC verified. Upserts the mirror row and downloads new images. A new product on ATS appears on every satellite within seconds (unless excluded), using ATS text until overrides are written. Stock changes fire `product.updated`, so stock transitions propagate immediately too.
-2. **Out-of-stock cron (every 10 minutes).** Re-fetches every mirrored product with `stock_status != 'instock'` via wc/v3 (read-only key, batched with `include=`). The explicit backstop for anything webhooks miss.
-3. **Nightly reconcile (3am).** Full paginated walk of the production catalogue: upserts everything, syncs categories, flags disappeared products, verifies local image files exist.
+1. **Product webhooks (instant).** `product.created`, `product.updated`, `product.deleted`, `product.restored` → `POST /api/webhooks/wc`. HMAC verified. Upserts the mirror row and downloads new images. A new product on ATS appears on every satellite within seconds (unless excluded), using ATS text until overrides are written. Stock changes fire `product.updated`, so stock transitions propagate immediately too.
+2. **Order webhooks.** `order.updated` → updates the matching `site_orders` row with status, tracking, and refunded amount. This is what keeps account pages, shipping notifications and the margin report truthful after the sale.
+3. **Out-of-stock cron (every 10 minutes).** Re-fetches every mirrored product with `stock_status != 'instock'` via wc/v3 (read-only key, batched with `include=`). The explicit backstop for anything webhooks miss.
+4. **Nightly reconcile (3am).** Full paginated walk of the production catalogue: upserts everything, syncs categories, flags disappeared products, verifies local image files exist. Also re-pulls any order updated in the last 48 hours, so a missed order webhook cannot leave a stale status or an unrecorded refund.
 
 **Images are downloaded to the platform server** and served from the satellite domain. No hotlinking to atsdiamondtools.co.uk — keeps each brand separate in page source and makes browsing independent of ATS uptime.
 
@@ -136,18 +176,18 @@ Login-protected `/admin`, with a **site switcher** in the header. Everything bel
 - **Pricing** — the site's markup defaults and rounding, with a live preview across a sample of the catalogue before saving.
 - **Reviews** — moderation queue: approve, reject, edit, with verified-purchase flagged.
 - **Blog / Pages** — CRUD with a rich-text editor and meta fields.
-- **Orders & margin** — satellite orders with base/charged/margin, and the reconciliation report with CSV export.
-- **Sync dashboard** — last webhook, last cron runs, out-of-stock count, recent `sync_log`, and a "Sync everything now" button.
+- **Orders & margin** — satellite orders with status, tracking, base/charged/refunded/margin, and the reconciliation report with CSV export.
+- **Sync dashboard** — last product and order webhook, last cron runs, out-of-stock count, recent `sync_log`, and a "Sync everything now" button.
 
 ## Cart & checkout
 
 - The platform issues its own visitor session cookie per site; the server stores the mapping session → Woo **Cart-Token**.
 - Proxied Store API operations: add/update/remove items, apply/remove coupon, set address → live shipping rates from ATS table-rate rules, select rate.
 - **Excluded products are validated server-side** before any add-to-cart is proxied, so a crafted request cannot buy a product the site doesn't list.
-- Checkout: customer enters billing/shipping → card details go into **Stripe Elements** using ATS's Stripe publishable key → PaymentMethod id submitted with `POST /wc/store/v1/checkout` via the platform server → charged server-side on ATS at the marked-up total; 3-D Secure handled in the browser via the returned client_secret → order lands in ATS admin as `processing`, tagged with its channel → the satellite records the order locally and shows its own confirmation page and sends its own emails.
+- Checkout: customer enters billing/shipping → card details go into **Stripe Elements** using ATS's Stripe publishable key → PaymentMethod id submitted with `POST /wc/store/v1/checkout` via the platform server → charged server-side on ATS at the marked-up total; 3-D Secure handled in the browser via the returned client_secret → order lands in ATS admin as `processing`, tagged with its channel → the platform records the order locally, shows its own confirmation page and sends its own emails.
+- Logged-in customers check out with their saved ATS address prefilled; guests check out without an account and can register afterwards with the same email to see the order in their history.
 - **Coupons** are per-site toggleable. When enabled, ATS coupons apply through the Store API and all mother-site logic holds — including the free-shipping premium-Special-Delivery exclusion in the theme — but note percentage coupons discount the marked-up price and free-shipping thresholds are reached sooner. Satellite-only coupon codes are out of scope for v1.
 - Apple Pay / Google Pay (final phase): Stripe Express Checkout Element, feeding the same checkout call. Requires each satellite domain registered in the ATS Stripe dashboard, so it can only be completed once domains are purchased.
-- Customer accounts (final phase): login and order history on the satellite, backed by theme-hosted endpoints on ATS. Detailed design deferred to that phase.
 
 ## Reviews
 
@@ -159,56 +199,71 @@ Reviews are per site — ATS's own reviews never appear on satellites, and satel
 
 Kept deliberately small, in `functions/` following the existing pattern (cf. `free-shipping-exclude-premium.php`):
 
-1. **Channel recognition** — validate the channel key and HMAC on incoming Store API requests; tag resulting orders with `_sales_channel` and show the channel in the orders list.
+1. **Channel recognition** — validate the channel key and HMAC on incoming requests; tag resulting orders with `_sales_channel` and show the channel in the orders list.
 2. **Markup application** — fetch and cache the channel's price ruleset from the platform API; apply it through the WooCommerce price filters for channel requests only; refuse checkout if no ruleset is available.
-3. **Email suppression** — disable customer-facing WooCommerce emails for channel orders (admin/fulfilment notifications still fire), since the satellite sends its own.
-4. **(Final phase) Account endpoints** — REST routes for satellite login and order history.
+3. **Email suppression** — disable customer-facing WooCommerce emails, including shipment tracking, for channel orders. Admin and fulfilment notifications still fire.
+4. **Account endpoints** — login, registration, password reset and order history, with order history filtered to the requesting channel server-side.
 
-Non-code production setup, done in WP admin with no deploy: create a read-only wc/v3 REST API key; create the four product webhooks with a shared secret; register satellite domains with Stripe when they exist.
+Non-code production setup, done in WP admin with no deploy: create a read-only wc/v3 REST API key; create the product and order webhooks with a shared secret; register satellite domains with Stripe when they exist.
 
 ## Security
 
 - wc/v3 key is read-only and lives only in the platform server env, never the browser.
-- Webhook receiver verifies the WooCommerce HMAC signature.
-- All Store API traffic is server-to-server; Cart-Tokens are stored server-side only.
+- Webhook receivers verify the WooCommerce HMAC signature.
+- All Store API and account traffic is server-to-server; Cart-Tokens and sessions are stored server-side only.
 - Stripe secret key is never involved on the platform; charges happen on ATS, the platform uses only the publishable key.
 - Channel key + HMAC in both directions: only signed requests get markup applied, and only ATS can fetch price rulesets.
 - Markup rules are never exposed on any public endpoint or in any client payload.
-- Admin: bcrypt passwords, httpOnly session cookies, rate-limited login, per-site permissions.
+- **Order history is channel-filtered on ATS**, derived from the authenticated channel key rather than any client-supplied value, so one site's orders can never be read from another.
+- Account endpoints are rate-limited and return uniform errors so they cannot be used to enumerate which email addresses exist.
+- Platform admin: bcrypt passwords, httpOnly session cookies, rate-limited login, per-site permissions.
 - Totals are never trusted from the client; ATS computes all prices, shipping and discounts.
 - Review submissions are rate-limited and spam-filtered, and never publish without moderation.
 
 ## Failure behaviour
 
-- **ATS unreachable:** browsing, search and product pages work fully from the mirror; cart/checkout actions show a friendly "please try again shortly" message.
+- **ATS unreachable:** browsing, search and product pages work fully from the mirror; cart, checkout and account actions show a friendly "please try again shortly" message.
 - **Platform unreachable from ATS:** the bridge uses the last cached price ruleset. With no cached ruleset it refuses the checkout rather than charging base prices.
-- **Missed webhook:** the 10-minute stock cron and nightly reconcile self-heal the mirror.
+- **Missed product webhook:** the 10-minute stock cron and nightly reconcile self-heal the mirror.
+- **Missed order webhook:** the nightly 48-hour order re-pull corrects status, tracking and refunds.
 - **Stock race at purchase:** the Store API is the final authority — it rejects the checkout and the satellite surfaces the message. The mirror never overrides live stock at checkout time.
 - **Image download failure:** logged and retried on the next reconcile; the product still renders.
 - **Satellite email failure:** the order still completes; failed sends are queued and retried, and flagged in the admin.
 
+## Accepted risks
+
+Recorded deliberately, having been raised and accepted:
+
+- **Customers can discover ATS and buy direct.** The packing slip carries ATS's logo, website and VAT footer, and returns go to ATS. A customer who looks up atsdiamondtools.co.uk will find the same products at base prices and can see the markup. Accepted in exchange for zero PDF and returns work.
+- **The card statement shows ATS.** Because ATS's Stripe takes the payment, the customer's bank statement carries ATS's business name. A per-charge suffix can add the satellite name, but the prefix cannot be removed without a separate Stripe account.
+- **Merchant of record and VAT.** ATS is the VAT-registered entity taking the money and issuing the invoice. The satellite is effectively reselling, and the arrangement should be confirmed with an accountant and written into the agreement with ATS before launch. This is a commercial action, not a build task.
+- **Shared accounts expose satellite orders on ATS.** A customer logging in at atsdiamondtools.co.uk sees their satellite orders at satellite prices.
+
 ## Build phases
 
-1. **Foundation** — platform skeleton with domain routing, MySQL schema, initial full import from production, webhooks + crons, admin with site switcher, product overrides and exclusions. First site live on the staging subdomain.
+1. **Foundation** — platform skeleton with domain routing, MySQL schema, initial full import from production, product webhooks + crons, admin with site switcher, product overrides and exclusions. First site live on the staging subdomain.
 2. **Pricing engine** — markup rules, per-product overrides, caps and rounding, the catalogue price table, and the ATS theme bridge that applies rulesets. Verified with test orders before any real money moves.
-3. **Commerce** — cart, guest card checkout, coupons, order records, satellite-branded emails, margin reconciliation report. Exercised end-to-end against ATS staging in Stripe test mode, then one small real production order, refunded.
-4. **Content & reviews** — blog, static pages, review submission and moderation, SEO (meta from overrides, sitemaps, canonicals, product and review JSON-LD), design polish.
-5. **Launch & extras** — deploy to the purchased domain, then Apple Pay / Google Pay and customer accounts. Second site stood up to prove the multi-site path.
+3. **Commerce** — cart, guest card checkout, coupons, order records, order webhooks, satellite-branded emails, margin reconciliation report. Exercised end-to-end against ATS staging in Stripe test mode, then one small real production order, refunded.
+4. **Accounts, content & reviews** — shared ATS login with channel-filtered order history, tracking display and shipping emails, blog, static pages, review submission and moderation, SEO (meta from overrides, sitemaps, canonicals, product and review JSON-LD), design polish.
+5. **Launch & extras** — deploy to the purchased domain, then Apple Pay / Google Pay. Second site stood up to prove the multi-site path.
 
 ## Testing approach
 
-- **Sync:** unit tests for webhook signature verification and upsert logic; replayable fixtures of wc/v3 payloads (simple, variable, out-of-stock).
-- **Pricing:** the highest-risk area, so it gets the most coverage — a table-driven suite over percentage/fixed, caps, minimums and rounding, including VAT and coupon interaction; an explicit test that a missing ruleset refuses checkout rather than charging base price; and reconciliation figures asserted against known orders.
+- **Sync:** unit tests for webhook signature verification and upsert logic; replayable fixtures of wc/v3 product and order payloads (simple, variable, out-of-stock, partially refunded).
+- **Pricing:** the highest-risk area, so it gets the most coverage — a table-driven suite over percentage/fixed, caps, minimums and rounding, including VAT and coupon interaction; an explicit test that a missing ruleset refuses checkout rather than charging base price; and reconciliation figures asserted against known orders including refunds.
+- **Account isolation:** the load-bearing test of the shared-account model — a customer with orders on ATS, site 1 and site 2 must see only site 1's orders when logged into site 1, verified at the ATS endpoint rather than in the UI.
 - **Exclusions:** a crafted add-to-cart for an excluded product must be rejected server-side.
-- **Checkout:** full flow against ATS staging in Stripe test mode (including the 3DS challenge card), then a live smoke order refunded immediately.
+- **Checkout:** full flow against ATS staging in Stripe test mode (including the 3DS challenge card), then a live smoke order refunded immediately, asserting the refund reverses the recorded margin.
 - **Admin:** auth, per-site permissions, and override fallback rendering.
 - **Multi-site:** two sites configured with different markups and exclusions, asserting no bleed between them.
 - **Ops:** kill-ATS and kill-platform simulations to confirm both graceful degradation paths.
 
 ## Out of scope
 
-- Any change to ATS stock handling, shipping rules, payment configuration or fulfilment.
+- Any change to ATS stock handling, shipping rules, payment configuration, fulfilment, PDF templates or returns process.
 - Red Frog rewards, back-in-stock notifications and other ATS loyalty features on satellites.
 - Multi-currency and multi-language.
 - Satellite-specific coupon codes (v1 uses ATS coupons or none).
+- Satellite-branded invoices and packing slips.
+- A returns request flow in the customer account — returns go to ATS directly.
 - Auto-generated reviews — satellite reviews are from real customers only.
