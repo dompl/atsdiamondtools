@@ -94,10 +94,17 @@ the signed channel key — the platform cannot widen it with a parameter.
 
 ## Verification status
 
-Pure logic (engine, ruleset decisions, HMAC, marked-price, restrictions, email
-decision, order isolation) is covered by standalone checks — 66 in total, plus
-the 27 TypeScript reference tests. The WooCommerce **hook wiring** is lint-clean
-and on the correct hooks but still needs a live run against a real signed channel
-request; that integration pass belongs with the first platform build (a stub
-ruleset endpoint + a configured test channel), and is the point to also confirm
-the REST body/`php://input` interplay used by channel verification on REST routes.
+- **Pure logic** (engine, ruleset decisions, HMAC, marked-price, restrictions,
+  email decision, order isolation): 66 standalone checks, plus the 27 TypeScript
+  reference tests. All green.
+- **Live hook wiring** (`docs/superpowers/integration/`): verified against the
+  running WooCommerce via `wp eval-file` — a signed channel request marks a real
+  £155 product up to £177.99 through `get_price`, an excluded product is
+  non-purchasable and unmarked, the coupon allowlist bites, and a channel-off
+  request leaves everything untouched. 10/10 channel-on, 3/3 channel-off.
+
+Still to verify live (needs creating a real order/customer, so deferred to the
+first platform build): the Store API checkout-refusal path when no ruleset is
+available, order tagging + email suppression on a real order, and the REST
+account routes — including the REST body/`php://input` interplay used by channel
+verification on those routes.
