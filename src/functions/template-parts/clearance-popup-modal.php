@@ -88,7 +88,7 @@ if ( $ats_cp_freq_days < 1 ) {
 $ats_cp_image_url = '';
 $ats_cp_image_alt = '';
 if ( $ats_cp_image_id && function_exists( 'wpimage' ) ) {
-	$ats_cp_image_url = (string) wpimage( $ats_cp_image_id, [ 600, 800 ], false, true );
+	$ats_cp_image_url = (string) wpimage( $ats_cp_image_id, [ 600, 800 ], false, false );
 	$ats_cp_image_alt = (string) get_post_meta( $ats_cp_image_id, '_wp_attachment_image_alt', true );
 }
 
@@ -97,6 +97,7 @@ $ats_cp_panel_class = 'ats-clearance-popup' . ( $ats_cp_has_image ? '' : ' ats-c
 ?>
 <div
 	id="ats-clearance-popup"
+	aria-labelledby="ats-clearance-popup-heading"
 	class="ats-clearance-popup-overlay hidden"
 	tabindex="-1"
 	aria-hidden="true"

@@ -182,7 +182,7 @@ function ats_render_header_notice( $message, $status, $percent ) {
 		? '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
 		: '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>';
 
-	$color = $status === 'qualified' ? 'text-green-600' : 'text-ats-brand';
+	$color = $status === 'qualified' ? 'text-green-700' : 'text-ats-brand';
 	?>
 	<div class="flex items-center gap-1.5 text-xs font-semibold <?php echo esc_attr( $color ); ?> js-free-delivery-notice" data-context="header">
 		<?php echo $icon; ?>
@@ -244,7 +244,7 @@ function ats_render_cart_notice( $message, $status, $percent ) {
  * Checkout page - table row in review order table.
  */
 function ats_render_checkout_notice( $message, $status, $percent ) {
-	$color = $status === 'qualified' ? 'text-green-600' : 'text-ats-brand';
+	$color = $status === 'qualified' ? 'text-green-700' : 'text-ats-brand';
 	$bar   = $status === 'qualified' ? 'bg-green-500' : 'bg-ats-brand';
 	?>
 	<tr class="free-delivery-notice js-free-delivery-notice" data-context="checkout">

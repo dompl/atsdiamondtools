@@ -41,7 +41,7 @@ function ats_mini_cart_shortcode() {
 
         <!-- Empty Cart State (Visit Shop Button) -->
         <div class="rfs-ref-mini-cart-empty js-mini-cart-empty" style="display: none;">
-            <a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="rfs-ref-empty-cart-link flex items-center gap-2 ats-btn ats-btn-md ats-btn-yellow">
+            <a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" aria-label="Visit shop" class="rfs-ref-empty-cart-link flex items-center gap-2 ats-btn ats-btn-md ats-btn-yellow">
                 <!-- Mobile: Only show icon -->
                 <div class="rfs-ref-empty-cart-icon relative">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">

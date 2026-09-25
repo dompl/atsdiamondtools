@@ -24,6 +24,7 @@ import { initWooCommerceAccount } from './components/woocommerce-account.js';
 import { initProductTabs } from './components/product-tabs.js';
 import { initReviewForm } from './components/review-form.js';
 import { initCart } from './components/cart.js';
+import { initDrawerInert } from './components/drawer-inert.js';
 import { initCheckout } from './components/checkout.js';
 import { initFreeDeliveryNotice } from './components/free-delivery-notice.js';
 import { initBackInStock } from './components/back-in-stock.js';
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	initATSSearch();
 	initWooCommerceAccount();
 	initSingleProduct();
+	initDrawerInert();
 	initProductTabs();
 	initReviewForm();
 	initCart();

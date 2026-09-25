@@ -165,16 +165,16 @@ return ob_get_clean();
 
         <div class="rfs-ref-product-carousel splide">
             <div class="splide__track">
-                <ul class="splide__list">
+                <div class="splide__list">
                     <?php
 // Use the existing ats_product shortcode
     foreach ( $product_ids as $product_id ) {
-        echo '<li class="splide__slide">';
+        echo '<div class="splide__slide">';
         echo do_shortcode( '[ats_product id="' . $product_id . '"]' );
-        echo '</li>';
+        echo '</div>';
     }
     ?>
-                </ul>
+                </div>
             </div>
         </div>
         </div>

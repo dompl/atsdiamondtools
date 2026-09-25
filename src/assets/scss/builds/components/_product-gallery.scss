@@ -1,0 +1,15 @@
+/* Show the first gallery image before Splide initialises (the bundle is
+   deferred, so waiting for it made the product image the slowest paint on
+   the site). Splide adds .is-initialized on mount and takes over from there. */
+#product-main-splide {
+    visibility: visible;
+
+    &:not(.is-initialized) .splide__list > .splide__slide {
+        width: 100%;
+        flex: 0 0 100%;
+
+        &:not(:first-child) {
+            display: none;
+        }
+    }
+}

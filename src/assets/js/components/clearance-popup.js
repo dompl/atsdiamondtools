@@ -62,7 +62,10 @@ import { Modal } from 'flowbite';
 		if (!bar) return null;
 
 		const dismissKey = bar.dataset.storageKey || 'ats_clearance_bar_dismissed';
-		if (storageGet('localStorage', dismissKey) === '1') return null;
+		if (storageGet('localStorage', dismissKey) === '1') {
+			bar.hidden = true;
+			return null;
+		}
 
 		const closeBtn = bar.querySelector('.ats-clearance-bar__close');
 		if (closeBtn) {

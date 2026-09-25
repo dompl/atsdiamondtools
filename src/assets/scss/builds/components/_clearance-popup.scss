@@ -309,9 +309,10 @@ $cp-border: #ece8ea;
 		flex-direction: column;
 		max-height: 90vh;
 
+		// No picture on phones: the popup opens 2s after load and a large
+		// image here becomes the page's Largest Contentful Paint element.
 		&__media {
-			flex: 0 0 auto;
-			height: 150px;
+			display: none;
 		}
 
 		&__content {
@@ -343,6 +344,12 @@ $cp-border: #ece8ea;
 	transition: max-height 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 
 	&[hidden] {
+		display: none;
+	}
+
+	// Set from an inline <head> script when the bar was dismissed earlier, so
+	// it never paints (and never shifts the page) on later visits.
+	html.ats-clearance-bar-dismissed & {
 		display: none;
 	}
 

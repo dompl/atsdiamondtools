@@ -51,7 +51,7 @@ if ( is_wp_error( $ats_bar_link ) ) {
 	$ats_bar_link = home_url( '/product-category/clearance/' );
 }
 ?>
-<div id="ats-clearance-bar" class="ats-clearance-bar" data-storage-key="ats_clearance_bar_dismissed" hidden>
+<div id="ats-clearance-bar" class="ats-clearance-bar is-visible" data-storage-key="ats_clearance_bar_dismissed">
 	<div class="ats-clearance-bar__inner">
 		<span class="ats-clearance-bar__flash" aria-hidden="true">⚡</span>
 		<span class="ats-clearance-bar__text"><?php echo esc_html( $ats_bar_text ); ?></span>

@@ -75,9 +75,11 @@ function ats_get_category_banner_html( $term_id ) {
 	$category_desc = $term->description;
 
 	// Banner image: term thumbnail, fallback to default image ID 43462.
-	$thumbnail_id     = get_term_meta( $term_id, 'thumbnail_id', true );
-	$banner_image_id  = $thumbnail_id ? $thumbnail_id : 43462;
-	$banner_image_url = wpimage( $banner_image_id, array( 1920, 400 ), false, true, true, true, 85 );
+	$banner_image_id  = ats_category_banner_image_id( $term_id );
+	$banner_set       = function_exists( 'ats_build_banner_srcset' )
+		? ats_build_banner_srcset( $banner_image_id, ats_category_banner_srcset_widths(), 1920 / 400, 78 )
+		: array( 'src' => wpimage( $banner_image_id, array( 1920, 400 ), false, false, true, true, 85 ), 'srcset' => '', 'width' => 1920, 'height' => 400 );
+	$banner_image_url = $banner_set['src'];
 
 	// ACF short banner blurb (reads term meta; query-context independent).
 	$category_banner_desc = function_exists( 'get_field' ) ? get_field( 'category_banner_description', $term ) : '';
@@ -97,8 +99,12 @@ function ats_get_category_banner_html( $term_id ) {
 				<!-- Background Image -->
 				<div class="absolute inset-0">
 					<img src="<?php echo esc_url( $banner_image_url ); ?>"
+					     <?php if ( $banner_set['srcset'] ) : ?>srcset="<?php echo esc_attr( $banner_set['srcset'] ); ?>"
+					     sizes="<?php echo esc_attr( ats_category_banner_sizes() ); ?>"<?php endif; ?>
+					     width="<?php echo (int) $banner_set['width']; ?>" height="<?php echo (int) $banner_set['height']; ?>"
 					     alt="<?php echo esc_attr( $category_name ); ?>"
-					     class="w-full h-full object-cover" />
+					     class="rfs-ref-category-banner-image w-full h-full object-cover"
+					     fetchpriority="high" decoding="async" />
 					<!-- Overlay Gradient -->
 					<div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
 				</div>
@@ -151,4 +157,18 @@ function ats_get_category_banner_html( $term_id ) {
 	</div>
 	<?php
 	return (string) ob_get_clean();
+}
+
+/**
+ * Attachment ID used for a category banner (term thumbnail, else default 43462).
+ * Shared with the LCP preload hint in functions/theme/performance.php.
+ */
+if ( ! function_exists( 'ats_category_banner_image_id' ) ) {
+	function ats_category_banner_image_id( $term_id = 0 ) {
+		if ( ! $term_id && is_tax( 'product_cat' ) ) {
+			$term_id = get_queried_object_id();
+		}
+		$thumbnail_id = $term_id ? get_term_meta( $term_id, 'thumbnail_id', true ) : 0;
+		return $thumbnail_id ? (int) $thumbnail_id : 43462;
+	}
 }

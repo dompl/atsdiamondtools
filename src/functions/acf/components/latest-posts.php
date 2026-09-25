@@ -156,7 +156,8 @@ function component_latest_posts_html( string $output, string $layout ): string {
                                     src="<?php echo esc_url( $thumbnail_url ); ?>"
                                     alt="<?php echo esc_attr( $post_title ); ?>"
                                     class="rfs-ref-latest-post-image w-full h-auto object-cover rounded-xl"
-                                    loading="lazy"
+                                    width="800" height="600"
+                                    loading="lazy" decoding="async"
                                 />
                             </a>
                         <?php else : ?>
@@ -175,7 +176,7 @@ function component_latest_posts_html( string $output, string $layout ): string {
                                 </a>
                             </h3>
 
-                            <div class="rfs-ref-latest-post-meta flex items-center gap-2 text-xs text-neutral-400 mb-3">
+                            <div class="rfs-ref-latest-post-meta flex items-center gap-2 text-xs text-neutral-600 mb-3">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -194,7 +195,7 @@ function component_latest_posts_html( string $output, string $layout ): string {
                                 href="<?php echo esc_url( $post_url ); ?>"
                                 class="rfs-ref-latest-post-cta-btn inline-flex justify-center items-center px-6 py-2 bg-primary-300 hover:bg-primary-400 text-black text-xs font-bold uppercase rounded transition-colors self-start"
                             >
-                                <?php echo esc_html( $button_text ); ?>
+                                <?php echo esc_html( $button_text ); ?><span class="sr-only">: <?php echo esc_html( $post_title ); ?></span>
                             </a>
                         </div>
                     </article>

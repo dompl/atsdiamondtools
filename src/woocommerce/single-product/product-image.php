@@ -44,7 +44,7 @@ if (empty($attachment_ids)) {
     <!-- Main Slider -->
     <section id="product-main-splide" class="rfs-ref-product-main-slider splide rounded-lg overflow-hidden mb-4" aria-label="Product Images">
         <div class="splide__track">
-            <ul class="splide__list">
+            <div class="splide__list">
                 <?php foreach ($attachment_ids as $attachment_id) :
                     $full_src  = wp_get_attachment_image_url($attachment_id, 'full');
                     $alt_text  = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
@@ -63,7 +63,7 @@ if (empty($attachment_ids)) {
                         $img_class = 'rfs-ref-product-main-image max-w-full max-h-full object-contain';
                     }
                 ?>
-                    <li class="rfs-ref-product-slide splide__slide aspect-square" data-image-id="<?php echo esc_attr($attachment_id); ?>">
+                    <div class="rfs-ref-product-slide splide__slide aspect-square" data-image-id="<?php echo esc_attr($attachment_id); ?>">
                         <a href="<?php echo esc_url($full_src); ?>" class="rfs-ref-product-lightbox-trigger product-gallery-lightbox-trigger flex items-center justify-center w-full h-full cursor-zoom-in">
                             <img src="<?php echo esc_url($img_1x); ?>"
                                  srcset="<?php echo esc_url($img_1x); ?> 1x, <?php echo esc_url($img_2x); ?> 2x"
@@ -71,9 +71,9 @@ if (empty($attachment_ids)) {
                                  <?php echo ($attachment_id === $attachment_ids[0]) ? 'fetchpriority="high"' : 'loading="lazy"'; ?>
                                  class="<?php echo esc_attr($img_class); ?>">
                         </a>
-                    </li>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
+            </div>
         </div>
 
         <?php if ( count($attachment_ids) > 1 ) : ?>
@@ -93,13 +93,13 @@ if (empty($attachment_ids)) {
     <!-- Thumbnails Slider -->
     <section id="product-thumbnail-splide" class="splide px-12 relative" aria-label="Product Thumbnails">
         <div class="splide__track">
-            <ul class="splide__list">
+            <div class="splide__list">
                 <?php foreach ($attachment_ids as $attachment_id) : ?>
-                    <li class="splide__slide opacity-80 transition-opacity [&.is-active]:opacity-100 border border-transparent rounded cursor-pointer overflow-hidden" data-image-id="<?php echo esc_attr($attachment_id); ?>">
+                    <div class="splide__slide opacity-80 transition-opacity [&.is-active]:opacity-100 border border-transparent rounded cursor-pointer overflow-hidden" data-image-id="<?php echo esc_attr($attachment_id); ?>">
 							<img decoding="async" src="<?php echo wpimage(image: $attachment_id, size:[95, 95])?>" srcset="<?php echo wpimage(image: $attachment_id, size:[95, 95])?> 1x, <?php echo wpimage(image: $attachment_id, size:[95, 95], retina:true)?> 2x" class="w-full h-16 sm:h-24 object-cover">
-                    </li>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
+            </div>
         </div>
 
         <!-- Custom Arrows -->

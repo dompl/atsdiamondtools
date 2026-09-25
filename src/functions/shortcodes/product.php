@@ -193,7 +193,7 @@ if ( !function_exists( 'ats_get_star_rating_html' ) ) {
         }
 
         $html .= '</div>';
-        $html .= '<span class="text-neutral-500 text-xs font-light">' . esc_html( $count ) . ' Reviews</span>';
+        $html .= '<span class="text-neutral-600 text-xs font-light">' . esc_html( $count ) . ' Reviews</span>';
         $html .= '</div>';
 
         return $html;

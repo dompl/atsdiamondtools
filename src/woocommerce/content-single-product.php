@@ -103,7 +103,7 @@ $product_id = $product->get_id();
                                             <?php esc_html_e( 'Select an option', 'woocommerce' ); ?>
                                         </span>
                                     <?php else : ?>
-                                        <span id="ats-product-availability" class="font-bold <?php echo $product->is_in_stock() ? 'text-green-600' : 'text-red-600'; ?>">
+                                        <span id="ats-product-availability" class="font-bold <?php echo $product->is_in_stock() ? 'text-green-700' : 'text-red-600'; ?>">
                                             <?php
                                             if ( $product->is_in_stock() ) {
                                                 $stock_quantity = $product->get_stock_quantity();

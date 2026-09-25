@@ -329,9 +329,9 @@ function component_about_us_html( string $output, string $layout ): string {
 
 				<div class="rfs-ref-testimonial-carousel splide" id="about-testimonials-<?php echo uniqid(); ?>">
 					<div class="splide__track">
-						<ul class="splide__list">
+						<div class="splide__list">
 							<?php foreach ( $testimonials as $testimonial ) : ?>
-							<li class="splide__slide">
+							<div class="splide__slide">
 								<div class="rfs-ref-testimonial-card text-center px-4 md:px-8">
 									<svg class="rfs-ref-testimonial-quote-icon w-8 h-8 text-ats-yellow mx-auto mb-6" fill="currentColor" viewBox="0 0 24 24">
 										<path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
@@ -350,9 +350,9 @@ function component_about_us_html( string $output, string $layout ): string {
 										<?php endif; ?>
 									</div>
 								</div>
-							</li>
+							</div>
 							<?php endforeach; ?>
-						</ul>
+						</div>
 					</div>
 
 					<?php if ( count( $testimonials ) > 1 ) : ?>

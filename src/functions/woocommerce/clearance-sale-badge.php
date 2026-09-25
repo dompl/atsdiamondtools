@@ -48,10 +48,10 @@ function ats_clearance_sale_badge_assets() {
 		// Green "Sale" flash pinned to the gallery image (no shadow, lightly rounded like the buttons).
 		'#product-main-splide{position:relative}'
 		. '.onsale{position:absolute;top:.75rem;left:.75rem;z-index:10;margin:0;display:inline-flex;align-items:center;'
-		. 'background:#16a34a;color:#fff;font-size:.6875rem;font-weight:700;line-height:1;letter-spacing:.03em;'
+		. 'background:#15803d;color:#fff;font-size:.6875rem;font-weight:700;line-height:1;letter-spacing:.03em;'
 		. 'text-transform:uppercase;padding:.4em .65em;border-radius:.25rem;box-shadow:none;min-height:0}'
 		// Small green "Save £X" badge in the price row.
-		. '.ats-save-badge{display:inline-flex;align-items:center;align-self:center;background:#16a34a;color:#fff;'
+		. '.ats-save-badge{display:inline-flex;align-items:center;align-self:center;background:#15803d;color:#fff;'
 		. 'font-size:.6875rem;font-weight:700;line-height:1;letter-spacing:.02em;text-transform:uppercase;'
 		. 'padding:.4em .6em;border-radius:.25rem;white-space:nowrap;box-shadow:none}'
 		// De-emphasise the "+VAT" note (small, light, normal weight) in the main price.
@@ -59,7 +59,7 @@ function ats_clearance_sale_badge_assets() {
 		. '#ats-product-main-price .woocommerce-price-suffix{font-size:.75rem;font-weight:400;'
 		. 'color:#6b7280;letter-spacing:0;text-transform:none}'
 		// Struck-through "was" price (variation <del> + the simple-product one we inject), muted.
-		. '#ats-product-main-price del{color:#9ca3af;font-weight:600;text-decoration:line-through}'
+		. '#ats-product-main-price del{color:#6b7280;font-weight:600;text-decoration:line-through}'
 	);
 
 	// ---- JS --------------------------------------------------------------

@@ -144,9 +144,9 @@ if ( $products_per_page <= 0 ) {
 					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-categories rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden lg:shadow-sm">
 						<!-- Accordion Header (Mobile) -->
 						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-3 lg:p-6 lg:py-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
-							<h3 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
+							<h2 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
 								<?php esc_html_e( 'Categories', 'skylinewp-dev-child' ); ?>
-							</h3>
+							</h2>
 							<svg class="rfs-ref-accordion-chevron lg:hidden h-4 w-4 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
@@ -261,9 +261,9 @@ if ( $products_per_page <= 0 ) {
 					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-applications rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden lg:shadow-sm">
 						<!-- Accordion Header (Mobile) -->
 						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-3 lg:p-6 lg:py-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
-							<h3 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
+							<h2 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
 								<?php esc_html_e( 'Applications', 'skylinewp-dev-child' ); ?>
-							</h3>
+							</h2>
 							<svg class="rfs-ref-accordion-chevron lg:hidden h-4 w-4 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
@@ -304,9 +304,9 @@ if ( $products_per_page <= 0 ) {
 					<div class="rfs-ref-sidebar-section rfs-ref-sidebar-price-filter rfs-ref-sidebar-accordion bg-white border border-gray-200 rounded-lg overflow-hidden lg:shadow-sm">
 						<!-- Accordion Header (Mobile) -->
 						<button type="button" class="rfs-ref-accordion-toggle w-full flex items-center justify-between p-3 lg:p-6 lg:py-3 text-left border-b border-gray-200 lg:cursor-default cursor-pointer">
-							<h3 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
+							<h2 class="rfs-ref-sidebar-title text-base lg:text-lg font-bold text-ats-dark">
 								<?php esc_html_e( 'Price Range', 'skylinewp-dev-child' ); ?>
-							</h3>
+							</h2>
 							<svg class="rfs-ref-accordion-chevron lg:hidden h-4 w-4 text-gray-600 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
@@ -321,13 +321,13 @@ if ( $products_per_page <= 0 ) {
 							<div class="rfs-ref-price-slider-wrapper relative h-2 bg-gray-200 rounded-full mb-8">
 								<div class="rfs-ref-price-slider-track absolute h-full bg-primary-600 rounded-full"></div>
 								<input type="range"
-								       class="rfs-ref-price-slider-min absolute w-full pointer-events-none appearance-none bg-transparent"
+								       aria-label="Minimum price" class="rfs-ref-price-slider-min absolute w-full pointer-events-none appearance-none bg-transparent"
 								       min="<?php echo esc_attr( $price_range['min'] ); ?>"
 								       max="<?php echo esc_attr( $price_range['max'] ); ?>"
 								       value="<?php echo esc_attr( $price_range['min'] ); ?>"
 								       step="1">
 								<input type="range"
-								       class="rfs-ref-price-slider-max absolute w-full pointer-events-none appearance-none bg-transparent"
+								       aria-label="Maximum price" class="rfs-ref-price-slider-max absolute w-full pointer-events-none appearance-none bg-transparent"
 								       min="<?php echo esc_attr( $price_range['min'] ); ?>"
 								       max="<?php echo esc_attr( $price_range['max'] ); ?>"
 								       value="<?php echo esc_attr( $price_range['max'] ); ?>"

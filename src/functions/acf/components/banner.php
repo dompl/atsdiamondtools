@@ -116,8 +116,10 @@ return ob_get_clean();
 					<?php foreach ( $slides as $index => $slide ):
         $image     = $slide['image'];
         $image_id  = is_array( $image ) ? $image['id'] : $image;
-        $img_1x    = wpimage( image: $image_id, size: [1200, 500], quality: 85 );
-        $img_2x    = wpimage( image: $image_id, size: [1200, 500], retina: true, quality: 85 );
+        $img_set   = function_exists( 'ats_build_banner_srcset' )
+            ? ats_build_banner_srcset( $image_id, ats_banner_srcset_widths(), 1200 / 500, 80 )
+            : [ 'src' => wpimage( image: $image_id, size: [1200, 500], quality: 85 ), 'srcset' => '', 'width' => 1200, 'height' => 500 ];
+        $img_1x    = $img_set['src'];
         $image_alt = is_array( $image ) ? ( $image['alt'] ?: $slide['title'] ) : get_post_meta( $image, '_wp_attachment_image_alt', true );
 
         $button        = $slide['button'];
@@ -134,9 +136,12 @@ return ob_get_clean();
 											<div class="rfs-ref-slide-item absolute inset-0 transition-opacity duration-1000 ease-in-out <?php echo $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'; ?>">
 												<div class="absolute inset-0">
 													<img src="<?php echo esc_url( $img_1x ); ?>"
-													 srcset="<?php echo esc_url( $img_1x ); ?> 1x, <?php echo esc_url( $img_2x ); ?> 2x"
+													 <?php if ( $img_set['srcset'] ) : ?>srcset="<?php echo esc_attr( $img_set['srcset'] ); ?>"
+													 sizes="<?php echo esc_attr( ats_hero_banner_sizes() ); ?>"<?php endif; ?>
+													 width="<?php echo (int) $img_set['width']; ?>" height="<?php echo (int) $img_set['height']; ?>"
 													 alt="<?php echo esc_attr( $image_alt ); ?>"
 													 class="w-full h-full object-cover"
+													 decoding="async"
 													 <?php echo $index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'; ?> />
 													<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
 												</div>
@@ -173,12 +178,12 @@ return ob_get_clean();
 
 				<?php if ( count( $slides ) > 1 ): ?>
 					<!-- Controls -->
-					<button class="rfs-ref-prev-btn absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 lg:opacity-0">
+					<button type="button" aria-label="Previous slide" class="rfs-ref-prev-btn absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 lg:opacity-0">
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 						</svg>
 					</button>
-					<button class="rfs-ref-next-btn absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 lg:opacity-0">
+					<button type="button" aria-label="Next slide" class="rfs-ref-next-btn absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 lg:opacity-0">
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 						</svg>
@@ -187,7 +192,7 @@ return ob_get_clean();
 					<!-- Dots -->
 					<div class="rfs-ref-carousel-dots absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
 						<?php foreach ( $slides as $dot_index => $slide ): ?>
-							<button class="rfs-ref-carousel-dot h-2 transition-all duration-300 rounded-full <?php echo $dot_index === 0 ? 'w-8 bg-[#fbbf24]' : 'w-2 bg-white/50 hover:bg-white'; ?>" data-slide-index="<?php echo esc_attr( $dot_index ); ?>"></button>
+							<button type="button" aria-label="Go to slide <?php echo (int) $dot_index + 1; ?>" class="rfs-ref-carousel-dot h-2 transition-all duration-300 rounded-full <?php echo $dot_index === 0 ? 'w-8 bg-[#fbbf24]' : 'w-2 bg-white/50 hover:bg-white'; ?>" data-slide-index="<?php echo esc_attr( $dot_index ); ?>"></button>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>

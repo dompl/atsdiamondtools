@@ -107,7 +107,7 @@ function shortcode_category_navigation( $atts ) {
 									<?php endif; ?>
 								</h3>
 								<?php if ( $short_description ) : ?>
-									<p class="text-[11px] text-gray-300 font-light leading-tight opacity-80 group-hover:opacity-100">
+									<p class="text-[11px] text-gray-200 font-light leading-tight">
 										<?php echo esc_html( $short_description ); ?>
 									</p>
 								<?php endif; ?>
