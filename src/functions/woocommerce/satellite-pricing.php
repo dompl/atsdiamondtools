@@ -172,7 +172,7 @@ if ( ! function_exists( 'skylinewp_child_satellite_guard_checkout' ) ) {
 	 *
 	 * @param WP_Error $errors Accumulating cart errors.
 	 */
-	function skylinewp_child_satellite_guard_checkout( $errors ) {
+	function skylinewp_child_satellite_guard_checkout( $errors = null ) {
 		$channel = skylinewp_child_satellite_current_channel();
 		if ( null === $channel ) {
 			return;
