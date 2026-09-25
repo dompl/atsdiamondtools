@@ -115,7 +115,7 @@ $ats_cp_panel_class = 'ats-clearance-popup' . ( $ats_cp_has_image ? '' : ' ats-c
 
 		<?php if ( $ats_cp_has_image ) : ?>
 			<div class="ats-clearance-popup__media">
-				<img src="<?php echo esc_url( $ats_cp_image_url ); ?>" alt="<?php echo esc_attr( $ats_cp_image_alt ); ?>" />
+				<img data-no-lazy="1" width="600" height="800" src="<?php echo esc_url( $ats_cp_image_url ); ?>" alt="<?php echo esc_attr( $ats_cp_image_alt ); ?>" />
 			</div>
 		<?php endif; ?>
 
