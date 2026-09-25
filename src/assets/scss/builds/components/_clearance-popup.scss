@@ -29,7 +29,7 @@ $cp-border: #ece8ea;
 	position: relative;
 	display: flex;
 	width: 100%;
-	max-width: 760px;
+	max-width: 680px;
 	max-height: 90vh;
 	overflow: hidden;
 	background: #fff;
@@ -73,7 +73,7 @@ $cp-border: #ece8ea;
 
 	&__media {
 		position: relative;
-		flex: 0 0 46%;
+		flex: 0 0 36%; // kept smaller than a product main image so it is never the LCP element
 		overflow: hidden;
 		background: $cp-plum;
 
