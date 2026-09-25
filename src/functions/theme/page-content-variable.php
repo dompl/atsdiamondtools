@@ -12,6 +12,84 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Render raw post content for a %page_content% replacement.
+ *
+ * The parent theme appends the flexible content blocks to `the_content`, and
+ * the blocks themselves are what call this helper, so running the plain
+ * `the_content` filter here rendered the page three times over (Terms page,
+ * September 2026). Run the normal filters with the block appender removed
+ * and refuse to re-enter while a replacement is already in progress.
+ *
+ * @param string $raw Raw post_content.
+ * @return string Rendered HTML.
+ */
+function ats_render_page_content_for_variable( $raw ) {
+	static $rendering = false;
+	if ( $rendering ) {
+		return '';
+	}
+	$rendering = true;
+
+	$appender = array( 'SkylineWPFlexibleContent', 'append_content_blocks_to_content' );
+	$had      = has_filter( 'the_content', $appender );
+	if ( $had ) {
+		remove_filter( 'the_content', $appender, $had );
+	}
+	remove_filter( 'the_content', 'ats_suppress_raw_content_when_used_by_block', 1 );
+
+	$html = apply_filters( 'the_content', $raw );
+
+	add_filter( 'the_content', 'ats_suppress_raw_content_when_used_by_block', 1 );
+	if ( $had ) {
+		add_filter( 'the_content', $appender, $had );
+	}
+
+	$rendering = false;
+	return $html;
+}
+
+/**
+ * Whether any flexible content block on a post pulls in %page_content%.
+ *
+ * @param int $post_id Post ID.
+ * @return bool
+ */
+function ats_post_uses_page_content_variable( $post_id ) {
+	static $cache = array();
+	if ( isset( $cache[ $post_id ] ) ) {
+		return $cache[ $post_id ];
+	}
+	global $wpdb;
+	$found = (bool) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT 1 FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key LIKE 'content\\_blocks\\_%%' AND meta_value LIKE %s LIMIT 1",
+			$post_id,
+			'%' . $wpdb->esc_like( '%page_content%' ) . '%'
+		)
+	);
+	$cache[ $post_id ] = $found;
+	return $found;
+}
+
+/**
+ * When a block on the page renders %page_content%, the main loop must not
+ * print the raw content a second time above the blocks.
+ *
+ * @param string $content Post content.
+ * @return string
+ */
+function ats_suppress_raw_content_when_used_by_block( $content ) {
+	if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+	if ( ats_post_uses_page_content_variable( get_the_ID() ) ) {
+		return '';
+	}
+	return $content;
+}
+add_filter( 'the_content', 'ats_suppress_raw_content_when_used_by_block', 1 );
+
+/**
  * Process ACF field values and replace %page_content% with actual page content
  *
  * @param mixed  $value   The field value
@@ -52,7 +130,7 @@ function ats_process_page_content_variable( $value, $post_id, $field ) {
 	// If we found content, apply WordPress content filters
 	if ( ! empty( $page_content ) ) {
 		// Apply the_content filters to process shortcodes, embeds, etc.
-		$page_content = apply_filters( 'the_content', $page_content );
+		$page_content = ats_render_page_content_for_variable( $page_content );
 
 		// Remove any wrapping <p> tags if the entire value is just the variable
 		if ( trim( $value ) === '%page_content%' ) {
@@ -88,14 +166,14 @@ function ats_process_flexible_content_variable( $value, $post_id, $field ) {
 						if ( $post_id && is_numeric( $post_id ) ) {
 							$post = get_post( $post_id );
 							if ( $post && ! empty( $post->post_content ) ) {
-								$page_content = apply_filters( 'the_content', $post->post_content );
+								$page_content = ats_render_page_content_for_variable( $post->post_content );
 							}
 						}
 
 						if ( empty( $page_content ) ) {
 							global $post;
 							if ( isset( $post ) && ! empty( $post->post_content ) ) {
-								$page_content = apply_filters( 'the_content', $post->post_content );
+								$page_content = ats_render_page_content_for_variable( $post->post_content );
 							}
 						}
 
