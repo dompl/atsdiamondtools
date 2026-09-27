@@ -196,6 +196,7 @@ $product_id = $product->get_id();
                                     </span>
                                 <?php endif; ?>
                             </div>
+                            <?php do_action( 'ats_after_main_price', $product ); ?>
 
                             <!-- "Also available in a bundle" badge/link (renders only for products that belong to a bundle) -->
                             <?php
